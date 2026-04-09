@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
+const B = import.meta.env.BASE_URL
+
 export default function Home() {
   const [started, setStarted] = useState(false)
 
@@ -17,7 +19,7 @@ export default function Home() {
 
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-4">
-                <img src="/logos/sentinel.png" alt="SENTINEL" className="h-12 w-12 object-contain" />
+                <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-12 w-12 object-contain" />
                 <span className="text-cobre text-xs font-bold uppercase tracking-widest">SENTINEL by Fairfield</span>
               </div>
 
@@ -88,12 +90,12 @@ export default function Home() {
             <div className="bg-navy rounded-2xl px-6 py-8">
               <div className="flex items-center justify-center gap-6 md:gap-10 flex-wrap">
                 {[
-                  { src: '/logos/aig.png', alt: 'AIG', cls: 'h-12' },
-                  { src: '/logos/atradius.svg', alt: 'Atradius', cls: 'h-10' },
-                  { src: '/logos/coface.png', alt: 'Coface', cls: 'h-10 brightness-0 invert' },
-                  { src: '/logos/allianz-trade.png', alt: 'Allianz Trade', cls: 'h-11 brightness-0 invert' },
-                  { src: '/logos/avla.svg', alt: 'AVLA', cls: 'h-9' },
-                  { src: '/logos/cesce.svg', alt: 'CESCE', cls: 'h-8' },
+                  { src: `${B}logos/aig.png`, alt: 'AIG', cls: 'h-12' },
+                  { src: `${B}logos/atradius.svg`, alt: 'Atradius', cls: 'h-10' },
+                  { src: `${B}logos/coface.png`, alt: 'Coface', cls: 'h-10 brightness-0 invert' },
+                  { src: `${B}logos/allianz-trade.png`, alt: 'Allianz Trade', cls: 'h-11 brightness-0 invert' },
+                  { src: `${B}logos/avla.svg`, alt: 'AVLA', cls: 'h-9' },
+                  { src: `${B}logos/cesce.svg`, alt: 'CESCE', cls: 'h-8' },
                 ].map((logo) => (
                   <div key={logo.alt} className="flex items-center justify-center">
                     <img src={logo.src} alt={logo.alt} className={`w-auto object-contain ${logo.cls}`} />
@@ -131,7 +133,7 @@ export default function Home() {
           {/* Mini header */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <img src="/logos/sentinel.png" alt="SENTINEL" className="h-10 w-10 object-contain" />
+              <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-10 w-10 object-contain" />
               <div>
                 <h2 className="text-2xl font-bold text-navy">Escolha o tipo de operação</h2>
                 <p className="text-gray-400 text-sm">Selecione o formulário adequado ao seu perfil de vendas</p>

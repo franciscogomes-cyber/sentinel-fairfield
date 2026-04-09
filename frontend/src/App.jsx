@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
+import { HashRouter, Routes, Route, NavLink } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import Home from './pages/Home'
 import IntakeInterno from './pages/IntakeInterno'
@@ -8,7 +8,7 @@ import SLA from './pages/SLA'
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Toaster position="top-right" toastOptions={{
         duration: 4000,
         style: { borderRadius: '8px', background: '#0A1628', color: '#fff' }
@@ -19,7 +19,7 @@ function App() {
             <div className="flex items-center justify-between h-16">
               <NavLink to="/" className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <img src="/logos/sentinel.png" alt="SENTINEL" className="h-9 w-9 object-contain" />
+                  <img src={`${import.meta.env.BASE_URL}logos/sentinel.png`} alt="SENTINEL" className="h-9 w-9 object-contain" />
                   <h1 className="text-2xl font-bold tracking-tight">
                     <span className="text-cobre">SENTINEL</span>
                   </h1>
@@ -57,7 +57,7 @@ function App() {
           <p className="text-gray-400 text-xs mt-1">Fairfield Consultoria em Seguros | SUSEP 20.2036457.1 | www.fairfield.com.br</p>
         </footer>
       </div>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 
