@@ -4,3 +4,4 @@ dist/
 *.db
 backend/arquivos/
 .DS_Store
+nda_unpack/

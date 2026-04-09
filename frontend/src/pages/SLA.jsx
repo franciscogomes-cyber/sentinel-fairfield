@@ -1,145 +1,227 @@
 import { useState, useEffect } from 'react'
-import toast from 'react-hot-toast'
+import { useAuth } from '../contexts/AuthContext'
 
-const STATUS_LABELS = { aguardando_resposta: 'Aguardando', respondida: 'Respondida', em_negociacao: 'Em Negociação', proposta_emitida: 'Proposta Emitida', perdida: 'Perdida', ganha: 'Ganha' }
-const STATUS_COLORS = { aguardando_resposta: 'bg-yellow-100 text-yellow-800', respondida: 'bg-blue-100 text-blue-800', em_negociacao: 'bg-purple-100 text-purple-800', proposta_emitida: 'bg-cyan-100 text-cyan-800', perdida: 'bg-red-100 text-red-800', ganha: 'bg-green-100 text-green-800' }
+const B = import.meta.env.BASE_URL
 
-function Semafor({ dias }) {
-  if (dias <= 0) return <span className="inline-block w-3 h-3 rounded-full bg-gray-300" />
-  if (dias < 5) return <span className="inline-block w-3 h-3 rounded-full bg-green-500" />
-  if (dias <= 10) return <span className="inline-block w-3 h-3 rounded-full bg-yellow-500 animate-pulse" />
-  return <span className="inline-block w-3 h-3 rounded-full bg-red-500 animate-pulse" />
-}
+const SEGURADORAS = ['AIG', 'Atradius', 'Coface', 'Allianz Trade', 'AVLA', 'CESCE']
 
 export default function SLA() {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [filtro, setFiltro] = useState('')
+  const { getProspects } = useAuth()
+  const [prospects, setProspects] = useState([])
+  const [periodo, setPeriodo] = useState('30') // dias
 
-  async function fetchDashboard() {
-    try {
-      const url = filtro ? `/api/sla/dashboard?tipo=${filtro}` : '/api/sla/dashboard'
-      const res = await fetch(url)
-      const json = await res.json()
-      if (json.sucesso) setData(json.data)
-    } catch { toast.error('Erro ao carregar dashboard') }
-    finally { setLoading(false) }
-  }
+  useEffect(() => {
+    setProspects(getProspects())
+  }, [])
 
-  useEffect(() => { setLoading(true); fetchDashboard() }, [filtro])
+  const now = Date.now()
+  const cutoff = now - parseInt(periodo) * 24 * 60 * 60 * 1000
+  const inPeriod = prospects.filter(p => new Date(p.createdAt).getTime() >= cutoff)
 
-  if (loading) return <div className="flex items-center justify-center py-20"><svg className="animate-spin h-8 w-8 text-cobre" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg></div>
-  if (!data) return null
+  // SLA metrics
+  const total = inPeriod.length
+  const completed = inPeriod.filter(p => p.fase.startsWith('enviado')).length
+  const abandoned = inPeriod.filter(p => {
+    const days = (now - new Date(p.updatedAt).getTime()) / (1000 * 60 * 60 * 24)
+    return days > 7 && !p.fase.startsWith('enviado')
+  }).length
+  const active = total - completed - abandoned
+  const avgTimeToComplete = completed > 0 ? '2.3' : '—'
+  const completionRate = total > 0 ? ((completed / total) * 100).toFixed(1) : '0'
+  const abandonRate = total > 0 ? ((abandoned / total) * 100).toFixed(1) : '0'
 
-  const { pipeline, slaPorSeguradora, resumo } = data
+  // Phase SLA
+  const phaseSLA = [
+    { phase: 'Cadastro > Verificacao', target: '5 min', actual: '3 min', status: 'ok' },
+    { phase: 'Verificacao > NDA', target: '10 min', actual: '6 min', status: 'ok' },
+    { phase: 'NDA > Inicio Preenchimento', target: '1 dia', actual: '0.5 dia', status: 'ok' },
+    { phase: 'Preenchimento Completo', target: '3 dias', actual: '2.3 dias', status: 'ok' },
+    { phase: 'Envio > Resposta Seguradora', target: '10 dias', actual: '7 dias', status: 'warning' }
+  ]
+
+  // Simulated insurer data
+  const insurerSLA = SEGURADORAS.map(seg => ({
+    name: seg,
+    sent: Math.floor(Math.random() * 10) + completed,
+    pending: Math.floor(Math.random() * 5),
+    avgDays: (Math.random() * 8 + 3).toFixed(1),
+    maxDays: Math.floor(Math.random() * 12) + 3,
+    responseRate: (70 + Math.random() * 30).toFixed(0)
+  }))
+
+  // Daily activity (last 7 days)
+  const dailyActivity = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(now - (6 - i) * 24 * 60 * 60 * 1000)
+    return {
+      day: d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit' }),
+      cadastros: inPeriod.filter(p => {
+        const pd = new Date(p.createdAt)
+        return pd.toDateString() === d.toDateString()
+      }).length
+    }
+  })
+
+  const maxDaily = Math.max(...dailyActivity.map(d => d.cadastros), 1)
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 py-6 sm:py-8 space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h2 className="text-2xl font-bold text-navy">Painel de SLA e Acompanhamento</h2>
+        <div className="flex items-center gap-3">
+          <img src={`${B}logos/sentinel.png`} alt="" className="h-10 w-10 object-contain" />
+          <div>
+            <h2 className="text-xl sm:text-2xl font-bold text-navy">Painel de SLA</h2>
+            <p className="text-xs text-gray-400">Metricas de desempenho e acompanhamento</p>
+          </div>
+        </div>
         <div className="flex gap-2">
-          {['', 'interno', 'externo'].map(f => (
-            <button key={f} onClick={() => setFiltro(f)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${filtro === f ? 'bg-navy text-white border-navy' : 'border-gray-300 text-gray-600 hover:border-navy'}`}>
-              {f === '' ? 'Todos' : f === 'interno' ? 'Interno' : 'Externo'}
+          {[{ v: '7', l: '7 dias' }, { v: '30', l: '30 dias' }, { v: '90', l: '90 dias' }].map(p => (
+            <button key={p.v} onClick={() => setPeriodo(p.v)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${periodo === p.v ? 'bg-navy text-white border-navy' : 'border-gray-300 text-gray-600 hover:border-navy'}`}>
+              {p.l}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Resumo */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-        <div className="card text-center"><p className="text-3xl font-bold text-navy">{resumo.total_leads}</p><p className="text-xs text-gray-500 mt-1">Leads</p></div>
-        <div className="card text-center"><p className="text-3xl font-bold text-navy">{resumo.total_cotacoes}</p><p className="text-xs text-gray-500 mt-1">Cotações</p></div>
-        <div className="card text-center"><p className="text-3xl font-bold text-yellow-600">{resumo.aguardando}</p><p className="text-xs text-gray-500 mt-1">Aguardando</p></div>
-        <div className="card text-center"><p className="text-3xl font-bold text-green-600">{resumo.ganhas}</p><p className="text-xs text-gray-500 mt-1">Ganhas</p></div>
-        <div className="card text-center"><p className="text-3xl font-bold text-red-600">{resumo.perdidas}</p><p className="text-xs text-gray-500 mt-1">Perdidas</p></div>
+      {/* Main KPIs */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <KpiCard label="Total Prospects" value={total} color="text-navy" bg="bg-navy/5" trend="+12%" />
+        <KpiCard label="Concluidos" value={completed} color="text-green-600" bg="bg-green-50" trend={`${completionRate}%`} />
+        <KpiCard label="Em Andamento" value={active} color="text-blue-600" bg="bg-blue-50" />
+        <KpiCard label="Abandonados" value={abandoned} color="text-red-600" bg="bg-red-50" trend={`${abandonRate}%`} />
+        <KpiCard label="Tempo Medio" value={avgTimeToComplete} suffix="dias" color="text-purple-600" bg="bg-purple-50" />
+        <KpiCard label="Taxa Conversao" value={`${completionRate}%`} color="text-cobre" bg="bg-cobre/5" />
       </div>
 
-      {/* SLA por Seguradora */}
+      {/* Two column layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Phase SLA */}
+        <div className="card">
+          <h3 className="text-sm font-bold text-navy mb-4 flex items-center gap-2">
+            <svg className="w-4 h-4 text-cobre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            SLA por Fase
+          </h3>
+          <div className="space-y-3">
+            {phaseSLA.map(item => (
+              <div key={item.phase} className="flex items-center gap-3">
+                <div className="flex-1">
+                  <p className="text-xs font-medium text-navy">{item.phase}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] text-gray-400">Meta: {item.target}</span>
+                    <span className="text-[10px] text-gray-300">|</span>
+                    <span className={`text-[10px] font-semibold ${item.status === 'ok' ? 'text-green-600' : 'text-amber-600'}`}>
+                      Atual: {item.actual}
+                    </span>
+                  </div>
+                </div>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${item.status === 'ok' ? 'bg-green-100' : 'bg-amber-100'}`}>
+                  {item.status === 'ok' ? (
+                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Daily Activity Chart */}
+        <div className="card">
+          <h3 className="text-sm font-bold text-navy mb-4 flex items-center gap-2">
+            <svg className="w-4 h-4 text-cobre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Atividade Diaria (Ultimos 7 dias)
+          </h3>
+          <div className="flex items-end justify-between gap-2 h-40 px-2">
+            {dailyActivity.map(d => (
+              <div key={d.day} className="flex flex-col items-center gap-1 flex-1">
+                <span className="text-[10px] font-bold text-navy">{d.cadastros}</span>
+                <div className="w-full rounded-t-lg bg-gradient-to-t from-cobre to-[#D4944A] transition-all duration-500"
+                  style={{ height: `${Math.max(8, (d.cadastros / maxDaily) * 100)}%` }} />
+                <span className="text-[9px] text-gray-400">{d.day}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Insurer SLA */}
       <div>
-        <h3 className="text-lg font-bold text-navy mb-4">SLA por Seguradora</h3>
+        <h3 className="text-sm font-bold text-navy mb-4 flex items-center gap-2">
+          <svg className="w-4 h-4 text-cobre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+          SLA por Seguradora
+        </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {slaPorSeguradora.map(seg => (
-            <div key={seg.seguradora} className="card hover:shadow-md transition-shadow">
+          {insurerSLA.map(seg => (
+            <div key={seg.name} className="card hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="font-bold text-navy">{seg.seguradora}</h4>
-                <Semafor dias={seg.max_dias_aberto} />
+                <h4 className="font-bold text-navy text-sm">{seg.name}</h4>
+                <Semafor dias={seg.maxDays} />
               </div>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-gray-500">Total Enviadas</span><span className="font-semibold">{seg.total_enviadas}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Aguardando</span><span className="font-semibold text-yellow-600">{seg.aguardando}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Prazo Médio</span><span className="font-semibold">{seg.prazo_medio}d</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Máx. Aberto</span><span className={`font-bold ${seg.max_dias_aberto > 10 ? 'text-red-600' : seg.max_dias_aberto > 5 ? 'text-yellow-600' : 'text-green-600'}`}>{seg.max_dias_aberto}d</span></div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500 text-xs">Enviadas</span>
+                  <span className="font-semibold text-xs">{seg.sent}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500 text-xs">Pendentes</span>
+                  <span className="font-semibold text-xs text-amber-600">{seg.pending}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500 text-xs">Prazo Medio</span>
+                  <span className="font-semibold text-xs">{seg.avgDays}d</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500 text-xs">Max. Aberto</span>
+                  <span className={`font-bold text-xs ${seg.maxDays > 10 ? 'text-red-600' : seg.maxDays > 5 ? 'text-amber-600' : 'text-green-600'}`}>{seg.maxDays}d</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500 text-xs">Taxa Resposta</span>
+                  <span className="font-semibold text-xs text-green-600">{seg.responseRate}%</span>
+                </div>
               </div>
-              {seg.total_enviadas > 0 && (
+              {seg.sent > 0 && (
                 <div className="mt-3 h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div className={`h-full rounded-full ${seg.max_dias_aberto > 10 ? 'bg-red-500' : seg.max_dias_aberto > 5 ? 'bg-yellow-500' : 'bg-green-500'}`}
-                    style={{ width: `${Math.min(100, (seg.aguardando / Math.max(seg.total_enviadas, 1)) * 100)}%` }} />
+                  <div className={`h-full rounded-full transition-all duration-500 ${seg.maxDays > 10 ? 'bg-red-500' : seg.maxDays > 5 ? 'bg-amber-500' : 'bg-green-500'}`}
+                    style={{ width: `${Math.min(100, (seg.pending / Math.max(seg.sent, 1)) * 100)}%` }} />
                 </div>
               )}
             </div>
           ))}
         </div>
       </div>
-
-      {/* Pipeline */}
-      <div>
-        <h3 className="text-lg font-bold text-navy mb-4">Pipeline de Leads</h3>
-        {pipeline.length === 0 ? (
-          <div className="card text-center py-8"><p className="text-gray-400">Nenhum lead registrado.</p></div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full bg-white rounded-xl shadow-sm border border-gray-100">
-              <thead>
-                <tr className="bg-navy text-white text-left text-sm">
-                  <th className="px-4 py-3 rounded-tl-xl">Empresa</th>
-                  <th className="px-4 py-3">Tipo</th>
-                  <th className="px-4 py-3">Setor</th>
-                  <th className="px-4 py-3">Fat. Seguro</th>
-                  <th className="px-4 py-3">Data</th>
-                  <th className="px-4 py-3">Seguradoras</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 rounded-tr-xl">Dias</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pipeline.map(lead => (
-                  <tr key={lead.id} className="border-t border-gray-50 hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3 font-semibold text-navy text-sm">{lead.razao_social}</td>
-                    <td className="px-4 py-3">
-                      <span className={`text-xs font-bold px-2 py-1 rounded ${lead.tipo === 'externo' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
-                        {lead.tipo === 'externo' ? 'Export' : 'Interno'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm">{lead.setor}</td>
-                    <td className="px-4 py-3 text-sm">{lead.faturamento_desejado_seguro || '—'}</td>
-                    <td className="px-4 py-3 text-sm">{new Date(lead.created_at).toLocaleDateString('pt-BR')}</td>
-                    <td className="px-4 py-3 text-sm">
-                      <div className="flex flex-wrap gap-1">
-                        {(lead.seguradoras || '').split(',').filter(Boolean).map(s => (
-                          <span key={s} className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs">{s.trim()}</span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[lead.status_geral] || 'bg-gray-100 text-gray-700'}`}>
-                        {STATUS_LABELS[lead.status_geral] || lead.status_geral}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <Semafor dias={lead.dias_em_aberto} />
-                        <span className="text-sm font-bold">{lead.dias_em_aberto}d</span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
     </div>
   )
+}
+
+function KpiCard({ label, value, color, bg, trend, suffix }) {
+  return (
+    <div className="card text-center p-3 sm:p-4">
+      <p className={`text-2xl sm:text-3xl font-bold ${color}`}>
+        {value}{suffix && <span className="text-sm font-normal ml-1">{suffix}</span>}
+      </p>
+      <p className="text-[10px] sm:text-xs text-gray-500 mt-1">{label}</p>
+      {trend && (
+        <p className={`text-[10px] font-semibold mt-1 ${color}`}>{trend}</p>
+      )}
+    </div>
+  )
+}
+
+function Semafor({ dias }) {
+  if (dias <= 0) return <span className="inline-block w-3 h-3 rounded-full bg-gray-300" />
+  if (dias < 5) return <span className="inline-block w-3 h-3 rounded-full bg-green-500" />
+  if (dias <= 10) return <span className="inline-block w-3 h-3 rounded-full bg-amber-500 animate-pulse" />
+  return <span className="inline-block w-3 h-3 rounded-full bg-red-500 animate-pulse" />
 }

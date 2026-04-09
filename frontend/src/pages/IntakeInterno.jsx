@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { Input, Select, DynamicTable, StepNav, ProgressBar, SuccessScreen, CNPJInput, formatPhone } from '../components/FormComponents'
 import { LearningTrailInterno } from '../components/LearningTrail'
+import { useAuth } from '../contexts/AuthContext'
 
 const STORAGE_KEY = 'fairfield_intake_interno'
 const UFS = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO']
@@ -34,6 +35,7 @@ function emptyForm() {
 
 export default function IntakeInterno() {
   const navigate = useNavigate()
+  const { user, updateProspectPhase } = useAuth()
   const [step, setStep] = useState(0)
   const [form, setForm] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
@@ -47,6 +49,11 @@ export default function IntakeInterno() {
 
   useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(form)) }, [form])
 
+  // Track phase
+  useEffect(() => {
+    if (user) updateProspectPhase(user.email, 'preenchendo_interno')
+  }, [])
+
   function u(section, field, value) {
     setForm(prev => ({ ...prev, [section]: { ...prev[section], [field]: value } }))
     setErrors(prev => { const n = { ...prev }; delete n[`${section}.${field}`]; return n })
@@ -56,6 +63,37 @@ export default function IntakeInterno() {
     setForm(prev => {
       const arr = [...prev[section]]
       arr[index] = { ...arr[index], [field]: value }
+
+      // Auto-calcular percentuais para carteira de recebíveis
+      if (section === 'carteiraRecebiveis' && (field === 'faturamento_total' || field === 'num_clientes')) {
+        const totalFat = arr.reduce((s, r) => s + (parseFloat(String(r.faturamento_total).replace(/\./g, '').replace(',', '.')) || 0), 0)
+        const totalCli = arr.reduce((s, r) => s + (parseInt(String(r.num_clientes).replace(/\D/g, '')) || 0), 0)
+        arr.forEach((r, i) => {
+          const fat = parseFloat(String(r.faturamento_total).replace(/\./g, '').replace(',', '.')) || 0
+          const cli = parseInt(String(r.num_clientes).replace(/\D/g, '')) || 0
+          arr[i] = {
+            ...arr[i],
+            pct_faturamento: totalFat > 0 ? (fat / totalFat * 100).toFixed(1) : '',
+            pct_clientes: totalCli > 0 ? (cli / totalCli * 100).toFixed(1) : ''
+          }
+        })
+      }
+
+      // Auto-calcular percentuais para atrasos
+      if (section === 'atrasos' && (field === 'valor_atraso' || field === 'qtd_clientes')) {
+        const totalVal = arr.reduce((s, r) => s + (parseFloat(String(r.valor_atraso).replace(/\./g, '').replace(',', '.')) || 0), 0)
+        const totalCli = arr.reduce((s, r) => s + (parseInt(String(r.qtd_clientes).replace(/\D/g, '')) || 0), 0)
+        arr.forEach((r, i) => {
+          const val = parseFloat(String(r.valor_atraso).replace(/\./g, '').replace(',', '.')) || 0
+          const cli = parseInt(String(r.qtd_clientes).replace(/\D/g, '')) || 0
+          arr[i] = {
+            ...arr[i],
+            pct_valor: totalVal > 0 ? (val / totalVal * 100).toFixed(1) : '',
+            pct_clientes: totalCli > 0 ? (cli / totalCli * 100).toFixed(1) : ''
+          }
+        })
+      }
+
       return { ...prev, [section]: arr }
     })
   }
@@ -78,8 +116,22 @@ export default function IntakeInterno() {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.contato.email)) errs['contato.email'] = 'E-mail inválido'
     } else if (s === 1) {
       if (!form.condicoesVenda.faturamento_desejado_seguro) errs['cv.fds'] = 'Informe o faturamento desejado'
+    } else if (s === 5) {
+      const compradores = form.amostraCompradores.filter(c => c.razao_social || c.faturamento_anual || c.limite_credito)
+      if (compradores.length === 0) {
+        errs['compradores'] = 'Informe pelo menos 1 comprador'
+      } else {
+        compradores.forEach((c, i) => {
+          if (!c.cnpj_codigo_fiscal || c.cnpj_codigo_fiscal.replace(/\D/g, '').length < 11) {
+            errs[`comprador_cnpj_${i}`] = `CNPJ obrigatório para o comprador ${i + 1}`
+          }
+        })
+      }
     }
     setErrors(errs)
+    if (Object.keys(errs).length > 0 && s === 5) {
+      toast.error('Preencha o CNPJ de todos os compradores informados')
+    }
     return Object.keys(errs).length === 0
   }
 
@@ -98,6 +150,7 @@ export default function IntakeInterno() {
         setResult(data.data)
         setSubmitted(true)
         localStorage.removeItem(STORAGE_KEY)
+        if (user) updateProspectPhase(user.email, 'enviado_interno')
         toast.success('Solicitação enviada com sucesso!')
       } catch (err) { toast.error(err.message || 'Erro ao enviar') }
       finally { setLoading(false) }
@@ -241,9 +294,9 @@ export default function IntakeInterno() {
                   columns={[
                     { key: 'faixa', label: 'Faixa de Valor (R$)', readOnly: true },
                     { key: 'faturamento_total', label: 'Fat. Total (R$)', placeholder: 'Valor' },
-                    { key: 'pct_faturamento', label: '% Fat.', placeholder: '%' },
+                    { key: 'pct_faturamento', label: '% Fat.', readOnly: true, placeholder: 'Auto' },
                     { key: 'num_clientes', label: 'Nº Clientes', placeholder: 'Qtd' },
-                    { key: 'pct_clientes', label: '% Clientes', placeholder: '%' }
+                    { key: 'pct_clientes', label: '% Clientes', readOnly: true, placeholder: 'Auto' }
                   ]}
                   rows={form.carteiraRecebiveis}
                   onChange={(i, k, v) => uArray('carteiraRecebiveis', i, k, v)}
@@ -282,9 +335,9 @@ export default function IntakeInterno() {
                   columns={[
                     { key: 'faixa_dias', label: 'Dias de Atraso', readOnly: true },
                     { key: 'valor_atraso', label: 'Valor em Atraso (R$)', placeholder: 'Valor' },
-                    { key: 'pct_valor', label: '% Valor', placeholder: '%' },
+                    { key: 'pct_valor', label: '% Valor', readOnly: true, placeholder: 'Auto' },
                     { key: 'qtd_clientes', label: 'Qtd Clientes', placeholder: 'Qtd' },
-                    { key: 'pct_clientes', label: '% Clientes', placeholder: '%' }
+                    { key: 'pct_clientes', label: '% Clientes', readOnly: true, placeholder: 'Auto' }
                   ]}
                   rows={form.atrasos}
                   onChange={(i, k, v) => uArray('atrasos', i, k, v)}
@@ -317,7 +370,7 @@ export default function IntakeInterno() {
                 <p className="text-xs text-gray-400">Informar até 20 compradores — maiores, médios e menores. Valores em R$.</p>
                 <DynamicTable
                   columns={[
-                    { key: 'cnpj_codigo_fiscal', label: 'CNPJ', placeholder: '00.000.000/0000-00' },
+                    { key: 'cnpj_codigo_fiscal', label: 'CNPJ *', placeholder: '00.000.000/0000-00', required: true },
                     { key: 'razao_social', label: 'Razão Social', placeholder: 'Nome da empresa' },
                     { key: 'faturamento_anual', label: 'Fat. Anual (R$)', placeholder: 'Valor' },
                     { key: 'limite_credito', label: 'Limite Crédito (R$)', placeholder: 'Valor' }
@@ -326,6 +379,7 @@ export default function IntakeInterno() {
                   onChange={(i, k, v) => uArray('amostraCompradores', i, k, v)}
                   onAdd={() => addRow('amostraCompradores', { cnpj_codigo_fiscal: '', razao_social: '', faturamento_anual: '', limite_credito: '' })}
                   onRemove={i => removeRow('amostraCompradores', i)}
+                  errors={errors}
                   maxRows={20}
                   addLabel="Adicionar comprador"
                 />

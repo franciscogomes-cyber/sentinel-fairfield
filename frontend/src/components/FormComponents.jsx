@@ -28,7 +28,7 @@ export function Select({ label, value, onChange, options, required, error, place
   )
 }
 
-export function DynamicTable({ columns, rows, onChange, onAdd, onRemove, maxRows, addLabel = 'Adicionar linha' }) {
+export function DynamicTable({ columns, rows, onChange, onAdd, onRemove, maxRows, addLabel = 'Adicionar linha', errors = {} }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
@@ -46,10 +46,12 @@ export function DynamicTable({ columns, rows, onChange, onAdd, onRemove, maxRows
               {columns.map((col, ci) => (
                 <td key={ci} className="px-2 py-1">
                   {col.readOnly ? (
-                    <span className="text-xs text-gray-600 px-1">{row[col.key] || ''}</span>
+                    <span className={`text-xs px-2 py-1.5 block rounded ${row[col.key] ? 'bg-navy/5 text-navy font-semibold' : 'text-gray-400'}`}>{row[col.key] ? `${row[col.key]}${col.placeholder === 'Auto' ? '%' : ''}` : (col.placeholder || '—')}</span>
                   ) : (
                     <input
-                      className="w-full px-2 py-1.5 text-xs border border-gray-200 rounded focus:ring-1 focus:ring-cobre focus:border-cobre outline-none"
+                      className={`w-full px-2 py-1.5 text-xs border rounded focus:ring-1 focus:ring-cobre focus:border-cobre outline-none ${
+                        col.required && errors[`comprador_cnpj_${ri}`] ? 'border-red-400 bg-red-50' : 'border-gray-200'
+                      }`}
                       value={row[col.key] || ''}
                       onChange={e => onChange(ri, col.key, e.target.value)}
                       placeholder={col.placeholder || ''}

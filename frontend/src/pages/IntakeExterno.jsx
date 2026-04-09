@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { Input, Select, DynamicTable, StepNav, ProgressBar, SuccessScreen, CNPJInput, formatPhone } from '../components/FormComponents'
 import { LearningTrailExterno } from '../components/LearningTrail'
+import { useAuth } from '../contexts/AuthContext'
 
 const STORAGE_KEY = 'fairfield_intake_externo'
 const STEPS = ['Proponente', 'Faturamento', 'Destinos', 'Carteira', 'Perdas', 'Vencidos', 'Compradores']
@@ -32,6 +33,7 @@ function emptyForm() {
 }
 
 export default function IntakeExterno() {
+  const { user, updateProspectPhase } = useAuth()
   const [step, setStep] = useState(0)
   const [form, setForm] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
@@ -45,6 +47,10 @@ export default function IntakeExterno() {
 
   useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(form)) }, [form])
 
+  useEffect(() => {
+    if (user) updateProspectPhase(user.email, 'preenchendo_externo')
+  }, [])
+
   function u(section, field, value) {
     setForm(prev => ({ ...prev, [section]: { ...prev[section], [field]: value } }))
     setErrors(prev => { const n = { ...prev }; delete n[`${section}.${field}`]; return n })
@@ -54,6 +60,22 @@ export default function IntakeExterno() {
     setForm(prev => {
       const arr = [...prev[section]]
       arr[index] = { ...arr[index], [field]: value }
+
+      // Auto-calcular percentuais para carteira de recebíveis
+      if (section === 'carteiraRecebiveis' && (field === 'faturamento_total' || field === 'num_clientes')) {
+        const totalFat = arr.reduce((s, r) => s + (parseFloat(String(r.faturamento_total).replace(/\./g, '').replace(',', '.')) || 0), 0)
+        const totalCli = arr.reduce((s, r) => s + (parseInt(String(r.num_clientes).replace(/\D/g, '')) || 0), 0)
+        arr.forEach((r, i) => {
+          const fat = parseFloat(String(r.faturamento_total).replace(/\./g, '').replace(',', '.')) || 0
+          const cli = parseInt(String(r.num_clientes).replace(/\D/g, '')) || 0
+          arr[i] = {
+            ...arr[i],
+            pct_faturamento: totalFat > 0 ? (fat / totalFat * 100).toFixed(1) : '',
+            pct_clientes: totalCli > 0 ? (cli / totalCli * 100).toFixed(1) : ''
+          }
+        })
+      }
+
       return { ...prev, [section]: arr }
     })
   }
@@ -75,7 +97,22 @@ export default function IntakeExterno() {
       if (!form.contato.nome.trim()) errs['contato.nome'] = 'Obrigatório'
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.contato.email)) errs['contato.email'] = 'E-mail inválido'
     }
+    if (s === 6) {
+      const compradores = form.amostraCompradores.filter(c => c.razao_social || c.limite_credito || c.pais)
+      if (compradores.length === 0) {
+        errs['compradores'] = 'Informe pelo menos 1 importador'
+      } else {
+        compradores.forEach((c, i) => {
+          if (!c.cnpj_codigo_fiscal || c.cnpj_codigo_fiscal.trim().length < 3) {
+            errs[`comprador_cnpj_${i}`] = `Código fiscal obrigatório para o importador ${i + 1}`
+          }
+        })
+      }
+    }
     setErrors(errs)
+    if (Object.keys(errs).length > 0 && s === 6) {
+      toast.error('Preencha o código fiscal de todos os importadores informados')
+    }
     return Object.keys(errs).length === 0
   }
 
@@ -94,6 +131,7 @@ export default function IntakeExterno() {
         setResult(data.data)
         setSubmitted(true)
         localStorage.removeItem(STORAGE_KEY)
+        if (user) updateProspectPhase(user.email, 'enviado_externo')
         toast.success('Solicitação enviada com sucesso!')
       } catch (err) { toast.error(err.message || 'Erro ao enviar') }
       finally { setLoading(false) }
@@ -260,9 +298,9 @@ export default function IntakeExterno() {
                   columns={[
                     { key: 'faixa', label: 'Faixa de Valor (US$)', readOnly: true },
                     { key: 'faturamento_total', label: 'Fat. Total (US$)', placeholder: 'Valor' },
-                    { key: 'pct_faturamento', label: '% Fat.', placeholder: '%' },
+                    { key: 'pct_faturamento', label: '% Fat.', readOnly: true, placeholder: 'Auto' },
                     { key: 'num_clientes', label: 'Nº Clientes', placeholder: 'Qtd' },
-                    { key: 'pct_clientes', label: '% Clientes', placeholder: '%' }
+                    { key: 'pct_clientes', label: '% Clientes', readOnly: true, placeholder: 'Auto' }
                   ]}
                   rows={form.carteiraRecebiveis}
                   onChange={(i, k, v) => uArray('carteiraRecebiveis', i, k, v)}
@@ -318,7 +356,7 @@ export default function IntakeExterno() {
                   columns={[
                     { key: 'pais', label: 'País', placeholder: 'País' },
                     { key: 'razao_social', label: 'Razão Social', placeholder: 'Nome' },
-                    { key: 'cnpj_codigo_fiscal', label: 'Código Fiscal', placeholder: 'Tax ID' },
+                    { key: 'cnpj_codigo_fiscal', label: 'Código Fiscal *', placeholder: 'Tax ID', required: true },
                     { key: 'limite_credito', label: 'Limite Crédito (US$)', placeholder: 'Valor' },
                     { key: 'endereco', label: 'Endereço Completo', placeholder: 'Rua, cidade, país' }
                   ]}
@@ -328,6 +366,7 @@ export default function IntakeExterno() {
                   onRemove={i => removeRow('amostraCompradores', i)}
                   maxRows={10}
                   addLabel="Adicionar importador"
+                  errors={errors}
                 />
 
                 {/* Mensagem de valor no último step */}
