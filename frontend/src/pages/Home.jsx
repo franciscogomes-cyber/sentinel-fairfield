@@ -19,7 +19,7 @@ export default function Home() {
 
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-4">
-                <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-14 w-14 object-contain" />
+                <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-[68px] w-[68px] object-contain" />
                 <span className="text-[#7DD3FC] text-xs font-bold uppercase tracking-widest">SENTINEL <span className="text-white/60">by Fairfield</span></span>
               </div>
 
@@ -133,7 +133,7 @@ export default function Home() {
           {/* Mini header */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-12 w-12 object-contain" />
+              <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-14 w-14 object-contain" />
               <div>
                 <h2 className="text-2xl font-bold text-navy">Escolha o tipo de operação</h2>
                 <p className="text-gray-400 text-sm">Selecione o formulário adequado ao seu perfil de vendas</p>
