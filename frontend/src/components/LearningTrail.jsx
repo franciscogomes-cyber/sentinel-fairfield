@@ -39,9 +39,9 @@ const TIPS_INTERNO = {
   5: {
     icon: '🤝',
     title: 'Último passo! Seus compradores definem o custo',
-    text: 'A seguradora analisa o perfil de crédito de cada comprador. Incluir uma amostra diversificada (grandes, médios e pequenos) ajuda a calibrar melhor os limites. Após enviar, a Fairfield consulta as 6 maiores seguradoras e negocia a melhor proposta para você.',
+    text: 'A seguradora analisa o perfil de crédito de cada comprador. Incluir uma amostra diversificada (grandes, médios e pequenos) ajuda a calibrar melhor os limites. Após enviar, o SENTINEL consulta as 6 maiores seguradoras e negocia a melhor proposta para você.',
     insight: 'Informe pelo menos 10 compradores para que a seguradora consiga fazer uma análise representativa. Quanto mais completo, melhor a cotação.',
-    funFact: 'A Fairfield consulta AIG, Atradius, Coface, Euler Hermes, AVLA e CESCE simultaneamente — sem custo para você.'
+    funFact: 'O SENTINEL consulta AIG, Atradius, Coface, Allianz Trade, AVLA e CESCE simultaneamente — sem custo para você.'
   }
 }
 
@@ -91,9 +91,9 @@ const TIPS_EXTERNO = {
   6: {
     icon: '🤝',
     title: 'Último passo! Seus importadores definem o custo',
-    text: 'As seguradoras possuem bases de dados globais para verificar a saúde financeira dos seus importadores. O endereço completo ajuda na identificação correta. Após enviar, a Fairfield consulta as 6 maiores seguradoras globais e negocia a melhor proposta para suas exportações.',
+    text: 'As seguradoras possuem bases de dados globais para verificar a saúde financeira dos seus importadores. O endereço completo ajuda na identificação correta. Após enviar, o SENTINEL consulta as 6 maiores seguradoras globais e negocia a melhor proposta para suas exportações.',
     insight: 'Inclua o código fiscal (Tax ID) e endereço completo — isso acelera a análise e melhora as condições oferecidas.',
-    funFact: 'A Fairfield consulta AIG, Atradius, Coface, Euler Hermes, AVLA e CESCE simultaneamente — sem custo para você.'
+    funFact: 'O SENTINEL consulta AIG, Atradius, Coface, Allianz Trade, AVLA e CESCE simultaneamente — sem custo para você.'
   }
 }
 
@@ -114,7 +114,7 @@ function LearningCard({ tip, stepIndex, totalSteps }) {
           <span className="text-2xl flex-shrink-0">{tip.icon}</span>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold text-cobre uppercase tracking-widest">Trilha de Aprendizado</span>
+              <span className="text-[10px] font-bold text-cobre uppercase tracking-widest">SENTINEL — Trilha de Aprendizado</span>
               <span className="text-[10px] text-gray-400">•</span>
               <span className="text-[10px] text-gray-400">{pct}% concluído</span>
             </div>

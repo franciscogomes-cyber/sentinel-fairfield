@@ -18,9 +18,15 @@ function App() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <NavLink to="/" className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold text-cobre tracking-tight">Fairfield</h1>
-                <span className="hidden sm:block text-xs text-gray-400 border-l border-gray-600 pl-3">
-                  Proteção e Inteligência Financeira
+                <div className="flex items-center gap-2">
+                  <img src="/logos/sentinel.png" alt="SENTINEL" className="h-9 w-9 object-contain" />
+                  <h1 className="text-2xl font-bold tracking-tight">
+                    <span className="text-cobre">SENTINEL</span>
+                  </h1>
+                </div>
+                <span className="hidden sm:block text-xs text-gray-400 border-l border-gray-600 pl-3 leading-tight">
+                  Cotações Inteligentes<br />
+                  <span className="text-gray-500">by Fairfield</span>
                 </span>
               </NavLink>
               <nav className="flex gap-1">
@@ -47,8 +53,8 @@ function App() {
           </Routes>
         </main>
         <footer className="bg-navy text-center py-4 mt-8">
-          <p className="text-cobre text-sm font-semibold">Fairfield — Proteção e Inteligência Financeira</p>
-          <p className="text-gray-400 text-xs mt-1">SUSEP 20.2036457.1 | 0800 591 4310 | www.fairfield.com.br</p>
+          <p className="text-cobre text-sm font-semibold">SENTINEL — Plataforma de Cotações Inteligentes com IA</p>
+          <p className="text-gray-400 text-xs mt-1">Fairfield Consultoria em Seguros | SUSEP 20.2036457.1 | www.fairfield.com.br</p>
         </footer>
       </div>
     </BrowserRouter>

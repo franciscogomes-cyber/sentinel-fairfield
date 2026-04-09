@@ -9,7 +9,11 @@
       "Bash(pkill -f \"concurrently\")",
       "Bash(pip3 install:*)",
       "Bash(curl -s -X POST http://localhost:3001/api/leads -H \"Content-Type: application/json\" -d '{:*)",
-      "Bash(curl -s http://localhost:3000/)"
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(curl -vL --max-time 10 \"https://logo.clearbit.com/aig.com\" -o aig.png)",
+      "Bash(curl -sL --max-time 10 \"https://www.google.com\" -o /dev/null)",
+      "Bash(echo \"exit: $?\")",
+      "WebFetch(domain:www.allianz-trade.com)"
     ]
   }
 }
