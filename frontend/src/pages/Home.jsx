@@ -19,12 +19,12 @@ export default function Home() {
 
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-4">
-                <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-12 w-12 object-contain" />
-                <span className="text-cobre text-xs font-bold uppercase tracking-widest">SENTINEL by Fairfield</span>
+                <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-14 w-14 object-contain" />
+                <span className="text-[#7DD3FC] text-xs font-bold uppercase tracking-widest">SENTINEL <span className="text-white/60">by Fairfield</span></span>
               </div>
 
               <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
-                Bem-vindo ao <span className="text-cobre">SENTINEL</span> — Cotações Inteligentes de Seguro de Crédito
+                Bem-vindo ao <span className="text-[#7DD3FC]">SENTINEL</span> — Cotações Inteligentes de Seguro de Crédito
               </h1>
 
               <p className="text-white/80 text-base md:text-lg leading-relaxed max-w-3xl mb-6">
@@ -46,7 +46,7 @@ export default function Home() {
                 <ValuePillar
                   icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>}
                   title="IA + Inteligência de Mercado"
-                  text="O SENTINEL analisa seus dados com inteligência artificial e consulta todas as seguradoras simultaneamente para garantir a melhor relação custo-benefício."
+                  text="O SENTINEL analisa seus dados com inteligência artificial e consulta todas as seguradoras para garantir a melhor relação custo-benefício."
                 />
               </div>
 
@@ -75,7 +75,7 @@ export default function Home() {
                 <h3 className="text-lg font-bold text-navy mb-1">Nosso compromisso com a sua empresa</h3>
                 <p className="text-sm text-gray-600 leading-relaxed">
                   A Fairfield atua como <strong className="text-navy">consultora independente</strong> — não representamos nenhuma seguradora específica.
-                  O <strong className="text-navy">SENTINEL</strong> é nossa plataforma proprietária que combina <strong className="text-navy">inteligência artificial</strong> com
+                  O <strong className="text-[#38BDF8]">SENTINEL</strong> é nossa plataforma proprietária que combina <strong className="text-navy">inteligência artificial</strong> com
                   décadas de experiência no mercado segurador para analisar todas as propostas com <strong className="text-navy">imparcialidade</strong> e recomendar
                   exclusivamente a solução que melhor atende às necessidades do seu negócio. Nossa tecnologia garante que sua empresa terá acesso
                   às melhores condições disponíveis, com uma análise técnica detalhada de cobertura, prêmio, franquias e serviços agregados de cada seguradora.
@@ -103,7 +103,7 @@ export default function Home() {
                 ))}
               </div>
               <p className="text-center text-xs text-white/50 mt-6">
-                O SENTINEL consulta todas as seguradoras simultaneamente e seleciona a melhor solução para você.
+                O <span className="text-[#7DD3FC] font-semibold">SENTINEL</span> consulta todas as seguradoras simultaneamente e seleciona a melhor solução para você.
               </p>
             </div>
           </div>
@@ -133,7 +133,7 @@ export default function Home() {
           {/* Mini header */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-10 w-10 object-contain" />
+              <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-12 w-12 object-contain" />
               <div>
                 <h2 className="text-2xl font-bold text-navy">Escolha o tipo de operação</h2>
                 <p className="text-gray-400 text-sm">Selecione o formulário adequado ao seu perfil de vendas</p>
