@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 // Utilitários exportados
 export function formatCNPJ(v) {
@@ -232,39 +232,161 @@ export function ProgressBar({ step, steps }) {
   )
 }
 
-export function SuccessScreen({ result, onReset, tipo }) {
+function ConfettiRain() {
+  const colors = ['#B87333', '#7DD3FC', '#4ade80', '#f59e0b', '#ffffff', '#fbbf24', '#a78bfa']
+  const pieces = Array.from({ length: 60 }, (_, i) => ({
+    id: i,
+    color: colors[i % colors.length],
+    left: `${(i * 1.7) % 100}%`,
+    delay: `${(i * 0.08) % 3}s`,
+    duration: `${2.5 + (i % 5) * 0.4}s`,
+    size: `${7 + (i % 5)}px`,
+    round: i % 3 === 0,
+  }))
   return (
-    <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-      <div className="card">
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-        <h2 className="text-2xl font-bold text-navy mb-2">Solicitação Enviada!</h2>
-        <p className="text-xs text-cobre font-semibold mb-4 uppercase">Crédito {tipo === 'externo' ? 'Exportação' : 'Interno'}</p>
-        <p className="text-gray-600 mb-4">
-          Seus dados foram enviados para análise simultânea em <strong className="text-cobre">{result?.cotacoesGeradas} seguradoras</strong>.
-        </p>
-        <div className="bg-gradient-to-r from-navy/5 to-cobre/5 rounded-xl p-4 mb-6 text-left">
-          <h4 className="text-sm font-bold text-navy mb-2">Próximos passos:</h4>
-          <div className="space-y-2">
-            <div className="flex items-start gap-2">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-cobre text-white text-[10px] font-bold flex items-center justify-center mt-0.5">1</span>
-              <p className="text-xs text-gray-600">As <strong>7 maiores seguradoras de crédito</strong> — Coface, Atradius, AVLA, Allianz Trade, AIG, CESCE e CHUBB — estão recebendo seus dados agora</p>
-            </div>
-            <div className="flex items-start gap-2">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-cobre text-white text-[10px] font-bold flex items-center justify-center mt-0.5">2</span>
-              <p className="text-xs text-gray-600">Nossa equipe irá <strong>negociar as melhores condições</strong> entre todas as propostas recebidas</p>
-            </div>
-            <div className="flex items-start gap-2">
-              <span className="flex-shrink-0 w-5 h-5 rounded-full bg-cobre text-white text-[10px] font-bold flex items-center justify-center mt-0.5">3</span>
-              <p className="text-xs text-gray-600">Você receberá um <strong>comparativo completo</strong> com a melhor relação custo-benefício</p>
+    <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 9999 }}>
+      <style>{`
+        @keyframes confettiFall {
+          0%   { transform: translateY(-20px) rotate(0deg) scale(1); opacity: 1; }
+          80%  { opacity: 1; }
+          100% { transform: translateY(105vh) rotate(800deg) scale(0.5); opacity: 0; }
+        }
+      `}</style>
+      {pieces.map(p => (
+        <div key={p.id} style={{
+          position: 'absolute', top: '-16px', left: p.left,
+          width: p.size, height: p.size,
+          backgroundColor: p.color,
+          borderRadius: p.round ? '50%' : '2px',
+          animation: `confettiFall ${p.duration} ${p.delay} ease-in forwards`,
+        }} />
+      ))}
+    </div>
+  )
+}
+
+export function SuccessScreen({ result, onReset, tipo }) {
+  const [celebrating, setCelebrating] = useState(true)
+
+  useEffect(() => {
+    const t = setTimeout(() => setCelebrating(false), 5000)
+    return () => clearTimeout(t)
+  }, [])
+
+  const steps = [
+    {
+      icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />,
+      label: 'Análise simultânea',
+      text: '7 seguradoras recebendo seus dados agora — Coface, Atradius, AVLA, Allianz Trade, AIG, CESCE e CHUBB',
+    },
+    {
+      icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />,
+      label: 'Negociação técnica',
+      text: 'Nossa equipe negocia as melhores condições de cobertura, prêmio e serviço para o seu perfil',
+    },
+    {
+      icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />,
+      label: 'Comparativo exclusivo',
+      text: 'Você recebe o estudo completo com recomendação técnica da Fairfield para a melhor escolha',
+    },
+  ]
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-10 relative">
+      <style>{`
+        @keyframes successEntry {
+          0%   { opacity: 0; transform: scale(0.88) translateY(24px); }
+          60%  { transform: scale(1.02) translateY(-4px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes checkPop {
+          0%   { transform: scale(0) rotate(-15deg); }
+          60%  { transform: scale(1.15) rotate(5deg); }
+          100% { transform: scale(1) rotate(0deg); }
+        }
+        @keyframes ringPulse {
+          0%, 100% { transform: scale(1); opacity: 0.6; }
+          50%       { transform: scale(1.18); opacity: 0.2; }
+        }
+      `}</style>
+      {celebrating && <ConfettiRain />}
+
+      <div className="rounded-2xl overflow-hidden shadow-2xl border border-cobre/20"
+        style={{ animation: 'successEntry 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards' }}>
+
+        {/* Header navy */}
+        <div className="bg-gradient-to-br from-navy via-[#0d1f3c] to-[#0A1628] px-6 pt-10 pb-8 text-center relative overflow-hidden">
+          {/* Decorative rings */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-white/5" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/3 w-40 h-40 rounded-full border border-cobre/10" />
+
+          {/* Check icon */}
+          <div className="relative inline-flex mb-5">
+            <div className="w-24 h-24 rounded-full bg-green-400/10 flex items-center justify-center"
+              style={{ animation: 'ringPulse 2s ease-in-out infinite' }}>
+              <div className="w-16 h-16 rounded-full bg-green-400/20 flex items-center justify-center"
+                style={{ animation: 'checkPop 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.2s both' }}>
+                <svg className="w-9 h-9 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
             </div>
           </div>
+
+          <p className="text-[10px] font-bold text-cobre uppercase tracking-widest mb-2">Solicitação Enviada com Sucesso</p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2 leading-tight">Seu estudo está em análise!</h2>
+          <p className="text-white/50 text-sm mb-6">Crédito {tipo === 'externo' ? 'Exportação — Valores em US$' : 'Interno — Operações Nacionais'}</p>
+
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-xl px-5 py-2.5">
+            <svg className="w-5 h-5 text-cobre flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5" />
+            </svg>
+            <span className="text-sm text-white">
+              <strong className="text-cobre">{result?.cotacoesGeradas || 7} seguradoras</strong> recebendo seus dados agora
+            </span>
+          </div>
         </div>
-        <p className="text-xs text-gray-400 mb-6">Você receberá um e-mail de confirmação em breve. Prazo médio de resposta: 5 a 10 dias úteis.</p>
-        <button onClick={onReset} className="btn-primary">Nova Cotação</button>
+
+        {/* Body */}
+        <div className="bg-white px-6 py-6 space-y-4">
+          {/* Steps */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {steps.map((s, i) => (
+              <div key={i} className="bg-gray-50 border border-gray-100 rounded-xl p-3 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-cobre flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">{s.icon}</svg>
+                  <span className="text-xs font-bold text-navy">{s.label}</span>
+                </div>
+                <p className="text-xs text-gray-500 leading-relaxed">{s.text}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Prazo */}
+          <div className="flex items-center gap-3 bg-cobre/5 border border-cobre/15 rounded-xl px-4 py-3">
+            <div className="w-9 h-9 bg-cobre/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg className="w-5 h-5 text-cobre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-xs font-bold text-navy">Prazo de resposta</p>
+              <p className="text-sm text-gray-600">Você receberá o comparativo completo em até <strong className="text-cobre">5 dias úteis</strong></p>
+            </div>
+          </div>
+
+          {/* Free stamp */}
+          <div className="flex items-start gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+            <svg className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <p className="text-sm text-green-700"><strong>Estudo totalmente gratuito.</strong> Um e-mail de confirmação foi enviado para você.</p>
+          </div>
+
+          <button onClick={onReset} className="btn-primary w-full mt-2">
+            Nova Cotação
+          </button>
+        </div>
       </div>
     </div>
   )
