@@ -35,7 +35,7 @@ app.get('/api/cnpj/:cnpj', async (req, res, next) => {
 
     if (!response.ok) {
       const status = response.status;
-      if (status === 404) {
+      if (status === 404 || status === 400) {
         return res.status(404).json({ sucesso: false, mensagem: 'CNPJ não encontrado na base da Receita Federal' });
       }
       if (status === 429) {

@@ -69,8 +69,10 @@ export function DynamicTable({ columns, rows, onChange, onAdd, onRemove, maxRows
         if (data.sucesso) {
           onChange(ri, col.cnpjLookupTarget, data.data.razao_social)
           setCnpjStatuses(s => ({ ...s, [`${ri}_${col.key}`]: 'found' }))
-        } else {
+        } else if (r.status === 404) {
           setCnpjStatuses(s => ({ ...s, [`${ri}_${col.key}`]: 'not_found' }))
+        } else {
+          setCnpjStatuses(s => ({ ...s, [`${ri}_${col.key}`]: 'error' }))
         }
       } catch { setCnpjStatuses(s => ({ ...s, [`${ri}_${col.key}`]: 'error' })) }
     } else {
@@ -111,7 +113,7 @@ export function DynamicTable({ columns, rows, onChange, onAdd, onRemove, maxRows
                         <input
                           className={`w-full px-2 py-1.5 text-xs border rounded focus:ring-1 focus:ring-cobre focus:border-cobre outline-none pr-6 ${
                             st === 'found' ? 'border-green-400 bg-green-50' :
-                            st === 'invalid' ? 'border-red-400 bg-red-50' :
+                            (st === 'invalid' || st === 'not_found' || st === 'error') ? 'border-red-400 bg-red-50' :
                             col.required && errors[`comprador_cnpj_${ri}`] ? 'border-red-400 bg-red-50' : 'border-gray-200'
                           }`}
                           value={row[col.key] || ''}
@@ -122,7 +124,7 @@ export function DynamicTable({ columns, rows, onChange, onAdd, onRemove, maxRows
                         <div className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none">
                           {st === 'loading' && <svg className="animate-spin h-3.5 w-3.5 text-cobre" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
                           {(st === 'found' || st === 'valid') && <svg className="h-3.5 w-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/></svg>}
-                          {(st === 'invalid' || st === 'not_found') && <svg className="h-3.5 w-3.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>}
+                          {(st === 'invalid' || st === 'not_found' || st === 'error') && <svg className="h-3.5 w-3.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>}
                         </div>
                       </div>
                     ) : (
@@ -413,6 +415,7 @@ export function SuccessScreen({ result, onReset, tipo }) {
 export function CNPJInput({ value, onChange, onResult, error, label = 'CNPJ' }) {
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState(null)
+  const [statusMsg, setStatusMsg] = useState(null)
 
   function formatCNPJ(v) {
     const d = v.replace(/\D/g, '').slice(0, 14)
@@ -440,6 +443,7 @@ export function CNPJInput({ value, onChange, onResult, error, label = 'CNPJ' }) 
     const formatted = formatCNPJ(raw)
     onChange(formatted)
     setStatus(null)
+    setStatusMsg(null)
     const digits = formatted.replace(/\D/g, '')
     if (digits.length === 14) {
       if (!validarCNPJ(formatted)) { setStatus('invalid'); return }
@@ -447,9 +451,23 @@ export function CNPJInput({ value, onChange, onResult, error, label = 'CNPJ' }) 
       try {
         const r = await fetch(`/api/cnpj/${digits}`)
         const data = await r.json()
-        if (data.sucesso) { setStatus('found'); onResult && onResult(data.data) }
-        else { setStatus('not_found') }
-      } catch { setStatus('error') }
+        if (data.sucesso) {
+          setStatus('found')
+          onResult && onResult(data.data)
+        } else if (r.status === 429) {
+          setStatus('error')
+          setStatusMsg('⚠ Muitas consultas. Aguarde alguns segundos e tente novamente.')
+        } else if (r.status === 404) {
+          setStatus('not_found')
+          setStatusMsg('CNPJ não encontrado na Receita Federal')
+        } else {
+          setStatus('error')
+          setStatusMsg('⚠ Não foi possível consultar agora. Continue preenchendo manualmente.')
+        }
+      } catch {
+        setStatus('error')
+        setStatusMsg('⚠ Servidor indisponível. Continue preenchendo manualmente.')
+      }
       finally { setLoading(false) }
     }
   }
@@ -459,17 +477,19 @@ export function CNPJInput({ value, onChange, onResult, error, label = 'CNPJ' }) 
       <label className="label-field">{label} *</label>
       <div className="relative">
         <input
-          className={`input-field pr-12 ${status === 'found' ? 'border-green-500 ring-2 ring-green-200' : status === 'invalid' || status === 'not_found' ? 'border-red-500 ring-2 ring-red-200' : ''}`}
+          className={`input-field pr-12 ${status === 'found' ? 'border-green-500 ring-2 ring-green-200' : (status === 'invalid' || status === 'not_found' || status === 'error') ? 'border-red-500 ring-2 ring-red-200' : ''}`}
           value={value} onChange={e => handleChange(e.target.value)} placeholder="00.000.000/0000-00" maxLength={18}
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2">
           {loading && <svg className="animate-spin h-5 w-5 text-cobre" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
           {status === 'found' && <svg className="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>}
-          {(status === 'not_found' || status === 'invalid') && <svg className="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>}
+          {(status === 'not_found' || status === 'invalid' || status === 'error') && <svg className="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>}
         </div>
       </div>
       {loading && <p className="text-xs text-cobre mt-1">Consultando Receita Federal...</p>}
-      {status === 'found' && <p className="text-xs text-green-600 mt-1">Empresa verificada na Receita Federal</p>}
+      {status === 'found' && <p className="text-xs text-green-600 mt-1">✓ Empresa verificada na Receita Federal</p>}
+      {status === 'invalid' && <p className="text-xs text-red-500 mt-1">CNPJ inválido — verifique os números</p>}
+      {(status === 'not_found' || status === 'error') && statusMsg && <p className={`text-xs mt-1 ${status === 'error' ? 'text-amber-600' : 'text-red-500'}`}>{statusMsg}</p>}
       {error && <p className="error-msg">{error}</p>}
     </div>
   )
