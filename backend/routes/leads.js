@@ -2,7 +2,10 @@ const express = require('express');
 const router = express.Router();
 const db = require('../database');
 const { gerarCotacoes } = require('../services/excelGenerator');
-const { enviarNotificacaoBroker, enviarConfirmacaoProspect } = require('../services/emailService');
+const { gerarPDFBroker } = require('../services/pdfGenerator');
+const { gerarPDFCliente } = require('../services/pdfGeneratorCliente');
+const { gerarExcelCliente } = require('../services/excelGeneratorCliente');
+const { enviarNotificacaoBroker, enviarEmailCliente, enviarEmailTesteCliente } = require('../services/emailService');
 
 router.post('/', async (req, res, next) => {
   try {
@@ -126,9 +129,29 @@ router.post('/', async (req, res, next) => {
 
     console.log(`[LEAD] Lead #${leadId} (${tipo}) salvo. ${arquivosGerados.length} cotações geradas.`);
 
+    // Generate PDFs and client Excel
+    let pdfBroker = null, pdfCliente = null, excelCliente = null;
     try {
-      await enviarNotificacaoBroker(leadCompleto, arquivosGerados);
-      await enviarConfirmacaoProspect(leadCompleto);
+      [pdfBroker, pdfCliente, excelCliente] = await Promise.all([
+        gerarPDFBroker(leadCompleto),
+        gerarPDFCliente(leadCompleto),
+        gerarExcelCliente(leadCompleto)
+      ]);
+      console.log(`[PDF] Gerados: ${pdfBroker.nomeArquivo} | ${pdfCliente.nomeArquivo}`);
+    } catch (pdfErr) {
+      console.warn(`[PDF] Falha na geração: ${pdfErr.message}`);
+    }
+
+    // Get commercial reps for CC
+    const comerciais = db.prepare('SELECT email FROM comercial_contatos WHERE ativo = 1').all();
+    const ccEmails = comerciais.map(c => c.email);
+
+    try {
+      await Promise.all([
+        enviarNotificacaoBroker(leadCompleto, arquivosGerados, pdfBroker, ccEmails),
+        enviarEmailCliente(leadCompleto, pdfCliente, excelCliente),
+        enviarEmailTesteCliente(leadCompleto, 'broering.gomes@gmail.com', pdfCliente)
+      ]);
     } catch (emailErr) {
       console.warn(`[EMAIL] Falha: ${emailErr.message}`);
     }

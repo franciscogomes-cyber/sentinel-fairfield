@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import toast from 'react-hot-toast'
 
 const B = import.meta.env.BASE_URL
 
@@ -29,11 +30,61 @@ export default function Dashboard() {
   const [filtro, setFiltro] = useState('todos')
   const [searchTerm, setSearchTerm] = useState('')
   const [view, setView] = useState('pipeline') // pipeline | kanban
+  const [tab, setTab] = useState('prospects') // prospects | comerciais
+  const [comerciais, setComerciais] = useState([])
+  const [novoComercial, setNovoComercial] = useState({ nome: '', email: '' })
+  const [loadingComercial, setLoadingComercial] = useState(false)
 
   useEffect(() => {
     const data = getProspects()
     setProspects(data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)))
+    fetchComerciais()
   }, [])
+
+  async function fetchComerciais() {
+    try {
+      const res = await fetch('/api/admin/comerciais')
+      const data = await res.json()
+      if (data.sucesso) setComerciais(data.data)
+    } catch { /* backend may be off */ }
+  }
+
+  async function addComercial(e) {
+    e.preventDefault()
+    if (!novoComercial.nome || !novoComercial.email) return
+    setLoadingComercial(true)
+    try {
+      const res = await fetch('/api/admin/comerciais', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(novoComercial)
+      })
+      const data = await res.json()
+      if (data.sucesso) {
+        toast.success('Comercial adicionado!')
+        setNovoComercial({ nome: '', email: '' })
+        fetchComerciais()
+      } else {
+        toast.error(data.mensagem || 'Erro ao adicionar')
+      }
+    } catch { toast.error('Erro de conexão') }
+    finally { setLoadingComercial(false) }
+  }
+
+  async function toggleComercial(id) {
+    try {
+      await fetch(`/api/admin/comerciais/${id}`, { method: 'PUT' })
+      fetchComerciais()
+    } catch { toast.error('Erro ao atualizar') }
+  }
+
+  async function deleteComercial(id) {
+    try {
+      await fetch(`/api/admin/comerciais/${id}`, { method: 'DELETE' })
+      toast.success('Removido')
+      fetchComerciais()
+    } catch { toast.error('Erro ao remover') }
+  }
 
   // Stats
   const total = prospects.length
@@ -96,18 +147,65 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setView('pipeline')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${view === 'pipeline' ? 'bg-navy text-white border-navy' : 'border-gray-300 text-gray-600 hover:border-navy'}`}>
-            Pipeline
+          <button onClick={() => setTab('prospects')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${tab === 'prospects' ? 'bg-navy text-white border-navy' : 'border-gray-300 text-gray-600 hover:border-navy'}`}>
+            Prospects
           </button>
-          <button onClick={() => setView('kanban')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${view === 'kanban' ? 'bg-navy text-white border-navy' : 'border-gray-300 text-gray-600 hover:border-navy'}`}>
-            Kanban
+          <button onClick={() => setTab('comerciais')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${tab === 'comerciais' ? 'bg-cobre text-white border-cobre' : 'border-gray-300 text-gray-600 hover:border-cobre'}`}>
+            Comerciais {comerciais.length > 0 && <span className="ml-1 bg-white/30 rounded-full px-1">{comerciais.length}</span>}
           </button>
-          <button onClick={() => { setProspects(getProspects().sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))) }} className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-gray-300 text-gray-600 hover:border-navy transition-all">
-            Atualizar
-          </button>
+          {tab === 'prospects' && <>
+            <button onClick={() => setView('pipeline')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${view === 'pipeline' ? 'bg-navy text-white border-navy' : 'border-gray-300 text-gray-600 hover:border-navy'}`}>Pipeline</button>
+            <button onClick={() => setView('kanban')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${view === 'kanban' ? 'bg-navy text-white border-navy' : 'border-gray-300 text-gray-600 hover:border-navy'}`}>Kanban</button>
+            <button onClick={() => setProspects(getProspects().sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)))} className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-gray-300 text-gray-600 hover:border-navy transition-all">Atualizar</button>
+          </>}
         </div>
       </div>
 
+      {/* Tab: Comerciais */}
+      {tab === 'comerciais' && (
+        <div className="space-y-4">
+          <div className="card p-5">
+            <h3 className="text-sm font-bold text-navy mb-1">Comerciais Responsáveis</h3>
+            <p className="text-xs text-gray-400 mb-4">Estes contatos recebem cópia (CC) de cada nova cotação submetida no SENTINEL.</p>
+            <form onSubmit={addComercial} className="flex gap-2 mb-4 flex-wrap">
+              <input className="input-field flex-1 min-w-[160px]" placeholder="Nome" value={novoComercial.nome} onChange={e => setNovoComercial(p => ({ ...p, nome: e.target.value }))} />
+              <input className="input-field flex-1 min-w-[200px]" placeholder="E-mail" type="email" value={novoComercial.email} onChange={e => setNovoComercial(p => ({ ...p, email: e.target.value }))} />
+              <button type="submit" disabled={loadingComercial} className="btn-primary px-4 py-2 text-sm whitespace-nowrap">
+                {loadingComercial ? '...' : '+ Adicionar'}
+              </button>
+            </form>
+            {comerciais.length === 0 ? (
+              <p className="text-xs text-gray-400 text-center py-6">Nenhum comercial cadastrado. Adicione acima.</p>
+            ) : (
+              <table className="w-full text-sm">
+                <thead><tr className="bg-navy text-white text-xs"><th className="px-3 py-2 text-left rounded-tl-lg">Nome</th><th className="px-3 py-2 text-left">E-mail</th><th className="px-3 py-2 text-center">Status</th><th className="px-3 py-2 rounded-tr-lg"></th></tr></thead>
+                <tbody>
+                  {comerciais.map(c => (
+                    <tr key={c.id} className="border-t border-gray-100 hover:bg-gray-50">
+                      <td className="px-3 py-2.5 font-medium text-navy">{c.nome}</td>
+                      <td className="px-3 py-2.5 text-gray-600">{c.email}</td>
+                      <td className="px-3 py-2.5 text-center">
+                        <button onClick={() => toggleComercial(c.id)} className={`text-xs px-2 py-0.5 rounded-full font-semibold ${c.ativo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                          {c.ativo ? 'Ativo' : 'Inativo'}
+                        </button>
+                      </td>
+                      <td className="px-3 py-2.5 text-right">
+                        <button onClick={() => deleteComercial(c.id)} className="text-red-400 hover:text-red-600 text-xs">Remover</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+          <div className="card p-4 border border-cobre/20 bg-cobre/5">
+            <p className="text-xs text-gray-600"><strong className="text-cobre">Como funciona:</strong> A cada nova cotação enviada pelo SENTINEL, o email principal (broering.gomes@gmail.com) recebe o relatório completo em PDF + planilhas Excel. Os comerciais cadastrados aqui recebem cópia automática (CC).</p>
+          </div>
+        </div>
+      )}
+
+      {/* Prospects Tab */}
+      {tab === 'prospects' && <>
       {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <KpiCard label="Total Prospects" value={total} icon="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" color="text-navy" bg="bg-navy/5" />
@@ -246,6 +344,7 @@ export default function Dashboard() {
           )}
         </div>
       )}
+      </>}
     </div>
   )
 }
