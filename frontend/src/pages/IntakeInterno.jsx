@@ -207,8 +207,8 @@ export default function IntakeInterno() {
                   </svg>
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-navy">A Fairfield cuida da melhor negociação para você</h4>
-                  <p className="text-xs text-gray-600 mt-1">Ao enviar, seus dados serão analisados simultaneamente por <strong className="text-cobre">6 seguradoras líderes</strong> (AIG, Atradius, Coface, Euler Hermes, AVLA e CESCE). Nossa equipe de especialistas irá comparar todas as propostas e negociar as melhores condições de <strong>custo, cobertura e serviço</strong> para a sua empresa.</p>
+                  <h4 className="text-sm font-bold text-navy">O SENTINEL trabalha para destravar oportunidades para sua empresa</h4>
+                  <p className="text-xs text-gray-600 mt-1">Ao enviar, seus dados serão consultados simultaneamente nas <strong className="text-cobre">7 maiores seguradoras de crédito do mercado</strong> (Coface, Atradius, AVLA, Allianz Trade, AIG, CESCE e CHUBB). Atuamos como um <strong>suporte adicional à sua área de análise de crédito</strong> — ajudando a mitigar riscos e, principalmente, a destravar oportunidades para você vender mais com segurança.</p>
                 </div>
               </div>
             </div>
@@ -239,9 +239,9 @@ export default function IntakeInterno() {
                 </div>
                 <DynamicTable
                   columns={[
-                    { key: 'empresa', label: 'Empresa', placeholder: 'Razão Social' },
-                    { key: 'cnpj', label: 'CNPJ', placeholder: '00.000.000/0000-00' },
-                    { key: 'setor', label: 'Setor' },
+                    { key: 'cnpj', label: 'CNPJ', placeholder: '00.000.000/0000-00', type: 'cnpj', cnpjLookupTarget: 'empresa' },
+                    { key: 'empresa', label: 'Empresa', placeholder: 'Preenchido automaticamente' },
+                    { key: 'setor', label: 'Setor', placeholder: 'Atividade' },
                     { key: 'faturamento_pct', label: 'Fat. %', placeholder: '%' }
                   ]}
                   rows={form.coSeguradas}
@@ -263,17 +263,48 @@ export default function IntakeInterno() {
                   columns={[
                     { key: 'ano', label: 'Período', readOnly: true },
                     { key: 'faturamento', label: 'Faturamento (R$ mil)', placeholder: 'Ex: 5.000' },
-                    { key: 'perdas', label: 'Perdas (R$ mil)', placeholder: 'Ex: 100' }
+                    { key: 'perdas', label: 'Perdas (R$ mil)', placeholder: 'Ex: 100 (ou 0)' }
                   ]}
                   rows={form.historicoFaturamento}
                   onChange={(i, k, v) => uArray('historicoFaturamento', i, k, v)}
                 />
+                {/* Sinistralidade calculada ao vivo */}
+                {form.historicoFaturamento.some(h => h.faturamento) && (
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {form.historicoFaturamento.filter(h => h.faturamento).map(h => {
+                      const fat = parseFloat(String(h.faturamento).replace(/\./g, '').replace(',', '.')) || 0
+                      const perd = parseFloat(String(h.perdas).replace(/\./g, '').replace(',', '.')) || 0
+                      const pct = fat > 0 ? (perd / fat * 100) : null
+                      const color = pct === null ? 'bg-gray-100 text-gray-500' : pct < 2 ? 'bg-green-100 text-green-700' : pct < 5 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'
+                      return (
+                        <span key={h.ano} className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${color}`}>
+                          {h.ano}: {pct !== null ? `${pct.toFixed(2)}% sinistralidade` : 'informe as perdas'}
+                        </span>
+                      )
+                    })}
+                  </div>
+                )}
                 <div className="border-t pt-4 mt-4">
                   <h4 className="text-sm font-bold text-navy mb-3">2.1 Distribuição das Condições de Venda</h4>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <Input label="À Vista (%)" value={form.condicoesVenda.pct_vista} onChange={v => u('condicoesVenda', 'pct_vista', v)} placeholder="%" />
-                  <Input label="À Prazo (%)" value={form.condicoesVenda.pct_prazo} onChange={v => u('condicoesVenda', 'pct_prazo', v)} placeholder="%" />
+                  <Input label="À Vista (%)" value={form.condicoesVenda.pct_vista} onChange={v => {
+                    u('condicoesVenda', 'pct_vista', v)
+                    const num = parseFloat(v)
+                    if (!isNaN(num) && num >= 0 && num <= 100 && !form.condicoesVenda.pct_prazo) {
+                      u('condicoesVenda', 'pct_prazo', String(100 - num))
+                    }
+                  }} placeholder="Ex: 30" />
+                  <Input label="À Prazo (%)" value={form.condicoesVenda.pct_prazo} onChange={v => u('condicoesVenda', 'pct_prazo', v)} placeholder="Ex: 70"
+                    hint={(() => {
+                      const v = parseFloat(form.condicoesVenda.pct_vista) || 0
+                      const p = parseFloat(form.condicoesVenda.pct_prazo) || 0
+                      const sum = v + p
+                      if (v && p && sum !== 100) return `⚠️ Soma atual: ${sum}% (deve ser 100%)`
+                      if (v && p && sum === 100) return '✓ Soma correta: 100%'
+                      return null
+                    })()}
+                  />
                   <Input label="Prazo Médio (dias)" value={form.condicoesVenda.prazo_medio_dias} onChange={v => u('condicoesVenda', 'prazo_medio_dias', v)} placeholder="Ex: 60" />
                   <Input label="Prazo Máximo (dias)" value={form.condicoesVenda.prazo_maximo_dias} onChange={v => u('condicoesVenda', 'prazo_maximo_dias', v)} placeholder="Ex: 120" />
                 </div>
@@ -307,13 +338,24 @@ export default function IntakeInterno() {
             {/* Step 3 - Perdas */}
             {step === 3 && (
               <div className="space-y-4">
-                <h3 className="text-lg font-bold text-navy border-b pb-3">4. Detalhamento das Perdas Efetivas</h3>
-                <p className="text-xs text-gray-400 mb-2">Indique as 5 maiores perdas nos últimos 3 anos. Motivo: Mora, Falência, ações judiciais ou extrajudiciais.</p>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-navy border-b pb-3 flex-1">4. Detalhamento das Perdas Efetivas</h3>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-gray-400">Indique as 5 maiores perdas nos últimos 3 anos. Motivo: Mora, Falência, ações judiciais ou extrajudiciais.</p>
+                  <button
+                    onClick={() => { setForm(prev => ({ ...prev, maioresPerdas: [{ razao_social: 'Sem perdas no período', cnpj: '', exercicio: '', valor: '0', motivo: 'Não houve perdas' }] })) }}
+                    className="ml-4 flex-shrink-0 text-xs text-gray-500 hover:text-green-600 border border-gray-200 hover:border-green-400 rounded-lg px-3 py-1.5 transition-colors flex items-center gap-1.5"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>
+                    Sem perdas neste período
+                  </button>
+                </div>
                 <h4 className="text-sm font-bold text-navy">4.1 Maiores Perdas</h4>
                 <DynamicTable
                   columns={[
-                    { key: 'razao_social', label: 'Razão Social', placeholder: 'Empresa' },
-                    { key: 'cnpj', label: 'CNPJ', placeholder: '00.000.000/0000-00' },
+                    { key: 'cnpj', label: 'CNPJ', placeholder: '00.000.000/0000-00', type: 'cnpj', cnpjLookupTarget: 'razao_social' },
+                    { key: 'razao_social', label: 'Razão Social', placeholder: 'Preenchido automaticamente' },
                     { key: 'exercicio', label: 'Exercício', placeholder: '2024' },
                     { key: 'valor', label: 'Valor (R$)', placeholder: 'Valor' },
                     { key: 'motivo', label: 'Motivo', placeholder: 'Mora, Falência...' }
@@ -330,13 +372,22 @@ export default function IntakeInterno() {
             {/* Step 4 - Atrasos */}
             {step === 4 && (
               <div className="space-y-4">
-                <h3 className="text-lg font-bold text-navy border-b pb-3">5. Distribuição de Atrasos</h3>
+                <div className="flex items-center justify-between border-b pb-3">
+                  <h3 className="text-lg font-bold text-navy">5. Distribuição de Atrasos</h3>
+                  <button
+                    onClick={() => setForm(prev => ({ ...prev, atrasos: prev.atrasos.map(a => ({ ...a, valor_atraso: '0', pct_valor: '0', qtd_clientes: '0', pct_clientes: '0' })) }))}
+                    className="flex-shrink-0 text-xs text-gray-500 hover:text-green-600 border border-gray-200 hover:border-green-400 rounded-lg px-3 py-1.5 transition-colors flex items-center gap-1.5"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/></svg>
+                    Sem atrasos no período
+                  </button>
+                </div>
                 <DynamicTable
                   columns={[
                     { key: 'faixa_dias', label: 'Dias de Atraso', readOnly: true },
-                    { key: 'valor_atraso', label: 'Valor em Atraso (R$)', placeholder: 'Valor' },
+                    { key: 'valor_atraso', label: 'Valor em Atraso (R$)', placeholder: '0' },
                     { key: 'pct_valor', label: '% Valor', readOnly: true, placeholder: 'Auto' },
-                    { key: 'qtd_clientes', label: 'Qtd Clientes', placeholder: 'Qtd' },
+                    { key: 'qtd_clientes', label: 'Qtd Clientes', placeholder: '0' },
                     { key: 'pct_clientes', label: '% Clientes', readOnly: true, placeholder: 'Auto' }
                   ]}
                   rows={form.atrasos}
@@ -348,10 +399,10 @@ export default function IntakeInterno() {
                 </div>
                 <DynamicTable
                   columns={[
-                    { key: 'razao_social', label: 'Razão Social', placeholder: 'Empresa' },
-                    { key: 'cnpj', label: 'CNPJ', placeholder: '00.000.000/0000-00' },
-                    { key: 'data_emissao', label: 'Data Emissão', placeholder: 'dd/mm/aaaa' },
-                    { key: 'data_vencimento', label: 'Data Vencimento', placeholder: 'dd/mm/aaaa' },
+                    { key: 'cnpj', label: 'CNPJ', placeholder: '00.000.000/0000-00', type: 'cnpj', cnpjLookupTarget: 'razao_social' },
+                    { key: 'razao_social', label: 'Razão Social', placeholder: 'Preenchido automaticamente' },
+                    { key: 'data_emissao', label: 'Emissão', placeholder: 'dd/mm/aaaa' },
+                    { key: 'data_vencimento', label: 'Vencimento', placeholder: 'dd/mm/aaaa' },
                     { key: 'valor', label: 'Valor (R$)', placeholder: 'Valor' }
                   ]}
                   rows={form.atrasosDetalhados}
@@ -370,8 +421,8 @@ export default function IntakeInterno() {
                 <p className="text-xs text-gray-400">Informar até 20 compradores — maiores, médios e menores. Valores em R$.</p>
                 <DynamicTable
                   columns={[
-                    { key: 'cnpj_codigo_fiscal', label: 'CNPJ *', placeholder: '00.000.000/0000-00', required: true },
-                    { key: 'razao_social', label: 'Razão Social', placeholder: 'Nome da empresa' },
+                    { key: 'cnpj_codigo_fiscal', label: 'CNPJ *', placeholder: '00.000.000/0000-00', type: 'cnpj', cnpjLookupTarget: 'razao_social', required: true },
+                    { key: 'razao_social', label: 'Razão Social', placeholder: 'Preenchido automaticamente' },
                     { key: 'faturamento_anual', label: 'Fat. Anual (R$)', placeholder: 'Valor' },
                     { key: 'limite_credito', label: 'Limite Crédito (R$)', placeholder: 'Valor' }
                   ]}
@@ -410,12 +461,12 @@ function FairfieldValueProp() {
         <h4 className="text-sm font-bold text-navy">O que acontece depois que você enviar?</h4>
       </div>
       <div className="space-y-2 ml-10">
-        <Step num="1" text="Seus dados são enviados simultaneamente para as 6 maiores seguradoras de crédito do mercado" highlight="AIG, Atradius, Coface, Euler Hermes, AVLA e CESCE" />
-        <Step num="2" text="Nossa equipe de especialistas analisa cada proposta recebida e negocia condições exclusivas" />
-        <Step num="3" text="Você recebe um comparativo completo com a melhor relação custo-benefício do mercado" />
+        <Step num="1" text="Seus dados são consultados simultaneamente nas 7 maiores seguradoras de crédito" highlight="Coface, Atradius, AVLA, Allianz Trade, AIG, CESCE e CHUBB" />
+        <Step num="2" text="Nossa equipe analisa cada proposta e negocia as melhores condições de cobertura, prêmio e serviço" />
+        <Step num="3" text="Você recebe um comparativo completo para tomar a melhor decisão estratégica para seu negócio" />
       </div>
       <div className="mt-4 ml-10 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-        <p className="text-xs text-green-700"><strong>Sem custo para você.</strong> A Fairfield é remunerada pela seguradora escolhida — você não paga nada pelo nosso serviço de consultoria.</p>
+        <p className="text-xs text-green-700"><strong>Estudo totalmente gratuito.</strong> O SENTINEL atua como um suporte adicional à sua área de análise de crédito — mitigando riscos e destravando oportunidades para você vender mais com segurança.</p>
       </div>
     </div>
   )

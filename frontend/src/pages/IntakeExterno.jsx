@@ -188,8 +188,8 @@ export default function IntakeExterno() {
                   </svg>
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-navy">A Fairfield cuida da melhor negociação para você</h4>
-                  <p className="text-xs text-gray-600 mt-1">Ao enviar, seus dados serão analisados simultaneamente por <strong className="text-cobre">6 seguradoras líderes globais</strong> (AIG, Atradius, Coface, Euler Hermes, AVLA e CESCE). Nossa equipe de especialistas em comércio exterior irá comparar todas as propostas e negociar as melhores condições de <strong>cobertura, prêmio e serviço</strong> para suas exportações.</p>
+                  <h4 className="text-sm font-bold text-navy">O SENTINEL trabalha para destravar oportunidades para sua empresa</h4>
+                  <p className="text-xs text-gray-600 mt-1">Ao enviar, seus dados serão analisados simultaneamente pelas <strong className="text-cobre">7 maiores seguradoras de crédito à exportação</strong> (Coface, Atradius, AVLA, Allianz Trade, AIG, CESCE e CHUBB). Atuamos como um <strong>suporte adicional à sua área de análise de crédito</strong> — ajudando a mitigar riscos e, principalmente, a destravar oportunidades para você exportar mais com segurança.</p>
                 </div>
               </div>
             </div>
@@ -220,8 +220,8 @@ export default function IntakeExterno() {
                 </div>
                 <DynamicTable
                   columns={[
+                    { key: 'cnpj', label: 'CNPJ', type: 'cnpj', cnpjLookupTarget: 'empresa', placeholder: '00.000.000/0000-00' },
                     { key: 'empresa', label: 'Empresa', placeholder: 'Razão Social' },
-                    { key: 'cnpj', label: 'CNPJ', placeholder: '00.000.000/0000-00' },
                     { key: 'setor', label: 'Setor' },
                     { key: 'faturamento_pct', label: 'Fat. %', placeholder: '%' }
                   ]}
@@ -248,6 +248,26 @@ export default function IntakeExterno() {
                   rows={form.historicoFaturamento}
                   onChange={(i, k, v) => uArray('historicoFaturamento', i, k, v)}
                 />
+
+                {/* Sinistralidade live calculator */}
+                {(() => {
+                  const rows = form.historicoFaturamento.filter(r => r.ano !== 'Próximos 12 meses')
+                  const totalFat = rows.reduce((s, r) => s + (parseFloat(String(r.faturamento).replace(/[^0-9.]/g, '')) || 0), 0)
+                  const totalPerdas = rows.reduce((s, r) => s + (parseFloat(String(r.perdas).replace(/[^0-9.]/g, '')) || 0), 0)
+                  const sin = totalFat > 0 ? (totalPerdas / totalFat * 100) : null
+                  if (sin === null) return null
+                  const sinColor = sin < 2 ? 'text-green-700 bg-green-50 border-green-200' : sin < 5 ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-red-700 bg-red-50 border-red-200'
+                  const sinLabel = sin < 2 ? 'Ótima sinistralidade' : sin < 5 ? 'Sinistralidade moderada' : 'Atenção: sinistralidade elevada'
+                  return (
+                    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-semibold ${sinColor}`}>
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      Sinistralidade histórica: <strong>{sin.toFixed(2)}%</strong> — {sinLabel}
+                    </div>
+                  )
+                })()}
+
                 <div className="border-t pt-4 mt-4">
                   <h4 className="text-sm font-bold text-navy mb-3">2.1 Faturamento Anual Desejado para o Seguro</h4>
                 </div>
@@ -256,8 +276,32 @@ export default function IntakeExterno() {
                   <h4 className="text-sm font-bold text-navy mb-3">3. Distribuição dos Prazos de Venda</h4>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <Input label="À Vista (%)" value={form.condicoesVenda.pct_vista} onChange={v => u('condicoesVenda', 'pct_vista', v)} placeholder="%" hint="Incluindo vendas com Carta de Crédito" />
-                  <Input label="À Prazo (%)" value={form.condicoesVenda.pct_prazo} onChange={v => u('condicoesVenda', 'pct_prazo', v)} placeholder="%" />
+                  <Input
+                    label="À Vista (%)"
+                    value={form.condicoesVenda.pct_vista}
+                    onChange={v => {
+                      u('condicoesVenda', 'pct_vista', v)
+                      const vista = parseFloat(v) || 0
+                      if (vista > 0 && vista <= 100 && !form.condicoesVenda.pct_prazo) {
+                        u('condicoesVenda', 'pct_prazo', String(100 - vista))
+                      }
+                    }}
+                    placeholder="%"
+                    hint="Incluindo vendas com Carta de Crédito"
+                  />
+                  <Input
+                    label="À Prazo (%)"
+                    value={form.condicoesVenda.pct_prazo}
+                    onChange={v => u('condicoesVenda', 'pct_prazo', v)}
+                    placeholder="%"
+                    hint={(() => {
+                      const vista = parseFloat(form.condicoesVenda.pct_vista) || 0
+                      const prazo = parseFloat(form.condicoesVenda.pct_prazo) || 0
+                      const soma = vista + prazo
+                      if (vista > 0 && prazo > 0 && Math.abs(soma - 100) > 0.1) return `⚠ Vista + Prazo = ${soma.toFixed(0)}% (esperado 100%)`
+                      return null
+                    })()}
+                  />
                   <Input label="Prazo Médio Crédito (dias)" value={form.condicoesVenda.prazo_medio_dias} onChange={v => u('condicoesVenda', 'prazo_medio_dias', v)} placeholder="Ex: 90" />
                   <Input label="Prazo Máximo Crédito (dias)" value={form.condicoesVenda.prazo_maximo_dias} onChange={v => u('condicoesVenda', 'prazo_maximo_dias', v)} placeholder="Ex: 180" />
                 </div>
@@ -313,6 +357,18 @@ export default function IntakeExterno() {
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-navy border-b pb-3">5. Maiores Perdas</h3>
                 <p className="text-xs text-gray-400">Indicar as 5 maiores nos últimos 3 anos. Motivo: Mora, Falência, ações judiciais/extrajudiciais.</p>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setForm(prev => ({ ...prev, maioresPerdas: [{ importador: 'Sem perdas neste período', pais: '—', exercicio: '—', valor: '0', motivo: '—' }] }))}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-green-50 text-green-700 border border-green-200 font-semibold hover:bg-green-100 transition-colors flex items-center gap-1.5"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Sem perdas neste período
+                  </button>
+                </div>
                 <DynamicTable
                   columns={[
                     { key: 'importador', label: 'Importador', placeholder: 'Nome da empresa' },
@@ -335,6 +391,18 @@ export default function IntakeExterno() {
               <div className="space-y-4">
                 <h3 className="text-lg font-bold text-navy border-b pb-3">6. Dívidas Vencidas Acima de 180 Dias</h3>
                 <p className="text-xs text-gray-400">Excluindo vendas para coligadas, PF, empresas públicas, à vista ou antecipadas.</p>
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setForm(prev => ({ ...prev, atrasos: [{ faixa_dias: 'Acima de 180 dias', valor_atraso: '0', qtd_clientes: '0' }] }))}
+                    className="text-xs px-3 py-1.5 rounded-lg bg-green-50 text-green-700 border border-green-200 font-semibold hover:bg-green-100 transition-colors flex items-center gap-1.5"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Sem atrasos no período
+                  </button>
+                </div>
                 <DynamicTable
                   columns={[
                     { key: 'faixa_dias', label: 'Período', readOnly: true },
@@ -394,12 +462,12 @@ function FairfieldValueProp() {
         <h4 className="text-sm font-bold text-navy">O que acontece depois que você enviar?</h4>
       </div>
       <div className="space-y-2 ml-10">
-        <Step num="1" text="Seus dados são enviados simultaneamente para as 6 maiores seguradoras de crédito do mercado" highlight="AIG, Atradius, Coface, Euler Hermes, AVLA e CESCE" />
-        <Step num="2" text="Nossa equipe de especialistas analisa cada proposta recebida e negocia condições exclusivas" />
-        <Step num="3" text="Você recebe um comparativo completo com a melhor relação custo-benefício do mercado" />
+        <Step num="1" text="Seus dados são consultados simultaneamente nas 7 maiores seguradoras de crédito" highlight="Coface, Atradius, AVLA, Allianz Trade, AIG, CESCE e CHUBB" />
+        <Step num="2" text="Nossa equipe analisa cada proposta e negocia as melhores condições de cobertura, prêmio e serviço" />
+        <Step num="3" text="Você recebe um comparativo completo para tomar a melhor decisão estratégica para suas exportações" />
       </div>
       <div className="mt-4 ml-10 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-        <p className="text-xs text-green-700"><strong>Sem custo para você.</strong> A Fairfield é remunerada pela seguradora escolhida — você não paga nada pelo nosso serviço de consultoria.</p>
+        <p className="text-xs text-green-700"><strong>Estudo totalmente gratuito.</strong> O SENTINEL atua como um suporte adicional à sua área de análise de crédito — mitigando riscos e destravando oportunidades para você vender mais com segurança.</p>
       </div>
     </div>
   )

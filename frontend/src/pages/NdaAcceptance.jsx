@@ -5,85 +5,104 @@ const B = import.meta.env.BASE_URL
 
 const NDA_SECTIONS = [
   {
-    title: 'ACORDO DE CONFIDENCIALIDADE',
-    content: `Por este instrumento particular, de um lado a empresa solicitante ("Parte Emissora") e, de outro, a FAIRFIELD PROTECAO E INTELIGENCIA FINANCEIRA LTDA, inscrita no CNPJ sob o n. 13.381.310/0001-45, com sede em Blumenau/SC ("Parte Receptora"), celebram o presente Acordo de Confidencialidade.
+    title: 'TERMO DE CONFIDENCIALIDADE E ACEITE EXPRESSO',
+    content: `A FAIRFIELD PROTECAO E INTELIGENCIA FINANCEIRA LTDA, inscrita no CNPJ sob o n. 13.381.310/0001-45, com sede na cidade de Blumenau/SC, devidamente registrada na SUSEP sob o n. 20.2036457.1, doravante denominada "Fairfield", apresenta ao solicitante, doravante denominado "Cliente", o presente Termo de Confidencialidade como condicao para o inicio do processo de estudo de mercado e cotacao de Seguro de Credito por meio da plataforma SENTINEL.
 
-As Partes desejam discutir e negociar a viabilidade da contratacao de Apolice de Seguro de Credito, e para isso a Parte Emissora revelara informacoes confidenciais a Parte Receptora.`
+Ao rolar este documento ate o final e clicar em "De Acordo", o Cliente declara expressamente que leu, compreendeu e concorda com todos os termos e condicoes aqui estabelecidos, conferindo plena validade a este aceite eletronico nos termos do Art. 10 da MP n. 2.200-2/2001 e do Marco Civil da Internet (Lei n. 12.965/2014).`
   },
   {
-    title: '1. Informacoes Confidenciais',
-    content: `1.1 Toda e qualquer informacao revelada, disponibilizada ou fornecida a Parte Receptora pela Parte Emissora, incluindo informacoes de natureza legal, tecnica, operacional, administrativa, comercial, financeira e economica, por qualquer meio, serao designadas "Informacoes Confidenciais".
+    title: '1. Finalidade e Escopo',
+    content: `1.1 O presente Termo tem por finalidade estabelecer as obrigacoes da Fairfield quanto ao sigilo, protecao e uso restrito das informacoes fornecidas pelo Cliente no contexto do estudo de mercado para contratacao de Apolice de Seguro de Credito.
 
-1.2 O termo inclui textos, desenhos, graficos, projetos, relatorios, formulas, tecnicas utilizadas na conducao dos negocios, produtos, know-how, metodos e processos, clientes e lista de clientes, fornecedores, segredos de mercado, praticas comerciais, planos societarios, financas, estrutura de precos e custos, entre outros.
+1.2 As informacoes coletadas destinam-se exclusivamente a:
+(i) Realizacao do estudo de mercado de Seguro de Credito solicitado pelo Cliente;
+(ii) Subsidiar a analise tecnica de risco junto as seguradoras parceiras para fins de cotacao;
+(iii) Elaborar a comparacao de propostas e a recomendacao tecnica da Fairfield;
+(iv) Cumprir eventuais exigencias regulatorias e de subscricao impostas pelas seguradoras.
 
-1.3 Nao sao consideradas confidenciais informacoes que: (i) estejam disponiveis ao publico; (ii) ja estavam disponiveis a Parte Receptora por fontes diversas; (iii) foram desenvolvidas de forma independente; ou (iv) devam ser reveladas por determinacao legal ou judicial.
-
-1.4 Caso haja obrigacao legal de divulgar informacoes, a Parte Receptora notificara a Parte Emissora em ate 5 dias uteis.
-
-1.5 Toda Informacao Confidencial permanece propriedade da Parte Emissora.`
+1.3 Nenhuma informacao fornecida sera utilizada para qualquer finalidade distinta das previstas neste Termo sem o consentimento expresso e previo do Cliente.`
   },
   {
-    title: '2. Obrigacoes da Parte Receptora',
-    content: `2.1 A Parte Receptora compromete-se a:
-(i) Manter em estrito e absoluto sigilo todas as Informacoes Confidenciais;
-(ii) Nao divulgar, transmitir ou revelar as informacoes a qualquer pessoa;
-(iii) Utilizar as informacoes exclusivamente para fins de subscricao e estudo de mercado para o Seguro de Credito;
-(iv) Nao reproduzir as informacoes sem autorizacao expressa;
-(v) Informar imediatamente sobre qualquer violacao ou acesso nao autorizado.
+    title: '2. Informacoes Confidenciais',
+    content: `2.1 Sao consideradas "Informacoes Confidenciais" todos os dados e documentos fornecidos pelo Cliente a Fairfield por meio da plataforma SENTINEL ou por qualquer outro meio, incluindo, sem limitacao:
+(i) Dados financeiros: faturamento, receita, resultado, estrutura de custos, inadimplencia, perdas e vencidos;
+(ii) Dados comerciais: carteira de clientes, lista de compradores, condicoes de venda, prazos e volumes;
+(iii) Dados operacionais: processos internos, fornecedores, contratos, estrutura de distribuicao;
+(iv) Dados societarios: composicao acionaria, historico e estrutura organizacional;
+(v) Dados pessoais: nome, CPF, cargo, e-mail, telefone e quaisquer outros dados de identificacao dos representantes.
 
-2.2 O acesso podera ser concedido apenas a empregados, administradores e assessores que tenham efetiva necessidade de conhecer as informacoes para avaliar o negocio ("Pessoas Autorizadas").
-
-2.3 A Parte Receptora devera informar as Pessoas Autorizadas sobre a natureza confidencial das informacoes e tomar todas as providencias para preserva-la.`
+2.2 Todas as informacoes transmitidas pelo Cliente, independentemente do formato — escrito, verbal, eletronico ou qualquer outro meio — sao tratadas como confidenciais pela Fairfield.`
   },
   {
-    title: '3. Devolucao das Informacoes',
-    content: `3.1 A Parte Receptora devolvera ou destruira todas as Informacoes Confidenciais quando: (i) notificada pela Parte Emissora, no prazo de 30 dias; ou (ii) o negocio nao for concretizado.
+    title: '3. Compromissos da Fairfield',
+    content: `3.1 A Fairfield compromete-se a:
+(i) Manter em estrito e absoluto sigilo todas as Informacoes Confidenciais recebidas do Cliente;
+(ii) Utilizar as informacoes exclusivamente para a finalidade descrita na Clausula 1 deste Termo;
+(iii) Nao divulgar, ceder, vender, alugar ou compartilhar as informacoes com terceiros, salvo nas hipoteses expressamente previstas neste Termo;
+(iv) Adotar medidas tecnicas e organizacionais adequadas para proteger as informacoes contra acesso nao autorizado, perda, destruicao ou vazamento;
+(v) Notificar o Cliente em caso de incidente de seguranca que possa comprometer a confidencialidade de suas informacoes.
 
-3.2 A devolucao abrangera todas as copias, reproducoes, resumos, analises e documentos que reflitam o conteudo das informacoes.
+3.2 O acesso as Informacoes Confidenciais sera restrito aos profissionais da Fairfield diretamente envolvidos no processo de cotacao e analise tecnica, os quais estao sujeitos a obrigacoes de sigilo equivalentes as deste Termo.
 
-3.3 Na hipotese de destruicao, a Parte Receptora devera apagar todas as informacoes de quaisquer meios digitais ou fisicos, confirmando por escrito.`
+3.3 As seguradoras parceiras receberao apenas as informacoes estritamente necessarias para a elaboracao de propostas de Seguro de Credito, sendo expressamente vedado o compartilhamento de dados para qualquer outro fim.`
   },
   {
-    title: '4. Obrigacoes Adicionais',
-    content: `4.1 As Partes reconhecem que: (i) nao ha vinculo ou compromisso alem da confidencialidade; (ii) este Acordo nao implica compromisso de realizacao do negocio; (iii) as informacoes nao constituem oferta ou proposta.
+    title: '4. Protecao de Dados Pessoais — LGPD',
+    content: `4.1 O tratamento dos dados pessoais do Cliente e de seus representantes e realizado em conformidade com a Lei Geral de Protecao de Dados Pessoais (Lei n. 13.709/2018 — LGPD).
 
-4.2 As Informacoes Confidenciais permanecem propriedade da Parte Emissora e sua divulgacao nao confere quaisquer direitos.`
+4.2 A base legal para o tratamento e a execucao do contrato de prestacao de servicos de consultoria em seguros, conforme Art. 7o, inciso V da LGPD, e o legitimo interesse da Fairfield na realizacao do estudo de mercado solicitado.
+
+4.3 O Cliente, na qualidade de titular dos dados pessoais, tem assegurados os seguintes direitos:
+(i) Confirmacao e acesso aos dados tratados;
+(ii) Correcao de dados incompletos, inexatos ou desatualizados;
+(iii) Anonimizacao, bloqueio ou eliminacao de dados desnecessarios ou excessivos;
+(iv) Portabilidade dos dados a outro prestador de servicos;
+(v) Eliminacao dos dados pessoais tratados com consentimento;
+(vi) Revogacao do consentimento a qualquer momento.
+
+4.4 Para exercer seus direitos ou obter informacoes adicionais sobre o tratamento de seus dados, o Cliente pode entrar em contato pelo e-mail: privacidade@fairfield.com.br.`
   },
   {
-    title: '5. Prazo de Vigencia',
-    content: `5.1 Este Acordo tera vigencia de 90 (noventa) dias a partir da data de aceitacao.
+    title: '5. Compartilhamento com Seguradoras',
+    content: `5.1 Para a realizacao do estudo de mercado, a Fairfield encaminhara as Informacoes Confidenciais pertinentes as seguintes seguradoras parceiras, exclusivamente para fins de subscricao e elaboracao de proposta de Seguro de Credito: Coface, Atradius, AVLA, Allianz Trade, AIG, CESCE e Chubb.
 
-5.2 As obrigacoes de confidencialidade permanecerao vigentes durante a vigencia e por 2 (dois) anos apos o termino, ou ate que um instrumento particular seja celebrado entre as Partes.`
+5.2 Cada seguradora recebera apenas as informacoes necessarias para a analise de risco e formulacao de proposta, estando sujeitas as suas proprias politicas de privacidade e sigilo profissional regulamentadas pela SUSEP.
+
+5.3 O Cliente, ao aceitar este Termo, autoriza expressamente a Fairfield a compartilhar suas informacoes com as seguradoras listadas, exclusivamente para a finalidade descrita nesta clausula.
+
+5.4 E vedado as seguradoras utilizar as informacoes recebidas para qualquer finalidade que nao seja a cotacao solicitada pela Fairfield.`
   },
   {
-    title: '6. Anticorrupcao',
-    content: `6.1 As Partes comprometem-se a manter conformidade com as leis anticorrupcao, nao oferecendo ou recebendo vantagens indevidas.
+    title: '6. Prazo de Vigencia e Retencao',
+    content: `6.1 As obrigacoes de confidencialidade estabelecidas neste Termo entram em vigor na data do aceite expresso pelo Cliente e permanecerao validas por 2 (dois) anos apos o encerramento do processo de cotacao, ou ate que um contrato formal seja celebrado entre as Partes, prevalecendo o que ocorrer por ultimo.
 
-6.2 Caso qualquer Parte seja investigada por atos contrarios as leis, devera notificar a contraparte.
+6.2 O estudo de mercado elaborado pela Fairfield com base nas informacoes fornecidas tera validade de 90 (noventa) dias a contar da data de entrega.
 
-6.3 Na hipotese de condenacao, a parte infratora devera arcar com eventuais perdas e danos.`
+6.3 Apos o encerramento do relacionamento comercial, a Fairfield reterá as informacoes pelo prazo minimo exigido pela legislacao aplicavel e, findo esse prazo, procederá a eliminacao segura dos dados, salvo disposicao legal em contrario.`
   },
   {
-    title: '7. Disposicoes Gerais',
-    content: `7.1 Este Acordo somente podera ser alterado mediante documento escrito e assinado pelas Partes.
+    title: '7. Independencia e Imparcialidade',
+    content: `7.1 A Fairfield atua exclusivamente como consultora independente de seguros, sem vinculo de exclusividade com qualquer seguradora.
 
-7.2 O Acordo e celebrado em carater irrevogavel e irretratavel.
+7.2 A remuneracao da Fairfield e integralmente suportada pela seguradora escolhida pelo Cliente ao final do processo, nao gerando qualquer custo ao Cliente pela realizacao do estudo de mercado.
 
-7.3 Constitui o acordo integral entre as Partes sobre o tema de confidencialidade.
+7.3 A recomendacao tecnica da Fairfield sera fundamentada exclusivamente na analise comparativa das propostas recebidas, priorizando o melhor custo-beneficio para o Cliente, sem influencia de qualquer incentivo comercial por parte das seguradoras.
 
-7.4 A violacao do Acordo autoriza a Parte Emissora a tomar todas as medidas judiciais e extrajudiciais cabiveis.
+7.4 A aceitacao deste Termo nao implica obrigacao de contratacao de qualquer produto de seguro pelo Cliente.`
+  },
+  {
+    title: '8. Disposicoes Gerais',
+    content: `8.1 Este Termo constitui o instrumento integral que rege as obrigacoes de confidencialidade entre a Fairfield e o Cliente no ambito do estudo de mercado de Seguro de Credito.
 
-7.5 A tolerancia quanto a descumprimentos nao constitui renuncia.
+8.2 O aceite eletronico registrado na plataforma SENTINEL tem plena validade juridica, sendo equiparado a assinatura eletronica nos termos da legislacao vigente.
 
-7.6 Clausulas invalidas nao afetam as demais disposicoes.
+8.3 A invalidade ou ineficacia de qualquer clausula nao afetara as demais disposicoes deste Termo.
 
-7.7 Os Dados Pessoais serao utilizados unicamente para o cumprimento deste Acordo, com adocao de todas as medidas de seguranca tecnicas e organizacionais conforme a LGPD.
+8.4 A tolerancia da Fairfield quanto a eventuais descumprimentos nao constituira renuncia aos direitos aqui estabelecidos.
 
-7.8 As Partes reconhecem a validade da assinatura digital/eletronica deste Acordo.
+8.5 Este Termo e regido pelas leis da Republica Federativa do Brasil.
 
-7.9 Este Acordo e regido pelas leis da Republica Federativa do Brasil.
-
-7.10 As Partes elegem o foro da Comarca de Blumenau/SC para dirimir quaisquer litigios.`
+8.6 Para dirimir quaisquer controversias decorrentes deste Termo, fica eleito o foro da Comarca de Blumenau/SC, com renancia a qualquer outro, por mais privilegiado que seja.`
   }
 ]
 
@@ -120,13 +139,14 @@ export default function NdaAcceptance() {
         <div className="flex items-center justify-center gap-3 mb-3">
           <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-12 w-12 sm:h-14 sm:w-14 object-contain" />
           <div className="text-left">
-            <h1 className="text-xl sm:text-2xl font-bold text-navy">Acordo de Confidencialidade</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-navy">Termo de Confidencialidade</h1>
             <p className="text-xs text-gray-400">SENTINEL by Fairfield</p>
           </div>
         </div>
         <p className="text-sm text-gray-600 max-w-xl mx-auto">
-          Para prosseguir, leia integralmente o Acordo de Confidencialidade abaixo.
-          Ao finalizar a leitura, o botao de aceitacao sera habilitado.
+          Antes de prosseguir, leia integralmente o Termo de Confidencialidade abaixo.
+          Ele descreve como a Fairfield protege seus dados e garante o sigilo absoluto das informacoes fornecidas.
+          Ao finalizar a leitura, o botao de aceite sera habilitado.
         </p>
       </div>
 
@@ -150,7 +170,7 @@ export default function NdaAcceptance() {
             <svg className="w-5 h-5 text-[#7DD3FC]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <span className="text-white text-sm font-semibold">NDA — Fairfield Consultoria em Seguros</span>
+            <span className="text-white text-sm font-semibold">Termo de Confidencialidade — Fairfield Consultoria em Seguros</span>
           </div>
           <div className="flex items-center gap-1.5">
             {scrolledToEnd ? (
@@ -197,13 +217,13 @@ export default function NdaAcceptance() {
           {/* Footer */}
           <div className="border-t border-gray-200 pt-4 mt-6">
             <p className="text-xs text-gray-500 text-center">
-              <strong>Vigencia:</strong> 90 dias a partir da aceitacao
+              <strong>Responsavel:</strong> Fairfield Protecao e Inteligencia Financeira Ltda — CNPJ 13.381.310/0001-45
             </p>
             <p className="text-xs text-gray-500 text-center mt-1">
-              <strong>Parte Receptora:</strong> Fairfield Protecao e Inteligencia Financeira Ltda — CNPJ 13.381.310/0001-45
+              <strong>Vigencia do estudo:</strong> 90 dias a partir do aceite · <strong>Sigilo:</strong> 2 anos apos o encerramento
             </p>
             <p className="text-xs text-gray-500 text-center mt-1">
-              Foro: Comarca de Blumenau/SC
+              SUSEP 20.2036457.1 · Foro: Comarca de Blumenau/SC
             </p>
           </div>
 
@@ -230,10 +250,10 @@ export default function NdaAcceptance() {
                 </svg>
                 <div>
                   <p className="text-sm text-green-800 font-medium">
-                    Ao clicar em "De Acordo", voce declara que leu e compreendeu todas as clausulas do Acordo de Confidencialidade e concorda com seus termos.
+                    Ao clicar em "De Acordo", voce declara expressamente que leu e compreendeu integralmente este Termo de Confidencialidade, concorda com seus termos e autoriza a Fairfield a utilizar suas informacoes exclusivamente para o estudo de mercado de Seguro de Credito.
                   </p>
                   <p className="text-xs text-green-600 mt-1">
-                    Sua aceitacao sera registrada com data, hora e identificacao do usuario.
+                    Seu aceite eletronico sera registrado com data, hora e identificacao, tendo plena validade juridica nos termos da legislacao vigente.
                   </p>
                 </div>
               </div>
