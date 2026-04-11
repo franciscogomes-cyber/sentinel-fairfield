@@ -152,6 +152,21 @@ db.exec(`
     ativo INTEGER DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS verification_codes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL,
+    code TEXT NOT NULL,
+    nome TEXT,
+    empresa TEXT,
+    telefone TEXT,
+    expires_at DATETIME NOT NULL,
+    used INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
 `);
+
+// Limpa códigos expirados na inicialização
+db.prepare("DELETE FROM verification_codes WHERE expires_at < datetime('now')").run();
 
 module.exports = db;

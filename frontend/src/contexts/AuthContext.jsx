@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { API_BASE } from '../config'
 
 const AuthContext = createContext(null)
 
@@ -49,30 +50,52 @@ export function AuthProvider({ children }) {
     return { success: true, user: newUser }
   }
 
-  function verifyCode(email, code) {
-    const storedCode = sessionStorage.getItem(`sentinel_code_${email}`)
-    if (storedCode && storedCode === code) {
-      const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]')
-      const userIndex = users.findIndex(u => u.email === email)
-      if (userIndex >= 0) {
-        users[userIndex].verified = true
-        localStorage.setItem(USERS_KEY, JSON.stringify(users))
-        setUser(users[userIndex])
-        trackProspect(users[userIndex], 'verificado')
-        sessionStorage.removeItem(`sentinel_code_${email}`)
-        return { success: true }
-      }
-    }
-    return { success: false, message: 'Codigo invalido' }
-  }
+  const generateCode = useCallback(async (email, nome, empresa, telefone) => {
+    const res = await fetch(`${API_BASE}/api/auth/send-code`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, nome, empresa, telefone })
+    })
+    const data = await res.json()
+    if (!data.sucesso) throw new Error(data.mensagem)
+    return true
+  }, [])
 
-  function generateCode(email) {
-    const code = String(Math.floor(100000 + Math.random() * 900000))
-    sessionStorage.setItem(`sentinel_code_${email}`, code)
-    // In production, send via email/SMS. For demo, show in console and toast
-    console.log(`[SENTINEL] Codigo de verificacao para ${email}: ${code}`)
-    return code
-  }
+  const verifyCode = useCallback(async (email, code) => {
+    const res = await fetch(`${API_BASE}/api/auth/verify-code`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code })
+    })
+    const data = await res.json()
+    if (!data.sucesso) return { success: false }
+
+    // Registra o usuário localmente após verificação bem-sucedida
+    const userData = {
+      id: Date.now().toString(),
+      nome: data.data.nome,
+      email: data.data.email,
+      telefone: data.data.telefone,
+      empresa: data.data.empresa,
+      createdAt: new Date().toISOString(),
+      verified: true
+    }
+    setUser(userData)
+    localStorage.setItem('sentinel_user', JSON.stringify(userData))
+    // Track prospect inline (evita dependência circular de useCallback)
+    const prospects = JSON.parse(localStorage.getItem(PROSPECTS_KEY) || '[]')
+    const existingIdx = prospects.findIndex(p => p.email === userData.email)
+    const prospect = {
+      id: userData.id, nome: userData.nome, email: userData.email,
+      telefone: userData.telefone, empresa: userData.empresa,
+      fase: 'verificado', faseLabel: 'Verificado',
+      createdAt: userData.createdAt, updatedAt: new Date().toISOString()
+    }
+    if (existingIdx >= 0) { prospects[existingIdx] = { ...prospects[existingIdx], ...prospect } }
+    else { prospects.push(prospect) }
+    localStorage.setItem(PROSPECTS_KEY, JSON.stringify(prospects))
+    return { success: true }
+  }, [])
 
   function acceptNda() {
     if (user) {

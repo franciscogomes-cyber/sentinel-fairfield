@@ -6,13 +6,13 @@ import { formatPhone } from '../components/FormComponents'
 const B = import.meta.env.BASE_URL
 
 export default function Login({ onComplete }) {
-  const { register, verifyCode, generateCode } = useAuth()
+  const { generateCode, verifyCode } = useAuth()
   const [stage, setStage] = useState('form') // form | verify
   const [loading, setLoading] = useState(false)
+  const [resending, setResending] = useState(false)
   const [form, setForm] = useState({ nome: '', telefone: '', email: '', empresa: '' })
   const [code, setCode] = useState('')
   const [errors, setErrors] = useState({})
-  const [demoCode, setDemoCode] = useState(null)
 
   function u(field, value) {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -33,37 +33,48 @@ export default function Login({ onComplete }) {
     e.preventDefault()
     if (!validate()) return
     setLoading(true)
-
-    const result = register(form)
-    if (!result.success) {
-      // User exists, just send code
-      const c = generateCode(form.email)
-      setDemoCode(c)
+    try {
+      await generateCode(form.email, form.nome, form.empresa, form.telefone)
       setStage('verify')
-      toast.success('Codigo de verificacao enviado para seu e-mail!')
+      toast.success('Código enviado! Verifique seu e-mail.')
+    } catch (err) {
+      toast.error(err.message || 'Erro ao enviar código. Tente novamente.')
+    } finally {
       setLoading(false)
-      return
     }
-
-    const c = generateCode(form.email)
-    setDemoCode(c)
-    setStage('verify')
-    toast.success('Cadastro realizado! Verifique seu e-mail para o codigo.')
-    setLoading(false)
   }
 
-  function handleVerify(e) {
+  async function handleVerify(e) {
     e.preventDefault()
     if (code.length !== 6) {
-      toast.error('Digite o codigo de 6 digitos')
+      toast.error('Digite o código de 6 dígitos')
       return
     }
-    const result = verifyCode(form.email, code)
-    if (result.success) {
-      toast.success('Verificado com sucesso!')
-      onComplete && onComplete()
-    } else {
-      toast.error('Codigo invalido. Tente novamente.')
+    setLoading(true)
+    try {
+      const result = await verifyCode(form.email, code)
+      if (result.success) {
+        toast.success('Verificado com sucesso!')
+        onComplete && onComplete()
+      } else {
+        toast.error('Código inválido ou expirado. Tente novamente.')
+      }
+    } catch (err) {
+      toast.error('Erro ao verificar código. Tente novamente.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleResend() {
+    setResending(true)
+    try {
+      await generateCode(form.email, form.nome, form.empresa, form.telefone)
+      toast.success('Novo código enviado!')
+    } catch (err) {
+      toast.error(err.message || 'Erro ao reenviar código.')
+    } finally {
+      setResending(false)
     }
   }
 
@@ -127,7 +138,7 @@ export default function Login({ onComplete }) {
 
             <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
               {loading && <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
-              {loading ? 'Processando...' : 'Receber Codigo de Acesso'}
+              {loading ? 'Enviando código...' : 'Receber Código de Acesso'}
             </button>
 
             <p className="text-[10px] text-gray-400 text-center mt-3">
@@ -149,6 +160,16 @@ export default function Login({ onComplete }) {
               </p>
             </div>
 
+            {/* Confirmação de envio */}
+            <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '8px', padding: '12px 16px' }}>
+              <p style={{ margin: 0, fontSize: '13px', color: '#15803D', fontWeight: '600' }}>
+                ✅ Código enviado para <strong>{form.email}</strong>
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Verifique sua caixa de entrada e spam. Válido por 15 minutos.
+              </p>
+            </div>
+
             <div>
               <label className="label-field text-center block">Codigo de Verificacao</label>
               <input
@@ -158,25 +179,21 @@ export default function Login({ onComplete }) {
               />
             </div>
 
-            {/* Demo mode: show code */}
-            {demoCode && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-center">
-                <p className="text-xs text-amber-700 font-medium">Modo demonstracao — seu codigo:</p>
-                <p className="text-2xl font-mono font-bold text-amber-800 tracking-[0.3em] mt-1">{demoCode}</p>
-                <p className="text-[10px] text-amber-500 mt-1">Em producao, este codigo seria enviado por e-mail/SMS</p>
-              </div>
-            )}
-
-            <button type="submit" className="btn-primary w-full">
-              Verificar e Acessar
+            <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
+              {loading && <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
+              {loading ? 'Verificando...' : 'Verificar e Acessar'}
             </button>
 
             <div className="flex items-center justify-between text-xs">
-              <button type="button" onClick={() => { const c = generateCode(form.email); setDemoCode(c); toast.success('Novo codigo enviado!') }}
-                className="text-cobre hover:underline font-medium">
-                Reenviar codigo
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resending}
+                className="text-cobre hover:underline font-medium disabled:opacity-50"
+              >
+                {resending ? 'Reenviando...' : 'Reenviar código'}
               </button>
-              <button type="button" onClick={() => { setStage('form'); setCode(''); setDemoCode(null) }}
+              <button type="button" onClick={() => { setStage('form'); setCode('') }}
                 className="text-gray-400 hover:text-gray-600">
                 Voltar
               </button>

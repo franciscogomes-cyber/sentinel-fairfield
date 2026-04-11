@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
-const { gerarCotacoes } = require('../services/excelGenerator');
+const { gerarFichaTecnica } = require('../services/excelGenerator');
 const { gerarPDFBroker } = require('../services/pdfGenerator');
 const { gerarPDFCliente } = require('../services/pdfGeneratorCliente');
 const { gerarExcelCliente } = require('../services/excelGeneratorCliente');
@@ -120,14 +120,16 @@ router.post('/', async (req, res, next) => {
       atrasos, atrasosDetalhados, amostraCompradores, destinosExportacao
     };
 
-    const arquivosGerados = await gerarCotacoes(leadCompleto, segList);
+    const fichaTecnica = await gerarFichaTecnica(leadCompleto);
+    const arquivosGerados = [fichaTecnica]; // array para manter compatibilidade
 
+    // Registra uma cotação por seguradora selecionada
     const insertCotacao = db.prepare('INSERT INTO cotacoes (lead_id, seguradora, status, arquivo_gerado) VALUES (?, ?, \'aguardando_resposta\', ?)');
-    for (const arq of arquivosGerados) {
-      insertCotacao.run(leadId, arq.seguradora, arq.arquivo);
+    for (const seguradora of segList) {
+      insertCotacao.run(leadId, seguradora, fichaTecnica.arquivo);
     }
 
-    console.log(`[LEAD] Lead #${leadId} (${tipo}) salvo. ${arquivosGerados.length} cotações geradas.`);
+    console.log(`[LEAD] Lead #${leadId} (${tipo}) salvo. ${segList.length} cotações registradas (1 ficha técnica).`);
 
     // Generate PDFs and client Excel
     let pdfBroker = null, pdfCliente = null, excelCliente = null;
@@ -148,7 +150,7 @@ router.post('/', async (req, res, next) => {
 
     try {
       await Promise.all([
-        enviarNotificacaoBroker(leadCompleto, arquivosGerados, pdfBroker, ccEmails),
+        enviarNotificacaoBroker(leadCompleto, [fichaTecnica], pdfBroker, ccEmails),
         enviarEmailCliente(leadCompleto, pdfCliente, excelCliente),
         enviarEmailTesteCliente(leadCompleto, 'broering.gomes@gmail.com', pdfCliente)
       ]);
@@ -159,7 +161,7 @@ router.post('/', async (req, res, next) => {
     res.status(201).json({
       sucesso: true,
       mensagem: 'Solicitação de cotação enviada com sucesso!',
-      data: { leadId, cotacoesGeradas: arquivosGerados.length, seguradoras: segList }
+      data: { leadId, cotacoesGeradas: segList.length, seguradoras: segList, fichaTecnica: fichaTecnica.nomeArquivo }
     });
   } catch (err) {
     next(err);
