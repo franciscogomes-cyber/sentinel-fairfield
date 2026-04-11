@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
+import { API_BASE } from '../config'
 
 // Utilitários exportados
 export function formatCNPJ(v) {
@@ -64,7 +65,7 @@ export function DynamicTable({ columns, rows, onChange, onAdd, onRemove, maxRows
       if (!col.cnpjLookupTarget) { setCnpjStatuses(s => ({ ...s, [`${ri}_${col.key}`]: 'valid' })); return }
       setCnpjStatuses(s => ({ ...s, [`${ri}_${col.key}`]: 'loading' }))
       try {
-        const r = await fetch(`/api/cnpj/${digits}`)
+        const r = await fetch(`${API_BASE}/api/cnpj/${digits}`)
         const data = await r.json()
         if (data.sucesso) {
           onChange(ri, col.cnpjLookupTarget, data.data.razao_social)
@@ -449,7 +450,7 @@ export function CNPJInput({ value, onChange, onResult, error, label = 'CNPJ' }) 
       if (!validarCNPJ(formatted)) { setStatus('invalid'); return }
       setLoading(true)
       try {
-        const r = await fetch(`/api/cnpj/${digits}`)
+        const r = await fetch(`${API_BASE}/api/cnpj/${digits}`)
         const data = await r.json()
         if (data.sucesso) {
           setStatus('found')

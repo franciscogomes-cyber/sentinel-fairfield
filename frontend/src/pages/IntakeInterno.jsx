@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { Input, Select, DynamicTable, StepNav, ProgressBar, SuccessScreen, CNPJInput, formatPhone } from '../components/FormComponents'
 import { LearningTrailInterno } from '../components/LearningTrail'
 import { useAuth } from '../contexts/AuthContext'
+import { API_BASE } from '../config'
 
 const STORAGE_KEY = 'fairfield_intake_interno'
 const UFS = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO']
@@ -144,7 +145,7 @@ export default function IntakeInterno() {
       setLoading(true)
       try {
         const body = { tipo: 'interno', ...form, seguradoras: [] }
-        const res = await fetch('/api/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        const res = await fetch(`${API_BASE}/api/leads`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
         const data = await res.json()
         if (!data.sucesso) throw new Error(data.mensagem)
         setResult(data.data)
