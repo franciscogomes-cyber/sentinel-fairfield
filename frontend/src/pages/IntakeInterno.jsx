@@ -507,8 +507,7 @@ function FairfieldValueProp() {
         {steps.map(s => (
           <div key={s.num} className="flex flex-col gap-2 bg-gray-50 rounded-xl p-3 border border-gray-100">
             <div className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-navy text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">{s.num}</span>
-              <svg className="w-4 h-4 text-cobre" fill="none" stroke="currentColor" viewBox="0 0 24 24">{s.icon}</svg>
+              <svg className="w-5 h-5 text-cobre flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">{s.icon}</svg>
               <span className="text-xs font-bold text-navy">{s.label}</span>
             </div>
             <p className="text-xs text-gray-600 leading-relaxed">{s.text}</p>
