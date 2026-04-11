@@ -14,7 +14,9 @@ router.post('/send-code', async (req, res, next) => {
 
     // Gera código de 6 dígitos
     const code = String(Math.floor(100000 + Math.random() * 900000));
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutos
+    // Salva no formato SQLite-compatível (sem 'T' e sem 'Z')
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000)
+      .toISOString().replace('T', ' ').replace('Z', '').split('.')[0];
 
     // Invalida códigos anteriores do mesmo email
     db.prepare('UPDATE verification_codes SET used = 1 WHERE email = ? AND used = 0').run(email);
@@ -24,12 +26,22 @@ router.post('/send-code', async (req, res, next) => {
       'INSERT INTO verification_codes (email, code, nome, empresa, telefone, expires_at) VALUES (?, ?, ?, ?, ?, ?)'
     ).run(email, code, nome || '', empresa || '', telefone || '', expiresAt);
 
-    console.log(`[AUTH] Código OTP gerado para ${email}: ${code}`);
+    console.log(`[AUTH] Código OTP gerado para ${email}: ${code} (expira: ${expiresAt} UTC)`);
 
     // Envia email com o código
-    await enviarCodigoVerificacao(email, nome || email.split('@')[0], code);
+    const emailInfo = await enviarCodigoVerificacao(email, nome || email.split('@')[0], code);
 
-    res.json({ sucesso: true, mensagem: 'Código enviado para o e-mail informado' });
+    // Modo dev: se usando Ethereal (SMTP não configurado), retorna dados para facilitar teste
+    const isTestMode = !process.env.SMTP_PASS || process.env.SMTP_PASS === 'sua_app_password_aqui';
+    const resposta = { sucesso: true, mensagem: 'Código enviado para o e-mail informado' };
+    if (isTestMode) {
+      resposta.dev_mode = true;
+      resposta.dev_code = code;
+      resposta.dev_preview = emailInfo?._previewUrl || null;
+      resposta.mensagem = 'Modo desenvolvimento — SMTP não configurado (código visível abaixo)';
+    }
+
+    res.json(resposta);
   } catch (err) {
     next(err);
   }

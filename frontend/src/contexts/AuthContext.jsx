@@ -58,7 +58,8 @@ export function AuthProvider({ children }) {
     })
     const data = await res.json()
     if (!data.sucesso) throw new Error(data.mensagem)
-    return true
+    // Retorna dados de dev mode se disponível
+    return { devMode: data.dev_mode || false, devCode: data.dev_code || null, devPreview: data.dev_preview || null }
   }, [])
 
   const verifyCode = useCallback(async (email, code) => {

@@ -190,7 +190,9 @@ async function enviarCodigoVerificacao(email, nome, codigo) {
   });
 
   if (transporter._ethereal) {
-    console.log('[EMAIL] Preview (OTP):', nodemailer.getTestMessageUrl(info));
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    console.log('[EMAIL] Preview (OTP):', previewUrl);
+    info._previewUrl = previewUrl;
   } else {
     console.log(`[EMAIL] Código OTP enviado para ${email}`);
   }

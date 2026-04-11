@@ -14,26 +14,6 @@
       "runtimeArgs": ["backend/server.js"],
       "port": 3001,
       "autoPort": false
-    },
-    {
-      "name": "Residencia API",
-      "runtimeExecutable": "/bin/sh",
-      "runtimeArgs": [
-        "-c",
-        "cd /Users/Francisco/Residencia/apps/api && /Users/Francisco/.local/node/bin/node /Users/Francisco/Residencia/node_modules/.bin/tsx watch src/index.ts"
-      ],
-      "port": 3001,
-      "autoPort": false
-    },
-    {
-      "name": "Residencia Web",
-      "runtimeExecutable": "/bin/sh",
-      "runtimeArgs": [
-        "-c",
-        "cd /Users/Francisco/Residencia/apps/web && /Users/Francisco/.local/node/bin/node /Users/Francisco/Residencia/node_modules/.bin/vite --port 5173 --strictPort"
-      ],
-      "port": 5173,
-      "autoPort": false
     }
   ]
 }

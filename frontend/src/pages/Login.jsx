@@ -13,6 +13,7 @@ export default function Login({ onComplete }) {
   const [form, setForm] = useState({ nome: '', telefone: '', email: '', empresa: '' })
   const [code, setCode] = useState('')
   const [errors, setErrors] = useState({})
+  const [devInfo, setDevInfo] = useState(null) // { code, preview } para modo desenvolvimento
 
   function u(field, value) {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -34,9 +35,15 @@ export default function Login({ onComplete }) {
     if (!validate()) return
     setLoading(true)
     try {
-      await generateCode(form.email, form.nome, form.empresa, form.telefone)
+      const result = await generateCode(form.email, form.nome, form.empresa, form.telefone)
+      if (result.devMode) {
+        setDevInfo({ code: result.devCode, preview: result.devPreview })
+        toast.success('Modo dev — código visível abaixo (SMTP não configurado)')
+      } else {
+        setDevInfo(null)
+        toast.success('Código enviado! Verifique seu e-mail.')
+      }
       setStage('verify')
-      toast.success('Código enviado! Verifique seu e-mail.')
     } catch (err) {
       toast.error(err.message || 'Erro ao enviar código. Tente novamente.')
     } finally {
@@ -69,7 +76,10 @@ export default function Login({ onComplete }) {
   async function handleResend() {
     setResending(true)
     try {
-      await generateCode(form.email, form.nome, form.empresa, form.telefone)
+      const result = await generateCode(form.email, form.nome, form.empresa, form.telefone)
+      if (result.devMode) {
+        setDevInfo({ code: result.devCode, preview: result.devPreview })
+      }
       toast.success('Novo código enviado!')
     } catch (err) {
       toast.error(err.message || 'Erro ao reenviar código.')
@@ -160,15 +170,39 @@ export default function Login({ onComplete }) {
               </p>
             </div>
 
-            {/* Confirmação de envio */}
-            <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '8px', padding: '12px 16px' }}>
-              <p style={{ margin: 0, fontSize: '13px', color: '#15803D', fontWeight: '600' }}>
-                ✅ Código enviado para <strong>{form.email}</strong>
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Verifique sua caixa de entrada e spam. Válido por 15 minutos.
-              </p>
-            </div>
+            {/* Confirmação de envio / Dev Mode */}
+            {devInfo ? (
+              <div className="rounded-lg overflow-hidden border border-amber-300">
+                <div className="bg-amber-400 px-4 py-2 flex items-center gap-2">
+                  <span className="text-amber-900 font-bold text-xs">⚠ MODO DESENVOLVIMENTO — SMTP não configurado</span>
+                </div>
+                <div className="bg-amber-50 px-4 py-3">
+                  <p className="text-xs text-amber-800 mb-2">
+                    Email foi para <strong>Ethereal</strong> (servidor de teste), não chegou no Gmail real.<br/>
+                    Para receber emails reais, configure <code className="bg-amber-100 px-1 rounded">SMTP_PASS</code> no arquivo <code className="bg-amber-100 px-1 rounded">.env</code>.
+                  </p>
+                  <div className="bg-white border border-amber-200 rounded p-3 text-center mt-2">
+                    <p className="text-xs text-amber-600 font-semibold mb-1">Código para teste:</p>
+                    <p className="text-3xl font-mono font-bold text-amber-700 tracking-[0.4em]">{devInfo.code}</p>
+                  </div>
+                  {devInfo.preview && (
+                    <a href={devInfo.preview} target="_blank" rel="noopener noreferrer"
+                      className="block text-center text-xs text-blue-600 underline mt-2">
+                      👁 Ver email no Ethereal
+                    </a>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '8px', padding: '12px 16px' }}>
+                <p style={{ margin: 0, fontSize: '13px', color: '#15803D', fontWeight: '600' }}>
+                  ✅ Código enviado para <strong>{form.email}</strong>
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Verifique sua caixa de entrada e spam. Válido por 15 minutos.
+                </p>
+              </div>
+            )}
 
             <div>
               <label className="label-field text-center block">Codigo de Verificacao</label>
