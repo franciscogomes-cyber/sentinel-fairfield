@@ -232,33 +232,51 @@ export function ProgressBar({ step, steps }) {
   )
 }
 
-function ConfettiRain() {
+function ConfettiBurst() {
   const colors = ['#B87333', '#7DD3FC', '#4ade80', '#f59e0b', '#ffffff', '#fbbf24', '#a78bfa']
-  const pieces = Array.from({ length: 60 }, (_, i) => ({
-    id: i,
-    color: colors[i % colors.length],
-    left: `${(i * 1.7) % 100}%`,
-    delay: `${(i * 0.08) % 3}s`,
-    duration: `${2.5 + (i % 5) * 0.4}s`,
-    size: `${7 + (i % 5)}px`,
-    round: i % 3 === 0,
-  }))
+  const pieces = Array.from({ length: 90 }, (_, i) => {
+    const angle = (i * 360 / 90) * Math.PI / 180
+    const dist = 22 + (i % 7) * 6
+    const tx = Math.cos(angle) * dist
+    const ty = Math.sin(angle) * dist
+    return {
+      id: i,
+      color: colors[i % colors.length],
+      delay: `${(i % 6) * 0.04}s`,
+      duration: `${5.5 + (i % 5) * 0.5}s`,
+      size: `${7 + (i % 4) * 2}px`,
+      round: i % 4 === 0,
+      rect: i % 5 === 1,
+      tx: `${tx.toFixed(1)}vw`,
+      ty: `${ty.toFixed(1)}vh`,
+      tx2: `${(tx * 0.7).toFixed(1)}vw`,
+      ty2: `${(ty * 0.4 + 55).toFixed(1)}vh`,
+    }
+  })
   return (
     <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 9999 }}>
       <style>{`
-        @keyframes confettiFall {
-          0%   { transform: translateY(-20px) rotate(0deg) scale(1); opacity: 1; }
-          80%  { opacity: 1; }
-          100% { transform: translateY(105vh) rotate(800deg) scale(0.5); opacity: 0; }
+        @keyframes confettiBurst {
+          0%   { transform: translate(0,0) rotate(0deg) scale(0); opacity: 1; }
+          10%  { transform: translate(var(--tx), var(--ty)) rotate(220deg) scale(1); opacity: 1; }
+          75%  { opacity: 1; }
+          100% { transform: translate(var(--tx2), var(--ty2)) rotate(900deg) scale(0.15); opacity: 0; }
         }
       `}</style>
       {pieces.map(p => (
         <div key={p.id} style={{
-          position: 'absolute', top: '-16px', left: p.left,
-          width: p.size, height: p.size,
+          position: 'absolute',
+          left: '50%',
+          top: '38%',
+          width: p.size,
+          height: p.rect ? `${parseInt(p.size) * 2}px` : p.size,
           backgroundColor: p.color,
-          borderRadius: p.round ? '50%' : '2px',
-          animation: `confettiFall ${p.duration} ${p.delay} ease-in forwards`,
+          borderRadius: p.round ? '50%' : '3px',
+          '--tx': p.tx,
+          '--ty': p.ty,
+          '--tx2': p.tx2,
+          '--ty2': p.ty2,
+          animation: `confettiBurst ${p.duration} ${p.delay} cubic-bezier(0.22, 0.61, 0.36, 1) forwards`,
         }} />
       ))}
     </div>
@@ -269,7 +287,7 @@ export function SuccessScreen({ result, onReset, tipo }) {
   const [celebrating, setCelebrating] = useState(true)
 
   useEffect(() => {
-    const t = setTimeout(() => setCelebrating(false), 5000)
+    const t = setTimeout(() => setCelebrating(false), 8000)
     return () => clearTimeout(t)
   }, [])
 
@@ -309,7 +327,7 @@ export function SuccessScreen({ result, onReset, tipo }) {
           50%       { transform: scale(1.18); opacity: 0.2; }
         }
       `}</style>
-      {celebrating && <ConfettiRain />}
+      {celebrating && <ConfettiBurst />}
 
       <div className="rounded-2xl overflow-hidden shadow-2xl border border-cobre/20"
         style={{ animation: 'successEntry 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards' }}>
