@@ -180,38 +180,61 @@ export default function IntakeInterno() {
 
       <div className="card">
         {isReview ? (
-          <div className="space-y-6">
-            <h3 className="text-lg font-bold text-navy border-b pb-3">Revisão dos Dados</h3>
-            <Section title="Proponente">
-              <p><b>Empresa:</b> {form.proponente.razao_social} | <b>CNPJ:</b> {form.proponente.cnpj}</p>
-              <p><b>Setor:</b> {form.proponente.setor} | <b>UF:</b> {form.proponente.uf} | <b>Fat. %:</b> {form.proponente.faturamento_pct}</p>
-              <p><b>Contato:</b> {form.contato.nome} — {form.contato.email} — {form.contato.telefone}</p>
-              {form.coSeguradas.filter(c => c.empresa).length > 0 && <p><b>Co-seguradas:</b> {form.coSeguradas.filter(c => c.empresa).map(c => c.empresa).join(', ')}</p>}
-            </Section>
-            <Section title="Faturamento e Condições">
-              {form.historicoFaturamento.map(h => <p key={h.ano}><b>{h.ano}:</b> Fat. {h.faturamento || '—'} | Perdas {h.perdas || '—'}</p>)}
-              <p><b>Fat. desejado seguro:</b> R$ {form.condicoesVenda.faturamento_desejado_seguro}</p>
-              <p><b>Vista:</b> {form.condicoesVenda.pct_vista}% | <b>Prazo:</b> {form.condicoesVenda.pct_prazo}% | <b>Médio:</b> {form.condicoesVenda.prazo_medio_dias}d | <b>Máx:</b> {form.condicoesVenda.prazo_maximo_dias}d</p>
-            </Section>
-            <Section title="Carteira">
-              {form.carteiraRecebiveis.filter(c => c.faturamento_total).map(c => <p key={c.faixa}><b>{c.faixa}:</b> {c.faturamento_total} ({c.pct_faturamento}%) — {c.num_clientes} clientes</p>)}
-            </Section>
-            <Section title="Compradores">{form.amostraCompradores.filter(c => c.razao_social).map((c, i) => <p key={i}>{c.razao_social} — {c.cnpj_codigo_fiscal} — Lim: {c.limite_credito}</p>)}</Section>
-
-            {/* Mensagem de confiança Fairfield */}
-            <div className="bg-gradient-to-r from-navy/5 to-cobre/10 border border-cobre/20 rounded-xl p-5 mt-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 bg-cobre/10 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg className="w-5 h-5 text-cobre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-navy">O SENTINEL trabalha para destravar oportunidades para sua empresa</h4>
-                  <p className="text-xs text-gray-600 mt-1">Ao enviar, seus dados serão consultados simultaneamente nas <strong className="text-cobre">7 maiores seguradoras de crédito do mercado</strong> (Coface, Atradius, AVLA, Allianz Trade, AIG, CESCE e CHUBB). Atuamos como um <strong>suporte adicional à sua área de análise de crédito</strong> — ajudando a mitigar riscos e, principalmente, a destravar oportunidades para você vender mais com segurança.</p>
-                </div>
+          <div className="space-y-4">
+            {/* Header revisão */}
+            <div className="bg-gradient-to-r from-navy to-[#0d1f3c] rounded-xl px-5 py-4 flex items-center gap-4">
+              <div className="w-12 h-12 bg-green-400/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg className="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-green-400 uppercase tracking-widest mb-0.5">Quase lá!</p>
+                <h3 className="text-base sm:text-lg font-bold text-white leading-tight">Revisão Final dos Dados</h3>
+                <p className="text-xs text-white/60">Confirme as informações antes de enviar para as 7 seguradoras</p>
               </div>
             </div>
+
+            {/* Proponente */}
+            <ReviewCard accent="navy" title="Proponente" icon={<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />}>
+              <ReviewRow label="Empresa" value={form.proponente.razao_social} highlight />
+              <ReviewRow label="CNPJ" value={form.proponente.cnpj} />
+              <ReviewRow label="Setor" value={form.proponente.setor} />
+              <ReviewRow label="UF" value={form.proponente.uf} />
+              <ReviewRow label="Contato" value={form.contato.nome ? `${form.contato.nome} · ${form.contato.email}` : ''} />
+              {form.coSeguradas.filter(c => c.empresa).length > 0 && (
+                <ReviewRow label="Co-seguradas" value={form.coSeguradas.filter(c => c.empresa).map(c => c.empresa).join(' · ')} />
+              )}
+            </ReviewCard>
+
+            {/* Faturamento */}
+            <ReviewCard accent="cobre" title="Faturamento e Condições de Venda" icon={<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />}>
+              {form.historicoFaturamento.map(h => (
+                <ReviewRow key={h.ano} label={h.ano} value={h.faturamento ? `R$ ${h.faturamento} mil · Perdas: ${h.perdas || '0'}` : ''} />
+              ))}
+              <ReviewRow label="Faturamento seguro" value={form.condicoesVenda.faturamento_desejado_seguro ? `R$ ${form.condicoesVenda.faturamento_desejado_seguro}` : ''} highlight />
+              <ReviewRow label="Condições" value={[form.condicoesVenda.pct_vista && `Vista ${form.condicoesVenda.pct_vista}%`, form.condicoesVenda.pct_prazo && `Prazo ${form.condicoesVenda.pct_prazo}%`, form.condicoesVenda.prazo_medio_dias && `Médio ${form.condicoesVenda.prazo_medio_dias}d`, form.condicoesVenda.prazo_maximo_dias && `Máx ${form.condicoesVenda.prazo_maximo_dias}d`].filter(Boolean).join(' · ')} />
+            </ReviewCard>
+
+            {/* Carteira */}
+            {form.carteiraRecebiveis.filter(c => c.faturamento_total).length > 0 && (
+              <ReviewCard accent="navy" title="Carteira de Recebíveis" icon={<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />}>
+                {form.carteiraRecebiveis.filter(c => c.faturamento_total).map(c => (
+                  <ReviewRow key={c.faixa} label={c.faixa} value={`R$ ${c.faturamento_total} (${c.pct_faturamento}%) · ${c.num_clientes} clientes`} />
+                ))}
+              </ReviewCard>
+            )}
+
+            {/* Compradores */}
+            {form.amostraCompradores.filter(c => c.razao_social).length > 0 && (
+              <ReviewCard accent="cobre" title="Amostra de Compradores" icon={<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />}>
+                {form.amostraCompradores.filter(c => c.razao_social).map((c, i) => (
+                  <ReviewRow key={i} label={c.razao_social} value={[c.cnpj_codigo_fiscal && `CNPJ ${c.cnpj_codigo_fiscal}`, c.limite_credito && `Lim: R$ ${c.limite_credito}`].filter(Boolean).join(' · ')} />
+                ))}
+              </ReviewCard>
+            )}
+
+            <FairfieldValueProp />
           </div>
         ) : (
           <>
@@ -450,33 +473,78 @@ export default function IntakeInterno() {
 }
 
 function FairfieldValueProp() {
+  const steps = [
+    {
+      num: '1', label: 'Análise simultânea',
+      text: '7 seguradoras consultadas ao mesmo tempo — Coface, Atradius, AVLA, Allianz Trade, AIG, CESCE e CHUBB',
+      icon: <><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></>
+    },
+    {
+      num: '2', label: 'Comparativo técnico',
+      text: 'Nossa equipe negocia as melhores condições de cobertura, prêmio e serviço para o seu perfil',
+      icon: <><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></>
+    },
+    {
+      num: '3', label: 'Decisão estratégica',
+      text: 'Você recebe um comparativo exclusivo com recomendação técnica da Fairfield para a melhor escolha',
+      icon: <><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></>
+    },
+  ]
   return (
-    <div className="bg-gradient-to-br from-navy/5 via-white to-cobre/5 border border-cobre/20 rounded-xl p-5 mt-6">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 bg-cobre/10 rounded-full flex items-center justify-center">
-          <svg className="w-4 h-4 text-cobre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+    <div className="mt-6 rounded-2xl overflow-hidden border border-cobre/20 shadow-sm">
+      <div className="bg-gradient-to-r from-navy to-[#0d1f3c] px-5 py-4 flex items-center gap-4">
+        <div className="w-14 h-14 bg-cobre/20 rounded-xl flex items-center justify-center flex-shrink-0">
+          <svg className="w-8 h-8 text-cobre" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h4 className="text-sm font-bold text-navy">O que acontece depois que você enviar?</h4>
+        <div>
+          <p className="text-[10px] font-bold text-cobre uppercase tracking-widest mb-0.5">O que acontece depois?</p>
+          <h4 className="text-base sm:text-lg font-bold text-white leading-tight">O SENTINEL destrava oportunidades para você vender mais com segurança</h4>
+        </div>
       </div>
-      <div className="space-y-2 ml-10">
-        <Step num="1" text="Seus dados são consultados simultaneamente nas 7 maiores seguradoras de crédito" highlight="Coface, Atradius, AVLA, Allianz Trade, AIG, CESCE e CHUBB" />
-        <Step num="2" text="Nossa equipe analisa cada proposta e negocia as melhores condições de cobertura, prêmio e serviço" />
-        <Step num="3" text="Você recebe um comparativo completo para tomar a melhor decisão estratégica para seu negócio" />
+      <div className="bg-white px-5 py-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {steps.map(s => (
+          <div key={s.num} className="flex flex-col gap-2 bg-gray-50 rounded-xl p-3 border border-gray-100">
+            <div className="flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-navy text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">{s.num}</span>
+              <svg className="w-4 h-4 text-cobre" fill="none" stroke="currentColor" viewBox="0 0 24 24">{s.icon}</svg>
+              <span className="text-xs font-bold text-navy">{s.label}</span>
+            </div>
+            <p className="text-xs text-gray-600 leading-relaxed">{s.text}</p>
+          </div>
+        ))}
       </div>
-      <div className="mt-4 ml-10 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-        <p className="text-xs text-green-700"><strong>Estudo totalmente gratuito.</strong> O SENTINEL atua como um suporte adicional à sua área de análise de crédito — mitigando riscos e destravando oportunidades para você vender mais com segurança.</p>
+      <div className="bg-green-50 border-t border-green-200 px-5 py-3 flex items-start gap-2">
+        <svg className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+        </svg>
+        <p className="text-sm text-green-700"><strong>Estudo totalmente gratuito.</strong> O SENTINEL atua como suporte adicional à sua área de análise de crédito — mitigando riscos e destravando oportunidades para você vender mais com segurança.</p>
       </div>
     </div>
   )
 }
 
-function Step({ num, text, highlight }) {
+function ReviewCard({ icon, title, accent, children }) {
+  const accentCls = accent === 'cobre' ? 'text-cobre bg-cobre/8' : accent === 'green' ? 'text-green-600 bg-green-50' : 'text-navy bg-navy/5'
+  const titleCls = accent === 'cobre' ? 'text-cobre' : accent === 'green' ? 'text-green-700' : 'text-navy'
   return (
-    <div className="flex items-start gap-2">
-      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-navy text-white text-[10px] font-bold flex items-center justify-center mt-0.5">{num}</span>
-      <p className="text-xs text-gray-600">{text}{highlight && <> — <strong className="text-cobre">{highlight}</strong></>}</p>
+    <div className="rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+      <div className={`px-4 py-2.5 flex items-center gap-2 ${accentCls}`}>
+        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">{icon}</svg>
+        <h4 className={`text-xs font-bold uppercase tracking-wide ${titleCls}`}>{title}</h4>
+      </div>
+      <div className="bg-white divide-y divide-gray-50 px-4">{children}</div>
+    </div>
+  )
+}
+
+function ReviewRow({ label, value, highlight }) {
+  if (!value || value === '—' || value === 'undefined' || value.toString().trim() === '') return null
+  return (
+    <div className="py-2 flex flex-wrap items-baseline gap-x-3 gap-y-0.5 min-h-[2rem]">
+      <span className="text-xs text-gray-400 font-medium w-28 flex-shrink-0">{label}</span>
+      <span className={`text-sm flex-1 ${highlight ? 'font-bold text-navy' : 'text-gray-700'}`}>{value}</span>
     </div>
   )
 }
