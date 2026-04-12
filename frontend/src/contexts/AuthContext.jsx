@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { API_BASE } from '../config'
+import { apiFetch } from '../config'
 
 const AuthContext = createContext(null)
 
@@ -51,24 +51,22 @@ export function AuthProvider({ children }) {
   }
 
   const generateCode = useCallback(async (email, nome, empresa, telefone) => {
-    const res = await fetch(`${API_BASE}/api/auth/send-code`, {
+    const data = await apiFetch('/api/auth/send-code', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, nome, empresa, telefone })
     })
-    const data = await res.json()
     if (!data.sucesso) throw new Error(data.mensagem)
     // Retorna dados de dev mode se disponível
     return { devMode: data.dev_mode || false, devCode: data.dev_code || null, devPreview: data.dev_preview || null }
   }, [])
 
   const verifyCode = useCallback(async (email, code) => {
-    const res = await fetch(`${API_BASE}/api/auth/verify-code`, {
+    const data = await apiFetch('/api/auth/verify-code', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, code })
     })
-    const data = await res.json()
     if (!data.sucesso) return { success: false }
 
     // Registra o usuário localmente após verificação bem-sucedida

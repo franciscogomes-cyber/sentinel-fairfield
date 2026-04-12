@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { API_BASE } from '../config'
+import { API_BASE, apiFetch } from '../config'
 
 // Utilitários exportados
 export function formatCNPJ(v) {
@@ -65,12 +65,11 @@ export function DynamicTable({ columns, rows, onChange, onAdd, onRemove, maxRows
       if (!col.cnpjLookupTarget) { setCnpjStatuses(s => ({ ...s, [`${ri}_${col.key}`]: 'valid' })); return }
       setCnpjStatuses(s => ({ ...s, [`${ri}_${col.key}`]: 'loading' }))
       try {
-        const r = await fetch(`${API_BASE}/api/cnpj/${digits}`)
-        const data = await r.json()
+        const data = await apiFetch(`/api/cnpj/${digits}`)
         if (data.sucesso) {
           onChange(ri, col.cnpjLookupTarget, data.data.razao_social)
           setCnpjStatuses(s => ({ ...s, [`${ri}_${col.key}`]: 'found' }))
-        } else if (r.status === 404) {
+        } else if (data.status === 404) {
           setCnpjStatuses(s => ({ ...s, [`${ri}_${col.key}`]: 'not_found' }))
         } else {
           setCnpjStatuses(s => ({ ...s, [`${ri}_${col.key}`]: 'error' }))
@@ -450,15 +449,14 @@ export function CNPJInput({ value, onChange, onResult, error, label = 'CNPJ' }) 
       if (!validarCNPJ(formatted)) { setStatus('invalid'); return }
       setLoading(true)
       try {
-        const r = await fetch(`${API_BASE}/api/cnpj/${digits}`)
-        const data = await r.json()
+        const data = await apiFetch(`/api/cnpj/${digits}`)
         if (data.sucesso) {
           setStatus('found')
           onResult && onResult(data.data)
-        } else if (r.status === 429) {
+        } else if (data.status === 429) {
           setStatus('error')
           setStatusMsg('⚠ Muitas consultas. Aguarde alguns segundos e tente novamente.')
-        } else if (r.status === 404) {
+        } else if (data.status === 404) {
           setStatus('not_found')
           setStatusMsg('CNPJ não encontrado na Receita Federal')
         } else {

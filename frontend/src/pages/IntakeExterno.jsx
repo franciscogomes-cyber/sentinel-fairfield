@@ -3,7 +3,7 @@ import toast from 'react-hot-toast'
 import { Input, Select, DynamicTable, StepNav, ProgressBar, SuccessScreen, CNPJInput, formatPhone } from '../components/FormComponents'
 import { LearningTrailExterno } from '../components/LearningTrail'
 import { useAuth } from '../contexts/AuthContext'
-import { API_BASE } from '../config'
+import { apiFetch } from '../config'
 
 const STORAGE_KEY = 'fairfield_intake_externo'
 const STEPS = ['Proponente', 'Faturamento', 'Destinos', 'Carteira', 'Perdas', 'Vencidos', 'Compradores']
@@ -126,8 +126,7 @@ export default function IntakeExterno() {
       setLoading(true)
       try {
         const body = { tipo: 'externo', ...form, seguradoras: [] }
-        const res = await fetch(`${API_BASE}/api/leads`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-        const data = await res.json()
+        const data = await apiFetch('/api/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
         if (!data.sucesso) throw new Error(data.mensagem)
         setResult(data.data)
         setSubmitted(true)
