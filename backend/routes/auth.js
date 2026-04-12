@@ -28,20 +28,28 @@ router.post('/send-code', async (req, res, next) => {
 
     console.log(`[AUTH] Código OTP gerado para ${email}: ${code} (expira: ${expiresAt} UTC)`);
 
-    // Envia email com o código
-    const emailInfo = await enviarCodigoVerificacao(email, nome || email.split('@')[0], code);
-
-    // Modo dev: se usando Ethereal (SMTP não configurado), retorna dados para facilitar teste
+    // Modo dev: responde IMEDIATAMENTE com o código (sem aguardar email)
     const isTestMode = !process.env.SMTP_PASS || process.env.SMTP_PASS === 'sua_app_password_aqui';
-    const resposta = { sucesso: true, mensagem: 'Código enviado para o e-mail informado' };
     if (isTestMode) {
-      resposta.dev_mode = true;
-      resposta.dev_code = code;
-      resposta.dev_preview = emailInfo?._previewUrl || null;
-      resposta.mensagem = 'Modo desenvolvimento — SMTP não configurado (código visível abaixo)';
+      // Envia email em background (não bloqueia a resposta)
+      enviarCodigoVerificacao(email, nome || email.split('@')[0], code)
+        .then(info => {
+          if (info?._previewUrl) console.log(`[EMAIL] Preview OTP: ${info._previewUrl}`);
+        })
+        .catch(err => console.error('[EMAIL] Erro ao enviar OTP:', err.message));
+
+      return res.json({
+        sucesso: true,
+        dev_mode: true,
+        dev_code: code,
+        dev_preview: null, // preview URL estará no console do servidor
+        mensagem: 'Modo desenvolvimento — SMTP não configurado (código visível abaixo)'
+      });
     }
 
-    res.json(resposta);
+    // Produção: aguarda envio real do email
+    await enviarCodigoVerificacao(email, nome || email.split('@')[0], code);
+    res.json({ sucesso: true, mensagem: 'Código enviado para o e-mail informado' });
   } catch (err) {
     next(err);
   }
