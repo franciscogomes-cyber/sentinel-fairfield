@@ -86,15 +86,8 @@ export default function Home() {
             <div className="absolute inset-0 bg-grid opacity-30" />
 
             <div className="relative z-10">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sentinel/10 border border-sentinel/20 mb-6">
-                <span className="w-1.5 h-1.5 rounded-full bg-sentinel animate-pulse" />
-                <span className="text-sentinel text-[10px] font-bold uppercase tracking-widest">Fairfield — Seguro de Credito Inteligente</span>
-              </div>
-
               {/* Title */}
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 leading-[1.05] tracking-tight text-white">
-                Bem-vindo ao<br />
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 leading-[1.05] tracking-tight text-white">
                 <span className="bg-gradient-to-r from-sentinel to-sentinel-light bg-clip-text text-transparent">SENTINEL</span>
               </h1>
               <p className="text-xl sm:text-2xl font-semibold text-white/80 mb-3 leading-snug">
@@ -124,13 +117,27 @@ export default function Home() {
           {/* Stats */}
           <section className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
             {[
-              { val: 7, suffix: '', label: 'Seguradoras conectadas', icon: '🔗' },
-              { val: 500, suffix: '+', label: 'Empresas atendidas', icon: '🏢' },
-              { val: 98, suffix: '%', label: 'Avaliacoes 5 estrelas', icon: '⭐' },
-              { val: 5, suffix: ' dias', label: 'Prazo de entrega', icon: '⚡' },
+              {
+                val: 7, suffix: '', label: 'Seguradoras conectadas',
+                icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+              },
+              {
+                val: 500, suffix: '+', label: 'Empresas atendidas',
+                icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+              },
+              {
+                val: 98, suffix: '%', label: 'Satisfacao dos clientes',
+                icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+              },
+              {
+                val: 5, suffix: ' dias', label: 'Prazo de entrega',
+                icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              },
             ].map((s) => (
               <div key={s.label} className="card text-center group hover:border-sentinel/20 transition-all">
-                <span className="text-xl mb-2 block">{s.icon}</span>
+                <div className="w-9 h-9 rounded-xl bg-sentinel/10 border border-sentinel/15 flex items-center justify-center text-sentinel mx-auto mb-3">
+                  {s.icon}
+                </div>
                 <p className="text-2xl sm:text-3xl font-black text-white">
                   <AnimCounter end={s.val} suffix={s.suffix} />
                 </p>
