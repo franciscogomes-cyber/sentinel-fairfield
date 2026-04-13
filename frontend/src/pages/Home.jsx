@@ -44,6 +44,116 @@ function useProcessingText() {
   return texts[idx]
 }
 
+/* ─── Tech Shield Component ─── */
+function TechShield() {
+  const packets = [
+    { id: 1, angle: 0,   delay: '0s',    label: 'CNPJ' },
+    { id: 2, angle: 51,  delay: '0.7s',  label: 'Coface' },
+    { id: 3, angle: 102, delay: '1.4s',  label: 'Atradius' },
+    { id: 4, angle: 153, delay: '2.1s',  label: 'AVLA' },
+    { id: 5, angle: 204, delay: '2.8s',  label: 'AIG' },
+    { id: 6, angle: 255, delay: '3.5s',  label: 'Allianz' },
+    { id: 7, angle: 306, delay: '4.2s',  label: 'CESCE' },
+  ]
+
+  return (
+    <div className="relative w-[280px] h-[280px] sm:w-[340px] sm:h-[340px] flex items-center justify-center select-none">
+      {/* Outer glow ring */}
+      <div className="absolute inset-0 rounded-full"
+        style={{ background: 'radial-gradient(circle, rgba(125,211,252,0.06) 0%, transparent 70%)' }} />
+
+      {/* Orbit rings */}
+      <div className="absolute inset-4 rounded-full border border-sentinel/10 animate-spin" style={{ animationDuration: '18s' }} />
+      <div className="absolute inset-8 rounded-full border border-dashed border-sentinel/8 animate-spin" style={{ animationDuration: '28s', animationDirection: 'reverse' }} />
+      <div className="absolute inset-14 rounded-full border border-sentinel/12 animate-spin" style={{ animationDuration: '12s' }} />
+
+      {/* Orbiting data packets */}
+      {packets.map((p) => {
+        const rad = (p.angle * Math.PI) / 180
+        const r = 120
+        const x = Math.cos(rad) * r
+        const y = Math.sin(rad) * r
+        return (
+          <div key={p.id} className="absolute flex flex-col items-center gap-0.5"
+            style={{ transform: `translate(${x}px, ${y}px)`, animation: `orbit-pulse 3s ease-in-out infinite`, animationDelay: p.delay }}>
+            <div className="w-2 h-2 rounded-full bg-sentinel shadow-lg" style={{ boxShadow: '0 0 8px rgba(125,211,252,0.8)' }} />
+            <span className="text-[7px] text-sentinel/60 font-mono font-bold whitespace-nowrap">{p.label}</span>
+          </div>
+        )
+      })}
+
+      {/* Scanning line */}
+      <div className="absolute inset-14 rounded-full overflow-hidden">
+        <div className="absolute inset-0 rounded-full animate-spin" style={{ animationDuration: '3s',
+          background: 'conic-gradient(from 0deg, transparent 0deg, rgba(125,211,252,0.15) 60deg, transparent 90deg)' }} />
+      </div>
+
+      {/* Shield SVG center */}
+      <div className="relative z-10 flex items-center justify-center">
+        <div className="absolute w-32 h-32 rounded-full animate-pulse"
+          style={{ background: 'radial-gradient(circle, rgba(125,211,252,0.12) 0%, transparent 70%)', animationDuration: '2.5s' }} />
+        <svg viewBox="0 0 120 136" className="w-24 h-24 sm:w-28 sm:h-28 drop-shadow-xl" fill="none">
+          <defs>
+            <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#1E3A5F" />
+              <stop offset="100%" stopColor="#0A1628" />
+            </linearGradient>
+            <linearGradient id="sb" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#7DD3FC" />
+              <stop offset="100%" stopColor="#38BDF8" />
+            </linearGradient>
+            <filter id="glow-s">
+              <feGaussianBlur stdDeviation="2.5" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+          </defs>
+          {/* Shield body */}
+          <path d="M60 4 L112 26 L112 72 Q112 112 60 132 Q8 112 8 72 L8 26 Z" fill="url(#sg)" />
+          {/* Shield border */}
+          <path d="M60 4 L112 26 L112 72 Q112 112 60 132 Q8 112 8 72 L8 26 Z"
+            fill="none" stroke="url(#sb)" strokeWidth="1.5" opacity="0.6" filter="url(#glow-s)" />
+          {/* Inner border */}
+          <path d="M60 14 L102 32 L102 72 Q102 104 60 122 Q18 104 18 72 L18 32 Z"
+            fill="none" stroke="rgba(125,211,252,0.15)" strokeWidth="1" />
+          {/* Lock icon */}
+          <rect x="44" y="62" width="32" height="26" rx="4" fill="rgba(125,211,252,0.15)" stroke="rgba(125,211,252,0.5)" strokeWidth="1.5" />
+          <path d="M50 62 L50 55 Q50 46 60 46 Q70 46 70 55 L70 62"
+            stroke="rgba(125,211,252,0.7)" strokeWidth="2" fill="none" strokeLinecap="round" />
+          <circle cx="60" cy="76" r="4" fill="rgba(125,211,252,0.8)" filter="url(#glow-s)" />
+          <line x1="60" y1="80" x2="60" y2="85" stroke="rgba(125,211,252,0.8)" strokeWidth="2" strokeLinecap="round" />
+          {/* Corner tech details */}
+          <g stroke="rgba(125,211,252,0.3)" strokeWidth="1" fill="none">
+            <polyline points="20,35 14,35 14,28" /><polyline points="100,35 106,35 106,28" />
+            <polyline points="20,100 14,100 14,107" /><polyline points="100,100 106,100 106,107" />
+          </g>
+          {/* Scan line animation */}
+          <line x1="18" y1="75" x2="102" y2="75" stroke="rgba(125,211,252,0.25)" strokeWidth="1"
+            style={{ animation: 'scan-line 2.5s ease-in-out infinite' }} />
+        </svg>
+
+        {/* Status badge */}
+        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-navy border border-accent-emerald/30 rounded-full px-3 py-1 whitespace-nowrap">
+          <span className="w-1.5 h-1.5 rounded-full bg-accent-emerald animate-pulse" />
+          <span className="text-[9px] font-bold text-accent-emerald uppercase tracking-wider">Protegido</span>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes orbit-pulse {
+          0%, 100% { opacity: 0.4; transform: translate(var(--tw-translate-x), var(--tw-translate-y)) scale(1); }
+          50% { opacity: 1; transform: translate(var(--tw-translate-x), var(--tw-translate-y)) scale(1.3); }
+        }
+        @keyframes scan-line {
+          0% { transform: translateY(-28px); opacity: 0; }
+          20% { opacity: 1; }
+          80% { opacity: 1; }
+          100% { transform: translateY(28px); opacity: 0; }
+        }
+      `}</style>
+    </div>
+  )
+}
+
 export default function Home() {
   const [started, setStarted] = useState(false)
   const processingText = useProcessingText()
@@ -85,32 +195,37 @@ export default function Home() {
             <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-cobre/5 rounded-full translate-y-1/2 -translate-x-1/4 blur-[100px]" />
             <div className="absolute inset-0 bg-grid opacity-30" />
 
-            <div className="relative z-10">
-              {/* Title */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 leading-[1.05] tracking-tight text-white">
-                <span className="bg-gradient-to-r from-sentinel to-sentinel-light bg-clip-text text-transparent">SENTINEL</span>
-              </h1>
-              <p className="text-xl sm:text-2xl font-semibold text-white/80 mb-3 leading-snug">
-                Cotacoes Inteligentes de Seguro de Credito
-              </p>
-              <p className="text-white/40 text-base sm:text-lg leading-relaxed max-w-2xl mb-8">
-                Nossa plataforma com <strong className="text-white/70">inteligencia artificial</strong> analisa o perfil da sua empresa e consulta simultaneamente as maiores seguradoras do mercado — garantindo a <strong className="text-cobre">melhor solucao de protecao de credito</strong> para o seu negocio.
-              </p>
+            <div className="relative z-10 flex flex-col lg:flex-row items-center gap-10 lg:gap-6">
+              {/* Left: Text */}
+              <div className="flex-1 min-w-0">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black mb-6 leading-[1.05] tracking-tight text-white">
+                  <span className="bg-gradient-to-r from-sentinel to-sentinel-light bg-clip-text text-transparent">SENTINEL</span>
+                </h1>
+                <p className="text-xl sm:text-2xl font-semibold text-white/80 mb-3 leading-snug">
+                  Cotacoes Inteligentes de Seguro de Credito
+                </p>
+                <p className="text-white/40 text-base leading-relaxed mb-8">
+                  Nossa plataforma com <strong className="text-white/70">inteligencia artificial</strong> analisa o perfil da sua empresa e consulta simultaneamente as maiores seguradoras do mercado — garantindo a <strong className="text-cobre">melhor solucao de protecao de credito</strong> para o seu negocio.
+                </p>
+                <button
+                  onClick={() => { setStarted(true); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                  className="group relative inline-flex items-center gap-3 bg-gradient-to-r from-sentinel-dark to-sentinel text-navy-dark px-8 sm:px-10 py-4 rounded-2xl font-bold text-base sm:text-lg shadow-xl shadow-sentinel/15 hover:shadow-2xl hover:shadow-sentinel/25 hover:scale-[1.02] transition-all duration-300"
+                >
+                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Iniciar Cotacao
+                  <span className="absolute -top-2 -right-2 bg-accent-emerald text-navy-dark text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
+                    Gratis
+                  </span>
+                </button>
+                <p className="text-white/20 text-xs mt-4">Sem compromisso · Resultado em ate 5 dias uteis</p>
+              </div>
 
-              {/* CTA */}
-              <button
-                onClick={() => { setStarted(true); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
-                className="group relative inline-flex items-center gap-3 bg-gradient-to-r from-sentinel-dark to-sentinel text-navy-dark px-8 sm:px-10 py-4 rounded-2xl font-bold text-base sm:text-lg shadow-xl shadow-sentinel/15 hover:shadow-2xl hover:shadow-sentinel/25 hover:scale-[1.02] transition-all duration-300"
-              >
-                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Iniciar Cotacao
-                <span className="absolute -top-2 -right-2 bg-accent-emerald text-navy-dark text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
-                  Gratis
-                </span>
-              </button>
-              <p className="text-white/20 text-xs mt-4">Sem compromisso · Resultado em ate 5 dias uteis</p>
+              {/* Right: Animated Tech Shield */}
+              <div className="flex-shrink-0 flex items-center justify-center w-full lg:w-auto">
+                <TechShield />
+              </div>
             </div>
           </section>
 
