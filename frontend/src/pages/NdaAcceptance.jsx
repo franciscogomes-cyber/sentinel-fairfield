@@ -117,9 +117,7 @@ export default function NdaAcceptance() {
     if (!el) return
     function handleScroll() {
       const { scrollTop, scrollHeight, clientHeight } = el
-      if (scrollTop + clientHeight >= scrollHeight - 30) {
-        setScrolledToEnd(true)
-      }
+      if (scrollTop + clientHeight >= scrollHeight - 30) setScrolledToEnd(true)
     }
     el.addEventListener('scroll', handleScroll)
     return () => el.removeEventListener('scroll', handleScroll)
@@ -127,9 +125,7 @@ export default function NdaAcceptance() {
 
   function handleAccept() {
     setAccepting(true)
-    setTimeout(() => {
-      acceptNda()
-    }, 800)
+    setTimeout(() => { acceptNda() }, 800)
   }
 
   return (
@@ -137,77 +133,73 @@ export default function NdaAcceptance() {
       {/* Header */}
       <div className="text-center mb-6">
         <div className="flex items-center justify-center gap-3 mb-3">
-          <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-12 w-12 sm:h-14 sm:w-14 object-contain" />
+          <div className="relative">
+            <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-12 w-12 sm:h-14 sm:w-14 object-contain relative z-10" />
+            <div className="absolute inset-0 bg-sentinel/20 rounded-full blur-xl" />
+          </div>
           <div className="text-left">
-            <h1 className="text-xl sm:text-2xl font-bold text-navy">Termo de Confidencialidade</h1>
-            <p className="text-xs text-gray-400">SENTINEL by Fairfield</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-white">Termo de Confidencialidade</h1>
+            <p className="text-xs text-white/30">SENTINEL by Fairfield</p>
           </div>
         </div>
-        <p className="text-sm text-gray-600 max-w-xl mx-auto">
+        <p className="text-sm text-white/40 max-w-xl mx-auto">
           Antes de prosseguir, leia integralmente o Termo de Confidencialidade abaixo.
-          Ele descreve como a Fairfield protege seus dados e garante o sigilo absoluto das informacoes fornecidas.
           Ao finalizar a leitura, o botao de aceite sera habilitado.
         </p>
       </div>
 
-      {/* User info badge */}
+      {/* User badge */}
       <div className="flex items-center justify-center mb-4">
-        <div className="inline-flex items-center gap-2 bg-navy/5 rounded-full px-4 py-2 text-xs">
-          <svg className="w-4 h-4 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-          <span className="text-navy font-medium">{user?.nome}</span>
-          <span className="text-gray-400">|</span>
-          <span className="text-gray-500">{user?.empresa}</span>
+        <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-full px-4 py-2 text-xs">
+          <div className="h-5 w-5 rounded-full bg-sentinel/15 border border-sentinel/25 flex items-center justify-center">
+            <span className="text-[9px] font-bold text-sentinel">{user?.nome?.charAt(0)}</span>
+          </div>
+          <span className="text-white/60 font-medium">{user?.nome}</span>
+          <span className="text-white/10">|</span>
+          <span className="text-white/30">{user?.empresa}</span>
         </div>
       </div>
 
       {/* NDA Document */}
-      <div className="card p-0 overflow-hidden">
-        {/* Document header */}
-        <div className="bg-navy px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+      <div className="card-glass p-0 overflow-hidden">
+        {/* Document header bar */}
+        <div className="bg-navy-light/80 px-4 sm:px-6 py-3 flex items-center justify-between border-b border-white/[0.06]">
           <div className="flex items-center gap-2">
-            <svg className="w-5 h-5 text-[#7DD3FC]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-sentinel" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <span className="text-white text-sm font-semibold">Termo de Confidencialidade — Fairfield Consultoria em Seguros</span>
+            <span className="text-white/60 text-xs font-medium">Termo de Confidencialidade — Fairfield</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            {scrolledToEnd ? (
-              <span className="text-green-400 text-xs font-medium flex items-center gap-1">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Leitura completa
-              </span>
-            ) : (
-              <span className="text-amber-300 text-xs font-medium flex items-center gap-1 animate-pulse">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                </svg>
-                Role ate o final
-              </span>
-            )}
-          </div>
+          {scrolledToEnd ? (
+            <span className="text-accent-emerald text-[10px] font-bold flex items-center gap-1">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+              Leitura completa
+            </span>
+          ) : (
+            <span className="text-cobre text-[10px] font-bold flex items-center gap-1 animate-pulse">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+              Role ate o final
+            </span>
+          )}
         </div>
 
-        {/* Scroll progress indicator */}
-        <div className="h-1 bg-gray-100">
+        {/* Progress bar */}
+        <div className="h-[2px] bg-white/[0.04]">
           <ScrollProgress scrollRef={scrollRef} />
         </div>
 
         {/* Document body */}
         <div
           ref={scrollRef}
-          className="max-h-[55vh] sm:max-h-[60vh] overflow-y-auto px-4 sm:px-8 py-5 sm:py-6 space-y-5 text-sm leading-relaxed text-gray-700 scroll-smooth"
+          className="max-h-[55vh] sm:max-h-[60vh] overflow-y-auto px-4 sm:px-8 py-5 sm:py-6 space-y-5 text-sm leading-relaxed text-white/50 scroll-smooth"
         >
           {NDA_SECTIONS.map((section, idx) => (
             <div key={idx}>
-              <h3 className={`font-bold ${idx === 0 ? 'text-lg text-navy text-center mb-4' : 'text-navy text-sm mb-2'}`}>
+              <h3 className={`font-bold ${idx === 0 ? 'text-lg text-white text-center mb-4' : 'text-sentinel/80 text-sm mb-2'}`}>
                 {section.title}
               </h3>
               {section.content.split('\n').map((line, li) => (
-                <p key={li} className={`${line.startsWith('(') ? 'ml-4' : ''} mb-2 text-[13px] sm:text-sm`}>
+                <p key={li} className={`${line.startsWith('(') ? 'ml-4' : ''} mb-2 text-[13px] sm:text-sm text-white/40`}>
                   {line}
                 </p>
               ))}
@@ -215,54 +207,46 @@ export default function NdaAcceptance() {
           ))}
 
           {/* Footer */}
-          <div className="border-t border-gray-200 pt-4 mt-6">
-            <p className="text-xs text-gray-500 text-center">
-              <strong>Responsavel:</strong> Fairfield Protecao e Inteligencia Financeira Ltda — CNPJ 13.381.310/0001-45
+          <div className="border-t border-white/[0.06] pt-4 mt-6">
+            <p className="text-[11px] text-white/25 text-center">
+              <strong className="text-white/40">Responsavel:</strong> Fairfield Protecao e Inteligencia Financeira Ltda — CNPJ 13.381.310/0001-45
             </p>
-            <p className="text-xs text-gray-500 text-center mt-1">
-              <strong>Vigencia do estudo:</strong> 90 dias a partir do aceite · <strong>Sigilo:</strong> 2 anos apos o encerramento
-            </p>
-            <p className="text-xs text-gray-500 text-center mt-1">
-              SUSEP 20.2036457.1 · Foro: Comarca de Blumenau/SC
+            <p className="text-[11px] text-white/25 text-center mt-1">
+              <strong className="text-white/40">Vigencia:</strong> 90 dias · <strong className="text-white/40">Sigilo:</strong> 2 anos · SUSEP 20.2036457.1
             </p>
           </div>
 
-          {/* End marker */}
           <div className="text-center py-4">
-            <div className="inline-flex items-center gap-2 bg-green-50 border border-green-200 rounded-full px-4 py-2">
-              <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span className="text-xs text-green-700 font-medium">Fim do documento</span>
+            <div className="inline-flex items-center gap-2 bg-accent-emerald/10 border border-accent-emerald/20 rounded-full px-4 py-2">
+              <svg className="w-3.5 h-3.5 text-accent-emerald" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+              <span className="text-[11px] text-accent-emerald font-medium">Fim do documento</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Accept button area */}
+      {/* Accept area */}
       <div className="mt-5 sm:mt-6">
         {scrolledToEnd ? (
           <div className="animate-fadeIn">
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
+            <div className="rounded-xl bg-accent-emerald/10 border border-accent-emerald/20 p-4 mb-4">
               <div className="flex items-start gap-3">
-                <svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-accent-emerald flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
                 <div>
-                  <p className="text-sm text-green-800 font-medium">
-                    Ao clicar em "De Acordo", voce declara expressamente que leu e compreendeu integralmente este Termo de Confidencialidade, concorda com seus termos e autoriza a Fairfield a utilizar suas informacoes exclusivamente para o estudo de mercado de Seguro de Credito.
+                  <p className="text-sm text-accent-emerald font-medium">
+                    Ao clicar em "De Acordo", voce declara que leu e compreendeu este Termo e autoriza a Fairfield a utilizar suas informacoes para o estudo de mercado.
                   </p>
-                  <p className="text-xs text-green-600 mt-1">
-                    Seu aceite eletronico sera registrado com data, hora e identificacao, tendo plena validade juridica nos termos da legislacao vigente.
+                  <p className="text-[11px] text-white/25 mt-1">
+                    Aceite eletronico registrado com data, hora e identificacao.
                   </p>
                 </div>
               </div>
             </div>
 
-            <button
-              onClick={handleAccept}
-              disabled={accepting}
-              className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:from-green-700 hover:to-green-800 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50"
+            <button onClick={handleAccept} disabled={accepting}
+              className="w-full bg-gradient-to-r from-accent-emerald to-emerald-500 text-navy-dark px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-accent-emerald/15 hover:shadow-xl hover:shadow-accent-emerald/25 hover:scale-[1.01] transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {accepting ? (
                 <>
@@ -271,9 +255,7 @@ export default function NdaAcceptance() {
                 </>
               ) : (
                 <>
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                   De Acordo — Aceito os Termos
                 </>
               )}
@@ -281,15 +263,13 @@ export default function NdaAcceptance() {
           </div>
         ) : (
           <div className="text-center">
-            <button disabled className="w-full bg-gray-200 text-gray-400 px-8 py-4 rounded-xl font-bold text-lg cursor-not-allowed">
+            <button disabled className="w-full bg-white/[0.04] text-white/20 px-8 py-4 rounded-xl font-bold text-lg cursor-not-allowed border border-white/[0.06]">
               <span className="flex items-center justify-center gap-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                 Leia o documento completo para continuar
               </span>
             </button>
-            <p className="text-xs text-gray-400 mt-2">Role ate o final do documento para habilitar o botao de aceitacao</p>
+            <p className="text-[11px] text-white/15 mt-2">Role ate o final do documento para habilitar o aceite</p>
           </div>
         )}
       </div>
@@ -299,23 +279,19 @@ export default function NdaAcceptance() {
 
 function ScrollProgress({ scrollRef }) {
   const [progress, setProgress] = useState(0)
-
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
     function handleScroll() {
       const { scrollTop, scrollHeight, clientHeight } = el
-      const pct = Math.min(100, (scrollTop / (scrollHeight - clientHeight)) * 100)
-      setProgress(pct)
+      setProgress(Math.min(100, (scrollTop / (scrollHeight - clientHeight)) * 100))
     }
     el.addEventListener('scroll', handleScroll)
     return () => el.removeEventListener('scroll', handleScroll)
   }, [scrollRef])
 
   return (
-    <div
-      className="h-full bg-gradient-to-r from-cobre to-[#D4944A] transition-all duration-150"
-      style={{ width: `${progress}%` }}
-    />
+    <div className="h-full bg-gradient-to-r from-sentinel to-accent-emerald transition-all duration-150"
+      style={{ width: `${progress}%` }} />
   )
 }

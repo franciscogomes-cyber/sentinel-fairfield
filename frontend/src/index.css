@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,37 +8,100 @@ body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: #0a0f1e;
+  color: #e2e8f0;
 }
+
+/* Scrollbar dark */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a0f1e; }
+::-webkit-scrollbar-thumb { background: rgba(125,211,252,0.2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(125,211,252,0.4); }
 
 @layer components {
   .btn-primary {
-    @apply bg-navy text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-cobre hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-gradient-to-r from-sentinel-dark to-sentinel text-navy-dark px-6 py-3 rounded-xl font-bold transition-all duration-300 hover:shadow-lg hover:shadow-sentinel/20 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
   }
   .btn-secondary {
-    @apply border-2 border-navy text-navy px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:bg-navy hover:text-white;
+    @apply border border-white/10 text-white/80 px-6 py-3 rounded-xl font-semibold transition-all duration-300 hover:bg-white/5 hover:border-sentinel/30 hover:text-white;
+  }
+  .btn-accent {
+    @apply bg-gradient-to-r from-cobre to-cobre-light text-navy-dark px-6 py-3 rounded-xl font-bold transition-all duration-300 hover:shadow-lg hover:shadow-cobre/20 hover:scale-[1.02];
   }
   .input-field {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cobre focus:border-transparent transition-all duration-200;
+    @apply w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-sentinel/40 focus:border-sentinel/30 transition-all duration-300;
   }
   .select-field {
-    @apply w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-cobre focus:border-transparent transition-all duration-200;
+    @apply w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sentinel/40 focus:border-sentinel/30 transition-all duration-300;
   }
   .label-field {
-    @apply block text-sm font-semibold text-navy mb-1.5;
+    @apply block text-sm font-semibold text-white/70 mb-1.5;
   }
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-100 p-6;
+    @apply bg-white/[0.03] rounded-2xl border border-white/[0.06] p-6 backdrop-blur-sm;
+  }
+  .card-glass {
+    @apply bg-white/[0.04] rounded-2xl border border-white/[0.08] p-6 backdrop-blur-md shadow-xl;
   }
   .error-msg {
-    @apply text-red-500 text-xs mt-1;
+    @apply text-rose-400 text-xs mt-1;
+  }
+  .section-divider {
+    @apply h-px bg-gradient-to-r from-transparent via-sentinel/15 to-transparent my-4;
+  }
+  .glow-box {
+    @apply relative overflow-hidden;
+  }
+  .glow-box::before {
+    content: '';
+    @apply absolute -inset-1 bg-gradient-to-r from-sentinel/20 via-transparent to-sentinel/20 rounded-2xl blur-xl opacity-0 transition-opacity duration-500;
+  }
+  .glow-box:hover::before {
+    @apply opacity-100;
   }
 }
 
+/* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 .animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slideUp {
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes progressLoop {
+  0% { width: 0%; }
+  50% { width: 100%; }
+  100% { width: 0%; }
+}
+.animate-progress-loop {
+  animation: progressLoop 4s ease-in-out infinite;
+}
+
+/* Grid background */
+.bg-grid {
+  background-image: linear-gradient(rgba(125,211,252,0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(125,211,252,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Chip circuit animation */
+@keyframes circuit-pulse {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.8; }
+}
+
+/* Select dark fix */
+select option {
+  background: #111833;
+  color: #e2e8f0;
 }
