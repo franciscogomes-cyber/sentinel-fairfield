@@ -46,110 +46,151 @@ function useProcessingText() {
 
 /* ─── Tech Shield Component ─── */
 function TechShield() {
-  const packets = [
-    { id: 1, angle: 0,   delay: '0s',    label: 'CNPJ' },
-    { id: 2, angle: 51,  delay: '0.7s',  label: 'Coface' },
-    { id: 3, angle: 102, delay: '1.4s',  label: 'Atradius' },
-    { id: 4, angle: 153, delay: '2.1s',  label: 'AVLA' },
-    { id: 5, angle: 204, delay: '2.8s',  label: 'AIG' },
-    { id: 6, angle: 255, delay: '3.5s',  label: 'Allianz' },
-    { id: 7, angle: 306, delay: '4.2s',  label: 'CESCE' },
-  ]
-
   return (
-    <div className="relative w-[280px] h-[280px] sm:w-[340px] sm:h-[340px] flex items-center justify-center select-none">
-      {/* Outer glow ring */}
-      <div className="absolute inset-0 rounded-full"
-        style={{ background: 'radial-gradient(circle, rgba(125,211,252,0.06) 0%, transparent 70%)' }} />
+    <div className="relative flex items-center justify-center select-none" style={{ width: 380, height: 430 }}>
+      {/* Background glow */}
+      <div className="absolute inset-0" style={{ background: 'radial-gradient(circle, rgba(125,211,252,0.08) 0%, transparent 65%)' }} />
 
-      {/* Orbit rings */}
-      <div className="absolute inset-4 rounded-full border border-sentinel/10 animate-spin" style={{ animationDuration: '18s' }} />
-      <div className="absolute inset-8 rounded-full border border-dashed border-sentinel/8 animate-spin" style={{ animationDuration: '28s', animationDirection: 'reverse' }} />
-      <div className="absolute inset-14 rounded-full border border-sentinel/12 animate-spin" style={{ animationDuration: '12s' }} />
+      {/* Shield SVG */}
+      <svg viewBox="0 0 200 228" className="w-full h-full drop-shadow-2xl" fill="none">
+        <defs>
+          <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#1E3A5F" />
+            <stop offset="100%" stopColor="#0A1628" />
+          </linearGradient>
+          <linearGradient id="sb" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#7DD3FC" />
+            <stop offset="100%" stopColor="#38BDF8" />
+          </linearGradient>
+          <linearGradient id="pulse-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#7DD3FC" />
+            <stop offset="50%" stopColor="#B87333" />
+            <stop offset="100%" stopColor="#7DD3FC" />
+          </linearGradient>
+          <filter id="glow-s">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+          <filter id="glow-core">
+            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+        </defs>
 
-      {/* Orbiting data packets */}
-      {packets.map((p) => {
-        const rad = (p.angle * Math.PI) / 180
-        const r = 120
-        const x = Math.cos(rad) * r
-        const y = Math.sin(rad) * r
-        return (
-          <div key={p.id} className="absolute flex flex-col items-center gap-0.5"
-            style={{ transform: `translate(${x}px, ${y}px)`, animation: `orbit-pulse 3s ease-in-out infinite`, animationDelay: p.delay }}>
-            <div className="w-2 h-2 rounded-full bg-sentinel shadow-lg" style={{ boxShadow: '0 0 8px rgba(125,211,252,0.8)' }} />
-            <span className="text-[7px] text-sentinel/60 font-mono font-bold whitespace-nowrap">{p.label}</span>
-          </div>
-        )
-      })}
+        {/* Shield body */}
+        <path d="M100 8 L186 42 L186 118 Q186 186 100 220 Q14 186 14 118 L14 42 Z" fill="url(#sg)" />
+        <path d="M100 8 L186 42 L186 118 Q186 186 100 220 Q14 186 14 118 L14 42 Z"
+          fill="none" stroke="url(#sb)" strokeWidth="1.5" opacity="0.5" filter="url(#glow-s)" />
+        <path d="M100 20 L174 50 L174 118 Q174 178 100 208 Q26 178 26 118 L26 50 Z"
+          fill="none" stroke="rgba(125,211,252,0.1)" strokeWidth="0.8" />
 
-      {/* Scanning line */}
-      <div className="absolute inset-14 rounded-full overflow-hidden">
-        <div className="absolute inset-0 rounded-full animate-spin" style={{ animationDuration: '3s',
-          background: 'conic-gradient(from 0deg, transparent 0deg, rgba(125,211,252,0.15) 60deg, transparent 90deg)' }} />
-      </div>
+        {/* Corner brackets */}
+        <g stroke="rgba(125,211,252,0.3)" strokeWidth="1.2" fill="none">
+          <polyline points="34,55 24,55 24,44" /><polyline points="166,55 176,55 176,44" />
+          <polyline points="34,170 24,170 24,181" /><polyline points="166,170 176,170 176,181" />
+        </g>
 
-      {/* Shield SVG center */}
-      <div className="relative z-10 flex items-center justify-center">
-        <div className="absolute w-32 h-32 rounded-full animate-pulse"
-          style={{ background: 'radial-gradient(circle, rgba(125,211,252,0.12) 0%, transparent 70%)', animationDuration: '2.5s' }} />
-        <svg viewBox="0 0 120 136" className="w-24 h-24 sm:w-28 sm:h-28 drop-shadow-xl" fill="none">
-          <defs>
-            <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#1E3A5F" />
-              <stop offset="100%" stopColor="#0A1628" />
-            </linearGradient>
-            <linearGradient id="sb" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#7DD3FC" />
-              <stop offset="100%" stopColor="#38BDF8" />
-            </linearGradient>
-            <filter id="glow-s">
-              <feGaussianBlur stdDeviation="2.5" result="blur" />
-              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-            </filter>
-          </defs>
-          {/* Shield body */}
-          <path d="M60 4 L112 26 L112 72 Q112 112 60 132 Q8 112 8 72 L8 26 Z" fill="url(#sg)" />
-          {/* Shield border */}
-          <path d="M60 4 L112 26 L112 72 Q112 112 60 132 Q8 112 8 72 L8 26 Z"
-            fill="none" stroke="url(#sb)" strokeWidth="1.5" opacity="0.6" filter="url(#glow-s)" />
-          {/* Inner border */}
-          <path d="M60 14 L102 32 L102 72 Q102 104 60 122 Q18 104 18 72 L18 32 Z"
-            fill="none" stroke="rgba(125,211,252,0.15)" strokeWidth="1" />
-          {/* Lock icon */}
-          <rect x="44" y="62" width="32" height="26" rx="4" fill="rgba(125,211,252,0.15)" stroke="rgba(125,211,252,0.5)" strokeWidth="1.5" />
-          <path d="M50 62 L50 55 Q50 46 60 46 Q70 46 70 55 L70 62"
-            stroke="rgba(125,211,252,0.7)" strokeWidth="2" fill="none" strokeLinecap="round" />
-          <circle cx="60" cy="76" r="4" fill="rgba(125,211,252,0.8)" filter="url(#glow-s)" />
-          <line x1="60" y1="80" x2="60" y2="85" stroke="rgba(125,211,252,0.8)" strokeWidth="2" strokeLinecap="round" />
-          {/* Corner tech details */}
-          <g stroke="rgba(125,211,252,0.3)" strokeWidth="1" fill="none">
-            <polyline points="20,35 14,35 14,28" /><polyline points="100,35 106,35 106,28" />
-            <polyline points="20,100 14,100 14,107" /><polyline points="100,100 106,100 106,107" />
-          </g>
-          {/* Scan line animation */}
-          <line x1="18" y1="75" x2="102" y2="75" stroke="rgba(125,211,252,0.25)" strokeWidth="1"
-            style={{ animation: 'scan-line 2.5s ease-in-out infinite' }} />
-        </svg>
+        {/* ── Chipset body ── */}
+        <rect x="72" y="88" width="56" height="56" rx="8" fill="rgba(10,22,40,0.9)"
+          stroke="rgba(125,211,252,0.4)" strokeWidth="1.5" />
+        <rect x="78" y="94" width="44" height="44" rx="4" fill="none"
+          stroke="rgba(125,211,252,0.15)" strokeWidth="0.8" />
 
-        {/* Status badge */}
-        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-navy border border-accent-emerald/30 rounded-full px-3 py-1 whitespace-nowrap">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent-emerald animate-pulse" />
-          <span className="text-[9px] font-bold text-accent-emerald uppercase tracking-wider">Protegido</span>
-        </div>
-      </div>
+        {/* Core — pulsing heart */}
+        <circle cx="100" cy="116" r="10" fill="rgba(125,211,252,0.06)">
+          <animate attributeName="r" values="8;12;8" dur="1.8s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="100" cy="116" r="6" fill="rgba(125,211,252,0.2)" filter="url(#glow-core)">
+          <animate attributeName="r" values="5;8;5" dur="1.8s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.6;1;0.6" dur="1.8s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="100" cy="116" r="3" fill="#7DD3FC">
+          <animate attributeName="r" values="2.5;4;2.5" dur="1.8s" repeatCount="indefinite" />
+        </circle>
 
-      <style>{`
-        @keyframes orbit-pulse {
-          0%, 100% { opacity: 0.4; transform: translate(var(--tw-translate-x), var(--tw-translate-y)) scale(1); }
-          50% { opacity: 1; transform: translate(var(--tw-translate-x), var(--tw-translate-y)) scale(1.3); }
-        }
-        @keyframes scan-line {
-          0% { transform: translateY(-28px); opacity: 0; }
-          20% { opacity: 1; }
-          80% { opacity: 1; }
-          100% { transform: translateY(28px); opacity: 0; }
-        }
-      `}</style>
+        {/* ── Circuit traces from chip — TOP ── */}
+        <g stroke="rgba(125,211,252,0.35)" strokeWidth="1.2" fill="none">
+          <line x1="84" y1="88" x2="84" y2="68"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2s" begin="0s" repeatCount="indefinite" /></line>
+          <line x1="94" y1="88" x2="94" y2="62"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2s" begin="0.3s" repeatCount="indefinite" /></line>
+          <line x1="106" y1="88" x2="106" y2="62"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2s" begin="0.6s" repeatCount="indefinite" /></line>
+          <line x1="116" y1="88" x2="116" y2="68"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2s" begin="0.9s" repeatCount="indefinite" /></line>
+        </g>
+        {/* Pin dots — top */}
+        <g fill="#7DD3FC">
+          <circle cx="84" cy="67" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2s" begin="0s" repeatCount="indefinite" /></circle>
+          <circle cx="94" cy="61" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2s" begin="0.3s" repeatCount="indefinite" /></circle>
+          <circle cx="106" cy="61" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2s" begin="0.6s" repeatCount="indefinite" /></circle>
+          <circle cx="116" cy="67" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2s" begin="0.9s" repeatCount="indefinite" /></circle>
+        </g>
+
+        {/* ── Circuit traces — BOTTOM ── */}
+        <g stroke="rgba(125,211,252,0.35)" strokeWidth="1.2" fill="none">
+          <line x1="84" y1="144" x2="84" y2="164"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2s" begin="0.2s" repeatCount="indefinite" /></line>
+          <line x1="94" y1="144" x2="94" y2="170"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2s" begin="0.5s" repeatCount="indefinite" /></line>
+          <line x1="106" y1="144" x2="106" y2="170"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2s" begin="0.8s" repeatCount="indefinite" /></line>
+          <line x1="116" y1="144" x2="116" y2="164"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2s" begin="1.1s" repeatCount="indefinite" /></line>
+        </g>
+        <g fill="#7DD3FC">
+          <circle cx="84" cy="165" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2s" begin="0.2s" repeatCount="indefinite" /></circle>
+          <circle cx="94" cy="171" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2s" begin="0.5s" repeatCount="indefinite" /></circle>
+          <circle cx="106" cy="171" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2s" begin="0.8s" repeatCount="indefinite" /></circle>
+          <circle cx="116" cy="165" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2s" begin="1.1s" repeatCount="indefinite" /></circle>
+        </g>
+
+        {/* ── Circuit traces — LEFT ── */}
+        <g stroke="rgba(125,211,252,0.35)" strokeWidth="1.2" fill="none">
+          <line x1="72" y1="100" x2="52" y2="100"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2.2s" begin="0.1s" repeatCount="indefinite" /></line>
+          <line x1="72" y1="110" x2="46" y2="110"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2.2s" begin="0.4s" repeatCount="indefinite" /></line>
+          <line x1="72" y1="122" x2="46" y2="122"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2.2s" begin="0.7s" repeatCount="indefinite" /></line>
+          <line x1="72" y1="132" x2="52" y2="132"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2.2s" begin="1.0s" repeatCount="indefinite" /></line>
+        </g>
+        <g fill="#7DD3FC">
+          <circle cx="51" cy="100" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.2s" begin="0.1s" repeatCount="indefinite" /></circle>
+          <circle cx="45" cy="110" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.2s" begin="0.4s" repeatCount="indefinite" /></circle>
+          <circle cx="45" cy="122" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.2s" begin="0.7s" repeatCount="indefinite" /></circle>
+          <circle cx="51" cy="132" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.2s" begin="1.0s" repeatCount="indefinite" /></circle>
+        </g>
+
+        {/* ── Circuit traces — RIGHT ── */}
+        <g stroke="rgba(125,211,252,0.35)" strokeWidth="1.2" fill="none">
+          <line x1="128" y1="100" x2="148" y2="100"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2.2s" begin="0.15s" repeatCount="indefinite" /></line>
+          <line x1="128" y1="110" x2="154" y2="110"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2.2s" begin="0.45s" repeatCount="indefinite" /></line>
+          <line x1="128" y1="122" x2="154" y2="122"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2.2s" begin="0.75s" repeatCount="indefinite" /></line>
+          <line x1="128" y1="132" x2="148" y2="132"><animate attributeName="stroke-opacity" values="0.15;0.7;0.15" dur="2.2s" begin="1.05s" repeatCount="indefinite" /></line>
+        </g>
+        <g fill="#7DD3FC">
+          <circle cx="149" cy="100" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.2s" begin="0.15s" repeatCount="indefinite" /></circle>
+          <circle cx="155" cy="110" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.2s" begin="0.45s" repeatCount="indefinite" /></circle>
+          <circle cx="155" cy="122" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.2s" begin="0.75s" repeatCount="indefinite" /></circle>
+          <circle cx="149" cy="132" r="2"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.2s" begin="1.05s" repeatCount="indefinite" /></circle>
+        </g>
+
+        {/* ── Data flowing through diagonal circuits ── */}
+        <g stroke="rgba(184,115,51,0.4)" strokeWidth="0.8" fill="none">
+          <polyline points="84,67 70,50 56,50"><animate attributeName="stroke-opacity" values="0.1;0.6;0.1" dur="3s" begin="0s" repeatCount="indefinite" /></polyline>
+          <polyline points="116,67 130,50 146,50"><animate attributeName="stroke-opacity" values="0.1;0.6;0.1" dur="3s" begin="0.5s" repeatCount="indefinite" /></polyline>
+          <polyline points="51,100 40,90 40,76"><animate attributeName="stroke-opacity" values="0.1;0.6;0.1" dur="3s" begin="1s" repeatCount="indefinite" /></polyline>
+          <polyline points="149,100 160,90 160,76"><animate attributeName="stroke-opacity" values="0.1;0.6;0.1" dur="3s" begin="1.5s" repeatCount="indefinite" /></polyline>
+          <polyline points="51,132 38,146 38,160"><animate attributeName="stroke-opacity" values="0.1;0.6;0.1" dur="3s" begin="2s" repeatCount="indefinite" /></polyline>
+          <polyline points="149,132 162,146 162,160"><animate attributeName="stroke-opacity" values="0.1;0.6;0.1" dur="3s" begin="2.5s" repeatCount="indefinite" /></polyline>
+        </g>
+        {/* Cobre accent dots at circuit ends */}
+        <g fill="#B87333">
+          <circle cx="55" cy="50" r="1.8" opacity="0.5"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" begin="0s" repeatCount="indefinite" /></circle>
+          <circle cx="147" cy="50" r="1.8" opacity="0.5"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" begin="0.5s" repeatCount="indefinite" /></circle>
+          <circle cx="40" cy="75" r="1.8" opacity="0.5"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" begin="1s" repeatCount="indefinite" /></circle>
+          <circle cx="160" cy="75" r="1.8" opacity="0.5"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" begin="1.5s" repeatCount="indefinite" /></circle>
+          <circle cx="38" cy="161" r="1.8" opacity="0.5"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" begin="2s" repeatCount="indefinite" /></circle>
+          <circle cx="162" cy="161" r="1.8" opacity="0.5"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" begin="2.5s" repeatCount="indefinite" /></circle>
+        </g>
+
+        {/* Chip inner grid pattern */}
+        <g stroke="rgba(125,211,252,0.08)" strokeWidth="0.5">
+          <line x1="82" y1="98" x2="82" y2="134" /><line x1="90" y1="98" x2="90" y2="134" />
+          <line x1="110" y1="98" x2="110" y2="134" /><line x1="118" y1="98" x2="118" y2="134" />
+          <line x1="82" y1="104" x2="118" y2="104" /><line x1="82" y1="128" x2="118" y2="128" />
+        </g>
+      </svg>
     </div>
   )
 }
