@@ -330,20 +330,20 @@ export default function Home() {
 
           {/* Seguradoras parceiras */}
           <section className="mb-8">
-            <p className="text-center text-[9px] text-white/25 uppercase tracking-widest font-bold mb-4">Seguradoras parceiras conectadas</p>
-            <div className="card-glass">
-              <div className="grid grid-cols-4 sm:flex sm:items-center sm:justify-center gap-4 sm:gap-6">
+            <p className="text-center text-[10px] text-white/30 uppercase tracking-widest font-bold mb-6">Seguradoras parceiras conectadas</p>
+            <div className="card-glass px-6 py-8">
+              <div className="grid grid-cols-4 sm:grid-cols-7 gap-4 sm:gap-6">
                 {seguradoras.map((logo) => (
-                  <div key={logo.alt} className="flex flex-col items-center gap-2 group">
-                    <div className="h-12 w-12 rounded-xl bg-white/[0.06] border border-white/[0.08] flex items-center justify-center group-hover:border-sentinel/25 group-hover:bg-sentinel/[0.06] transition-all">
-                      <img src={logo.src} alt={logo.alt} className={`h-7 w-7 object-contain ${logo.invert ? 'brightness-0 invert' : ''}`} />
+                  <div key={logo.alt} className="flex flex-col items-center gap-3 group">
+                    <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl bg-white/[0.07] border border-white/[0.10] flex items-center justify-center group-hover:border-sentinel/30 group-hover:bg-sentinel/[0.08] transition-all duration-200 p-3">
+                      <img src={logo.src} alt={logo.alt} className={`h-full w-full object-contain ${logo.invert ? 'brightness-0 invert' : ''}`} />
                     </div>
-                    <span className="text-[9px] text-white/25 group-hover:text-white/50 transition-colors">{logo.alt}</span>
+                    <span className="text-[10px] text-white/30 group-hover:text-white/60 transition-colors font-medium">{logo.alt}</span>
                   </div>
                 ))}
               </div>
-              <div className="section-divider mt-5" />
-              <p className="text-center text-xs text-white/35 mt-4">
+              <div className="section-divider mt-7" />
+              <p className="text-center text-sm text-white/40 mt-5">
                 O <span className="text-sentinel font-bold">SENTINEL</span> consulta todas simultaneamente e identifica a <span className="text-cobre font-bold">melhor solucao</span>.
               </p>
             </div>
