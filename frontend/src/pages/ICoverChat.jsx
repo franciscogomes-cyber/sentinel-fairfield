@@ -767,6 +767,13 @@ const KNOWLEDGE_BASE = [
     answer: `**Casos de Sucesso — Seguro de Crédito na Prática**\n\n**Caso 1: Indústria Química**\n• Faturamento a prazo: R$ 120M/ano\n• Prêmio anual: R$ 264.000 (0,22%)\n• Sinistro no ano 2: Comprador entrou em RJ\n• Exposição: R$ 2,8M\n• Indenização (85%): R$ 2,38M\n• **ROI: 9x** o prêmio pago em 2 anos\n\n**Caso 2: Exportadora de Alimentos**\n• Exportação para 15 países\n• Prêmio: USD 35.000/ano\n• Evento: Moratória cambial no país destino\n• Exposição: USD 600.000\n• Indenização (90%): USD 540.000\n• **Sem o seguro, a empresa teria problemas de caixa sérios**\n\n**Caso 3: Distribuidora de Eletrônicos**\n• 200+ compradores, faturamento R$ 80M\n• 3 anos sem sinistro → bônus acumulado de 25%\n• No ano 4: 2 sinistros (R$ 800k total)\n• Indenização: R$ 680k\n• Mesmo com malus, o histórico de bônus compensou\n\n**Resultado comum:**\n• Empresas com seguro de crédito têm **taxa de sobrevivência 40% maior** em crises\n• **90% dos clientes** renovam a apólice\n• ROI médio em 5 anos: **3x a 5x** o prêmio total pago\n\nQuer proteger sua empresa também? Clique em **Fazer Cotação**!`
   },
 
+  // ── Garantir Vendas ──
+  {
+    keywords: ['garantir minhas vendas', 'garantir vendas', 'proteger vendas', 'proteger meu faturamento', 'proteger recebiveis', 'como garanto', 'como protejo', 'calote', 'nao pagar', 'nao pagou', 'medo de inadimplencia', 'evitar inadimplencia', 'garantir recebimento'],
+    category: 'comercial',
+    answer: `**Como garantir suas vendas com o Seguro de Crédito**\n\nO Seguro de Crédito é a forma mais eficiente de **proteger o faturamento a prazo** da sua empresa contra a inadimplência dos compradores.\n\n**Como funciona na prática:**\n\n1. **Você vende a prazo** normalmente para seus clientes\n2. **A seguradora analisa** cada comprador e aprova um limite de crédito\n3. **Se o comprador não pagar**, a seguradora indeniza sua empresa\n\n**O que fica protegido:**\n• Vendas com boleto, duplicata ou outro instrumento de crédito\n• Operações no mercado interno e exportação\n• Coberturas contra falência, recuperação judicial e mora prolongada\n\n**Benefícios imediatos:**\n• 💰 **Proteção do fluxo de caixa** — receba mesmo se o cliente não pagar\n• 📊 **Análise de crédito profissional** — a seguradora monitora seus compradores 24/7\n• 🏦 **Acesso facilitado a crédito bancário** — bancos aceitam a apólice como garantia\n• 📈 **Venda mais com segurança** — expanda sua carteira sem medo de inadimplência\n\n**Quanto custa:**\n• Apenas **0,15% a 0,40%** do faturamento a prazo\n• Isento de IOF (0%)\n• ROI médio de 3x a 5x em 5 anos\n\n**Exemplo prático:**\nFaturamento a prazo de R$ 50M → prêmio de ~R$ 125.000/ano → proteção contra perdas que podem superar R$ 1M.\n\n🛡️ Quer proteger suas vendas? Clique em **Iniciar Cotação** no menu principal!`
+  },
+
   // ── Setores Específicos ──
   {
     keywords: ['construcao', 'obra', 'construtora', 'incorporadora', 'imobiliario'],
@@ -1159,7 +1166,7 @@ function renderMarkdown(text) {
 }
 
 /* ─── Welcome Message ─── */
-const WELCOME_MESSAGE = `Olá! Eu sou o **iCover** — a IA mais completa do mercado brasileiro de **Seguro de Crédito**.
+const WELCOME_MESSAGE = `Olá! Eu sou o **iCover** — a **IA mais inteligente em Seguros Financeiros** do mercado brasileiro.
 
 Tenho conhecimento profundo sobre:
 • **Seguro de Crédito** — interno, exportação, riscos políticos
@@ -1176,7 +1183,7 @@ const SUGGESTED_QUESTIONS = [
   'Quais seguradoras operam no Brasil?',
   'Como funciona a indenização?',
   'O que é PMI e POS?',
-  'Qual a diferença entre Whole Turnover e Key Buyer?'
+  'Como posso garantir minhas vendas com o Seguro de Crédito?'
 ]
 
 /* ─── Main Component ─── */
