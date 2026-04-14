@@ -353,10 +353,30 @@ function AnalysisResults({ analysis, onAccept, onDecline, tipo }) {
         </div>
       </div>
 
+      {/* Insights Estratégicos iCover */}
+      {analysis.insights && analysis.insights.length > 0 && (
+        <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm mb-6">
+          <h3 className="text-xs font-bold text-navy/40 uppercase tracking-wider mb-4">
+            🎯 Insights Estratégicos iCover
+          </h3>
+          <div className="space-y-3">
+            {analysis.insights.map((insight, i) => (
+              <div key={i} className="flex gap-3 p-3 rounded-xl bg-gradient-to-r from-sentinel/[0.03] to-transparent border border-sentinel/[0.08]">
+                <span className="text-lg flex-shrink-0 mt-0.5">{insight.icon}</span>
+                <div>
+                  <p className="text-xs font-bold text-navy mb-0.5">{insight.title}</p>
+                  <p className="text-[11px] text-navy/50 leading-relaxed">{insight.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Disclaimer */}
       <div className="bg-navy/[0.03] rounded-xl p-4 mb-6 border border-navy/[0.06]">
         <p className="text-[10px] text-navy/40 leading-relaxed">
-          <strong className="text-navy/60">Importante:</strong> Esta análise é uma estimativa gerada pelo motor de subscrição iCover com base nos dados informados.
+          <strong className="text-navy/60">Importante:</strong> Esta análise é uma estimativa gerada pelo motor de subscrição iCover v2.0 com base nos dados informados.
           Os valores e condições apresentados são indicativos e podem variar na cotação real junto às seguradoras.
           A Fairfield atua como consultoria 100% independente — não representamos nenhuma seguradora.
           Os prêmios e condições definitivos serão definidos pelas seguradoras após análise formal da proposta.
@@ -381,7 +401,7 @@ function AnalysisResults({ analysis, onAccept, onDecline, tipo }) {
 
       {/* Footer */}
       <p className="text-center text-[10px] text-navy/25 mt-4">
-        Powered by <span className="font-bold text-sentinel/50">SENTINEL</span> iCover Engine v1.0 · Fairfield Corretora de Seguros · SUSEP 20.2036457.1
+        Powered by <span className="font-bold text-sentinel/50">SENTINEL</span> iCover Engine v2.0 · Oráculo de Inteligência em Seguro de Crédito · Fairfield
       </p>
     </div>
   )
@@ -454,7 +474,141 @@ export default function ICoverAnalysis({ formData, tipo, onComplete, onDecline }
   return <AnalysisAnimation onComplete={handleAnalysisComplete} />
 }
 
-// ─── Análise Básica (fallback sem API) ───────────────────────
+// ─── Análise Avançada (fallback sem API) — Motor iCover v2.0 ───
+function getSectorRiskProfile(setor) {
+  const s = (setor || '').toLowerCase()
+  const profiles = {
+    quimico: { risk: 'medium', rate: 0.0022, label: 'Químico/Petroquímico', sectorScore: 7 },
+    petroquimico: { risk: 'medium', rate: 0.0022, label: 'Petroquímico', sectorScore: 7 },
+    alimento: { risk: 'low', rate: 0.0015, label: 'Alimentos/Bebidas', sectorScore: 9 },
+    bebida: { risk: 'low', rate: 0.0015, label: 'Alimentos/Bebidas', sectorScore: 9 },
+    metalur: { risk: 'medium', rate: 0.0025, label: 'Metalúrgico/Siderúrgico', sectorScore: 6 },
+    sider: { risk: 'medium', rate: 0.0025, label: 'Siderúrgico', sectorScore: 6 },
+    textil: { risk: 'medium_high', rate: 0.0030, label: 'Têxtil/Confecções', sectorScore: 5 },
+    confec: { risk: 'medium_high', rate: 0.0030, label: 'Confecções', sectorScore: 5 },
+    constru: { risk: 'high', rate: 0.0040, label: 'Construção Civil', sectorScore: 3 },
+    imobil: { risk: 'high', rate: 0.0040, label: 'Imobiliário', sectorScore: 3 },
+    farma: { risk: 'low', rate: 0.0012, label: 'Farmacêutico/Saúde', sectorScore: 9 },
+    saude: { risk: 'low', rate: 0.0014, label: 'Saúde', sectorScore: 9 },
+    tecnolog: { risk: 'low', rate: 0.0015, label: 'Tecnologia', sectorScore: 8 },
+    software: { risk: 'low', rate: 0.0015, label: 'Software/TI', sectorScore: 8 },
+    agro: { risk: 'medium', rate: 0.0022, label: 'Agronegócio', sectorScore: 7 },
+    energia: { risk: 'medium', rate: 0.0020, label: 'Energia', sectorScore: 7 },
+    renov: { risk: 'low', rate: 0.0018, label: 'Energia Renovável', sectorScore: 8 },
+    papel: { risk: 'low', rate: 0.0016, label: 'Papel/Celulose', sectorScore: 8 },
+    eletron: { risk: 'low', rate: 0.0017, label: 'Eletrônicos', sectorScore: 8 },
+    auto: { risk: 'medium', rate: 0.0022, label: 'Automotivo', sectorScore: 7 },
+    varejo: { risk: 'medium_high', rate: 0.0032, label: 'Varejo', sectorScore: 5 },
+    commod: { risk: 'medium', rate: 0.0020, label: 'Commodities', sectorScore: 7 },
+    fintech: { risk: 'medium', rate: 0.0025, label: 'Serviços Financeiros', sectorScore: 6 },
+    financ: { risk: 'medium', rate: 0.0025, label: 'Serviços Financeiros', sectorScore: 6 },
+  }
+  for (const [key, profile] of Object.entries(profiles)) {
+    if (s.includes(key)) return profile
+  }
+  return { risk: 'medium', rate: 0.0020, label: 'Geral', sectorScore: 7 }
+}
+
+function determineStructure(fatSeg, numBuyers, avgLR, prazoMedio, tipo) {
+  // Excess of Loss para grandes corporações com boa gestão interna
+  if (fatSeg > 500000000 && avgLR < 0.03) {
+    return {
+      structure: 'excess_of_loss', structureLabel: 'Excess of Loss (XL Corporativo)',
+      structureReason: 'Com faturamento acima de R$ 500M e sinistralidade controlada, a estrutura XL permite reter perdas normais e transferir apenas riscos catastróficos, com prêmio significativamente menor.',
+      pmi: 0.90, pmiPct: '90%', pos: 0.10, posPct: '10%', aadMult: 0.005
+    }
+  }
+  // Key Buyer para carteiras concentradas
+  if (numBuyers <= 15) {
+    return {
+      structure: 'key_buyer', structureLabel: 'Key Buyer (Compradores Nomeados)',
+      structureReason: 'Perfil com número reduzido de compradores. Proteção focada nos maiores riscos com custo otimizado. Avalie também Top-Up para limites insuficientes.',
+      pmi: 0.85, pmiPct: '85%', pos: 0.15, posPct: '15%', aadMult: 0
+    }
+  }
+  // Single Risk para operações pontuais com pouquíssimos compradores
+  if (numBuyers <= 5 && fatSeg < 5000000) {
+    return {
+      structure: 'single_risk', structureLabel: 'Single Risk / Single Buyer',
+      structureReason: 'Para operações com poucos compradores e exposição concentrada, a apólice Single Risk oferece cobertura específica por transação sem prêmio mínimo anual.',
+      pmi: 0.90, pmiPct: '90%', pos: 0.10, posPct: '10%', aadMult: 0
+    }
+  }
+  // Apólice mista para exportação com mercado interno
+  if (tipo === 'externo') {
+    return {
+      structure: 'mixed_wt', structureLabel: 'Apólice Mista (Interno + Exportação)',
+      structureReason: 'Apólice combinando ramos SUSEP 0171 (interno) e 0172 (exportação) com cobertura de risco político. Inclui proteção contra moratória, inconvertibilidade cambial e embargo.',
+      pmi: 0.90, pmiPct: '90%', pos: 0.10, posPct: '10%', aadMult: 0.001
+    }
+  }
+  // Whole Turnover padrão
+  return {
+    structure: 'whole_turnover', structureLabel: 'Apólice Global (Whole Turnover)',
+    structureReason: 'Estrutura mais eficiente para carteira diversificada. Cobre 100% do faturamento a prazo com limite de crédito por comprador. Inclui limite discricionário para compradores menores.',
+    pmi: 0.85, pmiPct: '85%', pos: 0.15, posPct: '15%', aadMult: 0.002
+  }
+}
+
+function generateInsights(fatSeg, avgLR, numBuyers, prazoMedio, tipo, setor, score) {
+  const insights = []
+  // FIDC opportunity
+  if (fatSeg > 20000000) {
+    insights.push({
+      icon: '🏦', title: 'Oportunidade FIDC',
+      text: `Com faturamento segurado acima de R$ ${Math.round(fatSeg/1000000)}M, recebíveis com apólice de seguro de crédito podem ser cedidos a um FIDC com rating superior (AA→AAA), reduzindo o custo de capital em até 50%.`
+    })
+  }
+  // Large risk syndication
+  if (fatSeg > 100000000) {
+    insights.push({
+      icon: '🌐', title: 'Cobertura Sindicada Recomendada',
+      text: 'Para exposições acima de R$ 100M, recomenda-se cobertura sindicada com múltiplas seguradoras (Allianz Trade + Coface + Lloyd\'s) para maximizar capacidade e diversificar o risco de contraparte.'
+    })
+  }
+  // Excellent loss ratio
+  if (avgLR === 0 || avgLR < 0.02) {
+    insights.push({
+      icon: '⭐', title: 'Histórico Excelente — Negocie Bônus',
+      text: `Sinistralidade de ${(avgLR * 100).toFixed(1)}% está muito abaixo da média do mercado (3-5%). Recomendamos negociar bônus de 15-25% no prêmio e PMI de 90% na contratação.`
+    })
+  }
+  // High loss ratio warning
+  if (avgLR > 0.10) {
+    insights.push({
+      icon: '⚠️', title: 'Sinistralidade Elevada — Ação Recomendada',
+      text: `Loss ratio de ${(avgLR * 100).toFixed(1)}% requer atenção. Seguradoras poderão solicitar AAD mais alto ou PMI menor. Considere implementar gestão de crédito interna com apoio das ferramentas de monitoramento da seguradora.`
+    })
+  }
+  // Export specific
+  if (tipo === 'externo') {
+    insights.push({
+      icon: '🛫', title: 'Estratégia de Exportação',
+      text: 'A apólice de exportação inclui cobertura de risco político (moratória, inconvertibilidade, embargo). Recebíveis segurados facilitam ACC/ACE e BNDES Exim com taxas até 2% menores.'
+    })
+  }
+  // Payment terms optimization
+  if (prazoMedio > 90) {
+    insights.push({
+      icon: '📅', title: 'Otimização de Prazo',
+      text: `Prazo médio de ${prazoMedio} dias acima do padrão do mercado (60 dias). Isso impacta a taxa em +15-30%. Considere supply chain finance integrado ao seguro para oferecer prazo estendido com custo controlado.`
+    })
+  }
+  // Concentration risk
+  if (numBuyers < 20) {
+    insights.push({
+      icon: '📊', title: 'Risco de Concentração',
+      text: `Carteira com ${numBuyers} compradores apresenta concentração elevada. Recomendamos monitoramento contínuo via plataforma SENTINEL e limites de crédito nomeados para os top 10 compradores.`
+    })
+  }
+  // Regulatory
+  insights.push({
+    icon: '📋', title: 'Enquadramento Regulatório',
+    text: `Ramo SUSEP ${tipo === 'externo' ? '0172 (Exportação)' : '0171 (Interno)'}. IOF: 0% (isento). Conformidade com CNSP 432/2021. ${fatSeg > 50000000 ? 'Para operações acima de R$ 50M, subscrição com resseguro facultativo pode ampliar capacidade.' : ''}`
+  })
+  return insights
+}
+
 function createBasicAnalysis(data) {
   const tipo = data.tipo || 'interno'
   const symbol = tipo === 'externo' ? 'US$' : 'R$'
@@ -475,42 +629,104 @@ function createBasicAnalysis(data) {
   const prazoMedio = parseInt(cv.prazo_medio_dias || '60') || 60
   const fatDesejado = parseFloat(String(cv.faturamento_desejado_seguro || '0').replace(/[^\d.,]/g, '').replace(',', '.')) || 0
   const fatSeg = fatDesejado > 0 ? fatDesejado * mult : adjRevenue * pctPrazo
+  const numBuyers = parseInt(cv.num_compradores || '10') || 10
 
-  const baseRate = 0.0020
-  const adjustedRate = baseRate * (avgLR === 0 ? 0.85 : avgLR < 0.05 ? 0.95 : avgLR < 0.15 ? 1.10 : 1.40)
-  const premium = Math.max(fatSeg * adjustedRate, 15000)
+  // Sector-specific risk analysis
+  const sectorProfile = getSectorRiskProfile(data.proponente?.setor)
+  const baseRate = sectorProfile.rate
 
-  const score = avgLR === 0 ? 78 : avgLR < 0.05 ? 70 : avgLR < 0.15 ? 55 : 40
+  // Multi-factor rate adjustment
+  const lrFactor = avgLR === 0 ? 0.85 : avgLR < 0.02 ? 0.90 : avgLR < 0.05 ? 0.95 : avgLR < 0.10 ? 1.10 : avgLR < 0.15 ? 1.25 : 1.50
+  const termFactor = prazoMedio <= 30 ? 0.90 : prazoMedio <= 60 ? 1.0 : prazoMedio <= 90 ? 1.10 : prazoMedio <= 120 ? 1.20 : 1.35
+  const sizeFactor = fatSeg > 200000000 ? 0.80 : fatSeg > 50000000 ? 0.85 : fatSeg > 20000000 ? 0.90 : fatSeg > 5000000 ? 1.0 : 1.15
+  const diversFactor = numBuyers > 100 ? 0.88 : numBuyers > 50 ? 0.92 : numBuyers > 20 ? 0.96 : numBuyers > 10 ? 1.0 : 1.10
+  const tipoFactor = tipo === 'externo' ? 1.15 : 1.0
+
+  const adjustedRate = baseRate * lrFactor * termFactor * sizeFactor * diversFactor * tipoFactor
+  const premium = Math.max(fatSeg * adjustedRate, tipo === 'externo' ? 25000 : 15000)
+
+  // Advanced scoring model
+  const revenueScore = fatSeg > 200000000 ? 15 : fatSeg > 50000000 ? 13 : fatSeg > 20000000 ? 11 : fatSeg > 5000000 ? 9 : 6
+  const lossScore = avgLR === 0 ? 25 : avgLR < 0.02 ? 22 : avgLR < 0.05 ? 18 : avgLR < 0.10 ? 14 : avgLR < 0.15 ? 10 : 5
+  const concScore = numBuyers > 100 ? 20 : numBuyers > 50 ? 17 : numBuyers > 20 ? 14 : numBuyers > 10 ? 12 : 8
+  const termScore = prazoMedio <= 30 ? 15 : prazoMedio <= 60 ? 13 : prazoMedio <= 90 ? 10 : prazoMedio <= 120 ? 7 : 5
+  const geoScore = tipo === 'externo' ? 4 : 3
+  const portfolioScore = avgLR < 0.05 && numBuyers > 20 ? 10 : avgLR < 0.10 ? 7 : 5
+  const score = revenueScore + lossScore + concScore + termScore + sectorProfile.sectorScore + geoScore + portfolioScore
+
+  // Dynamic structure recommendation
+  const struct = determineStructure(fatSeg, numBuyers, avgLR, prazoMedio, tipo)
+  const aadValue = struct.aadMult > 0 ? Math.round(fatSeg * struct.aadMult) : 0
+
+  // Strategic insights
+  const insights = generateInsights(fatSeg, avgLR, numBuyers, prazoMedio, tipo, sectorProfile.label, score)
+
+  // Dynamic insurer ranking based on profile
+  const insurerPool = [
+    { name: 'Allianz Trade', baseScore: 88, strengths: ['Líder global', 'EOLIS platform', '80M+ empresas na base'], best: ['export', 'large', 'diversified'] },
+    { name: 'Coface', baseScore: 85, strengths: ['Rating DRA proprietário', 'Presente em 100 países', 'TradeLiner para WT'], best: ['export', 'medium', 'info'] },
+    { name: 'Atradius', baseScore: 82, strengths: ['Collections em 96 países', 'Modula flexível', 'Forte em cobrança'], best: ['export', 'collections', 'modular'] },
+    { name: 'Chubb', baseScore: 80, strengths: ['Rating AA (S&P)', 'Soluções sob medida', 'Capacidade muito alta'], best: ['large', 'bespoke', 'highcap'] },
+    { name: 'AIG', baseScore: 78, strengths: ['Risco político líder', 'Grandes exposições USD 10M+', 'Oil & gas/mining'], best: ['political', 'large', 'commodities'] },
+    { name: 'AVLA', baseScore: 76, strengths: ['100% digital', 'Onboarding ágil', 'Foco em PMEs LATAM'], best: ['digital', 'pme', 'fast'] },
+    { name: 'CESCE', baseScore: 74, strengths: ['PMEs desde R$ 15k/ano', 'Ibero-americano', 'Processo simplificado'], best: ['pme', 'latam', 'simple'] },
+  ]
+  // Score boost based on profile match
+  const rankedInsurers = insurerPool.map(ins => {
+    let bonus = 0
+    if (tipo === 'externo' && ins.best.includes('export')) bonus += 5
+    if (fatSeg > 100000000 && ins.best.includes('large')) bonus += 5
+    if (fatSeg < 20000000 && ins.best.includes('pme')) bonus += 5
+    if (numBuyers > 50 && ins.best.includes('diversified')) bonus += 3
+    return { name: ins.name, score: ins.baseScore + bonus, strengths: ins.strengths }
+  }).sort((a, b) => b.score - a.score)
 
   const fmt = v => `${symbol} ${Math.round(v).toLocaleString('pt-BR')}`
 
   return {
     tipo, empresa: data.proponente?.razao_social || 'Empresa', cnpj: data.proponente?.cnpj || '',
-    setor: data.proponente?.setor || 'Não identificado', setorRisco: 'medium',
-    score, scoreMax: 100, riskClass: score >= 65 ? 'standard' : 'substandard',
-    riskLabel: score >= 65 ? 'Risco Padrão' : 'Risco Subpadrão',
-    riskColor: score >= 65 ? '#7DD3FC' : '#FCD34D',
+    setor: sectorProfile.label, setorRisco: sectorProfile.risk,
+    score, scoreMax: 100, riskClass: score >= 70 ? 'preferred' : score >= 55 ? 'standard' : 'substandard',
+    riskLabel: score >= 70 ? 'Risco Preferencial' : score >= 55 ? 'Risco Padrão' : 'Risco Subpadrão',
+    riskColor: score >= 70 ? '#34D399' : score >= 55 ? '#7DD3FC' : '#FCD34D',
     scores: {
-      revenue: { value: 9, max: 15, label: 'Porte da Empresa' },
-      lossRatio: { value: avgLR === 0 ? 25 : 15, max: 25, label: 'Histórico de Perdas' },
-      concentration: { value: 12, max: 20, label: 'Concentração de Compradores' },
-      paymentTerms: { value: 9, max: 15, label: 'Prazo Médio de Crédito' },
-      sector: { value: 7, max: 10, label: 'Risco do Setor' },
-      geography: { value: 3, max: 5, label: 'Diversificação Geográfica' },
-      portfolio: { value: 7, max: 10, label: 'Qualidade da Carteira' },
+      revenue: { value: revenueScore, max: 15, label: 'Porte da Empresa' },
+      lossRatio: { value: lossScore, max: 25, label: 'Histórico de Perdas' },
+      concentration: { value: concScore, max: 20, label: 'Diversificação de Compradores' },
+      paymentTerms: { value: termScore, max: 15, label: 'Prazo Médio de Crédito' },
+      sector: { value: sectorProfile.sectorScore, max: 10, label: `Risco do Setor (${sectorProfile.label})` },
+      geography: { value: geoScore, max: 5, label: tipo === 'externo' ? 'Diversificação Internacional' : 'Diversificação Geográfica' },
+      portfolio: { value: portfolioScore, max: 10, label: 'Qualidade da Carteira' },
     },
-    metrics: { faturamentoAnual: adjRevenue, faturamentoSeguravel: fatSeg, pctPrazo, prazoMedio, prazoMaximo: 90, avgLossRatio: avgLR, topBuyerPct: 0.15, top5Pct: 0.45, numBuyers: 10, atrasosRatio: 0, currency: tipo === 'externo' ? 'USD' : 'BRL', symbol },
-    pricing: { baseRate, adjustedRate, baseRatePct: (baseRate * 100).toFixed(3) + '%', adjustedRatePct: (adjustedRate * 100).toFixed(3) + '%', factors: { setor: { value: 1.0, label: 'Setor' }, sinistralidade: { value: avgLR === 0 ? 0.85 : 1.0, label: 'Sinistralidade' } } },
+    metrics: { faturamentoAnual: adjRevenue, faturamentoSeguravel: fatSeg, pctPrazo, prazoMedio, prazoMaximo: 90, avgLossRatio: avgLR, topBuyerPct: 0.15, top5Pct: 0.45, numBuyers, atrasosRatio: 0, currency: tipo === 'externo' ? 'USD' : 'BRL', symbol },
+    pricing: {
+      baseRate, adjustedRate,
+      baseRatePct: (baseRate * 100).toFixed(3) + '%',
+      adjustedRatePct: (adjustedRate * 100).toFixed(3) + '%',
+      factors: {
+        setor: { value: parseFloat((sectorProfile.rate / 0.0020).toFixed(2)), label: `Setor (${sectorProfile.label})` },
+        sinistralidade: { value: parseFloat(lrFactor.toFixed(2)), label: 'Sinistralidade Histórica' },
+        prazo: { value: parseFloat(termFactor.toFixed(2)), label: `Prazo de Crédito (${prazoMedio}d)` },
+        porte: { value: parseFloat(sizeFactor.toFixed(2)), label: 'Porte / Volume Segurado' },
+        diversificacao: { value: parseFloat(diversFactor.toFixed(2)), label: `Diversificação (${numBuyers} compradores)` },
+        ...(tipo === 'externo' ? { exportacao: { value: 1.15, label: 'Fator Exportação (risco-país)' } } : {}),
+      }
+    },
     premium: { estimated: Math.round(premium), minimum: Math.round(premium * 0.7), maximum: Math.round(premium * 1.3), monthly: Math.round(premium / 12), estimatedFormatted: fmt(premium), minimumFormatted: fmt(premium * 0.7), maximumFormatted: fmt(premium * 1.3), monthlyFormatted: fmt(premium / 12) },
-    bonusMalus: { factor: 1, type: avgLR === 0 ? 'bonus' : 'neutro', label: avgLR === 0 ? 'Bônus (sem sinistro)' : 'Neutro', pct: avgLR === 0 ? -15 : 0 },
-    coverage: { structure: 'whole_turnover', structureLabel: 'Apólice Global (Whole Turnover)', structureReason: 'Estrutura recomendada com base no perfil.', pmi: 0.85, pmiPct: '85%', pos: 0.15, posPct: '15%', aad: 0, aadLabel: 'Sem franquia agregada', discretionaryLimit: 50000, discretionaryLimitFormatted: fmt(50000), maxCreditPeriod: Math.min(parseInt(cv.prazo_maximo_dias || '90') || 90, 120), aggregateLimit: Math.round(premium * 14), aggregateLimitFormatted: fmt(premium * 14), waitingPeriod: tipo === 'externo' ? 180 : 150 },
-    insurers: [
-      { name: 'Allianz Trade', score: 90, strengths: ['Líder global em seguro de crédito'] },
-      { name: 'Coface', score: 85, strengths: ['Rating DRA proprietário'] },
-      { name: 'Atradius', score: 80, strengths: ['Cobrança integrada'] },
-      { name: 'AVLA', score: 78, strengths: ['Agilidade e foco em LATAM'] },
-      { name: 'CESCE', score: 72, strengths: ['Expertise ibero-americana'] },
-    ],
+    bonusMalus: { factor: 1, type: avgLR === 0 ? 'bonus' : avgLR > 0.10 ? 'malus' : 'neutro', label: avgLR === 0 ? 'Bônus (sem sinistro)' : avgLR > 0.10 ? 'Malus (sinistralidade alta)' : 'Neutro', pct: avgLR === 0 ? -15 : avgLR > 0.10 ? 20 : 0 },
+    coverage: {
+      ...struct,
+      aad: aadValue,
+      aadLabel: aadValue > 0 ? `Franquia agregada anual (AAD): ${fmt(aadValue)} — perdas abaixo deste valor são absorvidas pela empresa` : 'Sem franquia agregada',
+      discretionaryLimit: fatSeg > 50000000 ? 100000 : 50000,
+      discretionaryLimitFormatted: fmt(fatSeg > 50000000 ? 100000 : 50000),
+      maxCreditPeriod: Math.min(parseInt(cv.prazo_maximo_dias || '90') || 90, tipo === 'externo' ? 180 : 120),
+      aggregateLimit: Math.round(premium * 14),
+      aggregateLimitFormatted: fmt(premium * 14),
+      waitingPeriod: tipo === 'externo' ? 180 : 150
+    },
+    insurers: rankedInsurers,
+    insights,
     analyzedAt: new Date().toISOString(),
   }
 }
