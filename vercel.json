@@ -4,15 +4,6 @@
   "installCommand": "cd frontend && npm install",
   "framework": "vite",
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
-  "experimentalServices": {
-    "backend": {
-      "entrypoint": "backend",
-      "routePrefix": "/"
-    }
-  }
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
