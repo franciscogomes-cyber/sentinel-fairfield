@@ -2,8 +2,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../contexts/AuthContext'
 import { formatPhone } from '../components/FormComponents'
-
-const B = import.meta.env.BASE_URL
+import { MiniShield } from './Home'
 
 export default function Login({ onComplete }) {
   const { generateCode, verifyCode } = useAuth()
@@ -85,16 +84,15 @@ export default function Login({ onComplete }) {
 
   return (
     <div className="max-w-lg mx-auto px-4 py-10 sm:py-16 animate-fadeIn">
-      <div className="text-center mb-8">
-        <div className="relative inline-block mb-4">
-          <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-16 w-16 sm:h-20 sm:w-20 object-contain relative z-10" />
-          <div className="absolute inset-0 bg-sentinel/20 rounded-full blur-xl" />
+      <div className="text-center mb-8 flex flex-col items-center">
+        <div className="mb-4">
+          <MiniShield size={72} />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-white">
-          Acesse o <span className="text-sentinel">SENTINEL</span>
+        <h1 className="text-2xl sm:text-3xl font-black text-sentinel tracking-tight">
+          SENTINEL
         </h1>
-        <p className="text-white/30 text-sm mt-2">
-          Preencha seus dados para iniciar a cotacao de Seguro de Credito
+        <p className="text-navy/40 text-sm mt-2">
+          Preencha seus dados para iniciar a cotação de Seguro de Crédito
         </p>
       </div>
 
