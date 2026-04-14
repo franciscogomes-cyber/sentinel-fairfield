@@ -1,55 +1,206 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { apiFetch } from '../config'
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
+import { API_BASE, apiFetch } from '../config'
 
 const AuthContext = createContext(null)
 
-const AUTH_KEY = 'sentinel_auth'
-const USERS_KEY = 'sentinel_users'
+const REFRESH_KEY = 'sentinel_refresh_token'
 const PROSPECTS_KEY = 'sentinel_prospects'
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem(AUTH_KEY)
-    return saved ? JSON.parse(saved) : null
-  })
+  const [user, setUser] = useState(null)
+  const [accessToken, setAccessToken] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const refreshTimerRef = useRef(null)
 
-  const [ndaAccepted, setNdaAccepted] = useState(() => {
-    if (!user) return false
-    const accepted = localStorage.getItem(`sentinel_nda_${user.email}`)
-    return accepted === 'true'
-  })
+  const [ndaAccepted, setNdaAccepted] = useState(false)
 
+  // Update NDA state when user changes
   useEffect(() => {
     if (user) {
-      localStorage.setItem(AUTH_KEY, JSON.stringify(user))
       const accepted = localStorage.getItem(`sentinel_nda_${user.email}`)
       setNdaAccepted(accepted === 'true')
     } else {
-      localStorage.removeItem(AUTH_KEY)
       setNdaAccepted(false)
     }
   }, [user])
 
-  function register(userData) {
-    const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]')
-    const existing = users.find(u => u.email === userData.email)
-    if (existing) return { success: false, message: 'E-mail já cadastrado' }
-
-    const newUser = {
-      ...userData,
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-      createdAt: new Date().toISOString(),
-      verified: false
+  // Store tokens and user data from auth response
+  const handleAuthResponse = useCallback((data) => {
+    if (data.access_token) {
+      setAccessToken(data.access_token)
     }
-    users.push(newUser)
-    localStorage.setItem(USERS_KEY, JSON.stringify(users))
+    if (data.refresh_token) {
+      localStorage.setItem(REFRESH_KEY, data.refresh_token)
+    }
+    if (data.user) {
+      setUser(data.user)
+      // Backward compat: also store in sentinel_user and sentinel_auth
+      localStorage.setItem('sentinel_user', JSON.stringify(data.user))
+      localStorage.setItem('sentinel_auth', JSON.stringify(data.user))
+    }
+  }, [])
 
+  // Clear all auth state
+  const clearAuth = useCallback(() => {
+    setUser(null)
+    setAccessToken(null)
+    localStorage.removeItem(REFRESH_KEY)
+    localStorage.removeItem('sentinel_user')
+    localStorage.removeItem('sentinel_auth')
+    if (refreshTimerRef.current) {
+      clearTimeout(refreshTimerRef.current)
+      refreshTimerRef.current = null
+    }
+  }, [])
+
+  // Refresh token
+  const refreshTokenFn = useCallback(async () => {
+    const rt = localStorage.getItem(REFRESH_KEY)
+    if (!rt) return false
+    try {
+      const data = await apiFetch('/api/auth/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: rt })
+      })
+      if (data.access_token) {
+        handleAuthResponse(data)
+        return true
+      }
+      return false
+    } catch {
+      // If refresh fails, check for legacy auth in localStorage
+      return false
+    }
+  }, [handleAuthResponse])
+
+  // On mount: try to restore session
+  useEffect(() => {
+    async function init() {
+      const refreshed = await refreshTokenFn()
+      if (!refreshed) {
+        // Backward compat: try to restore from localStorage (OTP-based sessions)
+        const saved = localStorage.getItem('sentinel_auth')
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved)
+            if (parsed && parsed.email) {
+              setUser(parsed)
+            }
+          } catch { /* ignore */ }
+        }
+      }
+      setIsLoading(false)
+    }
+    init()
+  }, [refreshTokenFn])
+
+  // Login with email + password
+  const login = useCallback(async (email, password) => {
+    const data = await apiFetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    })
+    if (!data.sucesso && !data.access_token) {
+      throw new Error(data.mensagem || data.message || 'Erro ao fazer login')
+    }
+    handleAuthResponse(data)
+    return data
+  }, [handleAuthResponse])
+
+  // Register new account
+  const register = useCallback(async (userData) => {
+    const data = await apiFetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData)
+    })
+    if (!data.sucesso && !data.access_token) {
+      throw new Error(data.mensagem || data.message || 'Erro ao criar conta')
+    }
+    handleAuthResponse(data)
     // Track prospect
-    trackProspect(newUser, 'cadastro')
+    trackProspect({ ...userData, id: data.user?.id }, 'cadastro')
+    return data
+  }, [handleAuthResponse])
 
-    return { success: true, user: newUser }
-  }
+  // Logout
+  const logout = useCallback(async () => {
+    const rt = localStorage.getItem(REFRESH_KEY)
+    try {
+      if (rt) {
+        await apiFetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+          },
+          body: JSON.stringify({ refresh_token: rt })
+        }).catch(() => {})
+      }
+    } catch { /* best effort */ }
+    clearAuth()
+  }, [accessToken, clearAuth])
 
+  // Update user profile
+  const updateProfile = useCallback(async (profileData) => {
+    const data = await apiFetch('/api/auth/profile', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+      },
+      body: JSON.stringify(profileData)
+    })
+    if (data.user) {
+      setUser(data.user)
+      localStorage.setItem('sentinel_user', JSON.stringify(data.user))
+      localStorage.setItem('sentinel_auth', JSON.stringify(data.user))
+    }
+    return data
+  }, [accessToken])
+
+  // Change password
+  const changePassword = useCallback(async (currentPassword, newPassword) => {
+    const data = await apiFetch('/api/auth/change-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+      },
+      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword })
+    })
+    return data
+  }, [accessToken])
+
+  // authFetch: fetch wrapper with Authorization header, auto-refresh on 401
+  const authFetch = useCallback(async (url, options = {}) => {
+    const headers = {
+      ...options.headers,
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+    }
+    try {
+      const data = await apiFetch(url, { ...options, headers })
+      return data
+    } catch (err) {
+      // Try refreshing token on auth error
+      if (err.message && (err.message.includes('401') || err.message.includes('Unauthorized'))) {
+        const refreshed = await refreshTokenFn()
+        if (refreshed) {
+          // Retry with new token
+          const newHeaders = {
+            ...options.headers,
+            Authorization: `Bearer ${accessToken}`
+          }
+          return apiFetch(url, { ...options, headers: newHeaders })
+        }
+      }
+      throw err
+    }
+  }, [accessToken, refreshTokenFn])
+
+  // ─── Legacy OTP methods (backward compat) ───
   const generateCode = useCallback(async (email, nome, empresa, telefone) => {
     const data = await apiFetch('/api/auth/send-code', {
       method: 'POST',
@@ -57,7 +208,6 @@ export function AuthProvider({ children }) {
       body: JSON.stringify({ email, nome, empresa, telefone })
     })
     if (!data.sucesso) throw new Error(data.mensagem)
-    // Retorna dados de dev mode se disponível
     return { devMode: data.dev_mode || false, devCode: data.dev_code || null, devPreview: data.dev_preview || null }
   }, [])
 
@@ -69,7 +219,6 @@ export function AuthProvider({ children }) {
     })
     if (!data.sucesso) return { success: false }
 
-    // Registra o usuário localmente após verificação bem-sucedida
     const userData = {
       id: Date.now().toString(),
       nome: data.data.nome,
@@ -81,7 +230,13 @@ export function AuthProvider({ children }) {
     }
     setUser(userData)
     localStorage.setItem('sentinel_user', JSON.stringify(userData))
-    // Track prospect inline (evita dependência circular de useCallback)
+    localStorage.setItem('sentinel_auth', JSON.stringify(userData))
+
+    // Handle tokens if backend returns them
+    if (data.access_token) setAccessToken(data.access_token)
+    if (data.refresh_token) localStorage.setItem(REFRESH_KEY, data.refresh_token)
+
+    // Track prospect
     const prospects = JSON.parse(localStorage.getItem(PROSPECTS_KEY) || '[]')
     const existingIdx = prospects.findIndex(p => p.email === userData.email)
     const prospect = {
@@ -96,6 +251,7 @@ export function AuthProvider({ children }) {
     return { success: true }
   }, [])
 
+  // ─── NDA ───
   function acceptNda() {
     if (user) {
       localStorage.setItem(`sentinel_nda_${user.email}`, 'true')
@@ -104,11 +260,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  function logout() {
-    setUser(null)
-    setNdaAccepted(false)
-  }
-
+  // ─── Prospect tracking (legacy) ───
   function trackProspect(userData, fase) {
     const prospects = JSON.parse(localStorage.getItem(PROSPECTS_KEY) || '[]')
     const existing = prospects.findIndex(p => p.email === userData.email)
@@ -147,13 +299,19 @@ export function AuthProvider({ children }) {
   }
 
   function getAllUsers() {
-    return JSON.parse(localStorage.getItem(USERS_KEY) || '[]')
+    return JSON.parse(localStorage.getItem('sentinel_users') || '[]')
   }
+
+  const isAuthenticated = !!user
 
   return (
     <AuthContext.Provider value={{
-      user, ndaAccepted,
-      register, verifyCode, generateCode, acceptNda, logout,
+      user, isAuthenticated, isLoading, accessToken,
+      ndaAccepted,
+      login, register, logout, updateProfile, changePassword,
+      authFetch, refreshToken: refreshTokenFn,
+      // Legacy compat
+      generateCode, verifyCode, acceptNda,
       trackProspect, updateProspectPhase, getProspects, getAllUsers
     }}>
       {children}

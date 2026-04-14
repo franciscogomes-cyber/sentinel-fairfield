@@ -164,9 +164,101 @@ db.exec(`
     used INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    company TEXT,
+    cnpj TEXT,
+    phone TEXT,
+    password_hash TEXT NOT NULL,
+    role TEXT DEFAULT 'client',
+    email_verified INTEGER DEFAULT 0,
+    avatar_url TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    refresh_token TEXT NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS password_resets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    token TEXT NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    used INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS quotation_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    lead_id INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    note TEXT,
+    created_by TEXT DEFAULT 'system',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS documents (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    lead_id INTEGER NOT NULL,
+    type TEXT NOT NULL,
+    filename TEXT NOT NULL,
+    filepath TEXT NOT NULL,
+    visible_to_client INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS quotation_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    lead_id INTEGER NOT NULL,
+    sender_type TEXT NOT NULL,
+    sender_name TEXT,
+    message TEXT NOT NULL,
+    read_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE
+  );
 `);
+
+// Add new columns to leads table (safe — ignores if already exist)
+const alterColumns = [
+  'ALTER TABLE leads ADD COLUMN user_id INTEGER',
+  'ALTER TABLE leads ADD COLUMN pipeline_status TEXT DEFAULT \'formulario_enviado\'',
+  'ALTER TABLE leads ADD COLUMN icover_score INTEGER',
+  'ALTER TABLE leads ADD COLUMN icover_analysis_json TEXT'
+];
+for (const sql of alterColumns) {
+  try { db.exec(sql); } catch (e) { /* column already exists */ }
+}
 
 // Limpa códigos expirados na inicialização
 db.prepare("DELETE FROM verification_codes WHERE expires_at < datetime('now')").run();
+
+// Limpa sessões expiradas
+try { db.prepare("DELETE FROM sessions WHERE expires_at < datetime('now')").run(); } catch (e) {}
+
+// Cria usuário admin padrão se não existir
+const bcrypt = require('bcryptjs');
+const adminEmail = 'admin@fairfield.com.br';
+const existingAdmin = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
+if (!existingAdmin) {
+  const hash = bcrypt.hashSync('sentinel2024', 10);
+  db.prepare('INSERT INTO users (name, email, password_hash, role, email_verified) VALUES (?, ?, ?, ?, ?)').run(
+    'Administrador Fairfield', adminEmail, hash, 'admin', 1
+  );
+  console.log('[DB] Usuário admin padrão criado: admin@fairfield.com.br');
+}
 
 module.exports = db;

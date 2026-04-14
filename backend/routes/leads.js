@@ -6,28 +6,45 @@ const { gerarPDFBroker } = require('../services/pdfGenerator');
 const { gerarPDFCliente } = require('../services/pdfGeneratorCliente');
 const { gerarExcelCliente } = require('../services/excelGeneratorCliente');
 const { enviarNotificacaoBroker, enviarEmailCliente, enviarEmailTesteCliente } = require('../services/emailService');
+const { optionalAuth } = require('../middleware/auth');
 
-router.post('/', async (req, res, next) => {
+router.post('/', optionalAuth, async (req, res, next) => {
   try {
     const {
       tipo, proponente, coSeguradas, contato,
       historicoFaturamento, condicoesVenda, carteiraRecebiveis,
       perdasPorFaixa, maioresPerdas, atrasos, atrasosDetalhados,
-      amostraCompradores, destinosExportacao, seguradoras
+      amostraCompradores, destinosExportacao, seguradoras,
+      icover_score, icover_analysis
     } = req.body;
 
     console.log(`[LEAD] Nova solicitação ${tipo}: ${proponente.razao_social}`);
 
+    // Determine user_id from JWT if authenticated
+    const userId = req.user ? req.user.id : null;
+
     const insertLead = db.prepare(`
-      INSERT INTO leads (tipo, razao_social, cnpj, setor, faturamento_pct, uf, contato_nome, contato_email, contato_telefone)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO leads (tipo, razao_social, cnpj, setor, faturamento_pct, uf, contato_nome, contato_email, contato_telefone, user_id, pipeline_status, icover_score, icover_analysis_json)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'formulario_enviado', ?, ?)
     `);
     const result = insertLead.run(
       tipo, proponente.razao_social, proponente.cnpj, proponente.setor,
       proponente.faturamento_pct || '', proponente.uf || '',
-      contato.nome, contato.email, contato.telefone
+      contato.nome, contato.email, contato.telefone,
+      userId,
+      icover_score || null,
+      icover_analysis ? JSON.stringify(icover_analysis) : null
     );
     const leadId = result.lastInsertRowid;
+
+    // Create initial quotation event
+    try {
+      db.prepare(
+        'INSERT INTO quotation_events (lead_id, status, note, created_by) VALUES (?, ?, ?, ?)'
+      ).run(leadId, 'formulario_enviado', 'Formulário de cotação enviado pelo cliente', userId ? `user:${userId}` : 'system');
+    } catch (evtErr) {
+      console.warn(`[LEAD] Erro ao criar evento inicial: ${evtErr.message}`);
+    }
 
     if (coSeguradas && coSeguradas.length > 0) {
       const stmtCo = db.prepare('INSERT INTO co_seguradas (lead_id, empresa, cnpj, setor, faturamento_pct) VALUES (?, ?, ?, ?, ?)');
@@ -142,6 +159,28 @@ router.post('/', async (req, res, next) => {
       console.log(`[PDF] Gerados: ${pdfBroker.nomeArquivo} | ${pdfCliente.nomeArquivo}`);
     } catch (pdfErr) {
       console.warn(`[PDF] Falha na geração: ${pdfErr.message}`);
+    }
+
+    // Register generated documents in the documents table
+    try {
+      if (fichaTecnica && fichaTecnica.arquivo) {
+        db.prepare('INSERT INTO documents (lead_id, type, filename, filepath, visible_to_client) VALUES (?, ?, ?, ?, ?)')
+          .run(leadId, 'ficha_tecnica', fichaTecnica.nomeArquivo || 'ficha_tecnica.xlsx', fichaTecnica.arquivo, 0);
+      }
+      if (pdfBroker && pdfBroker.arquivo) {
+        db.prepare('INSERT INTO documents (lead_id, type, filename, filepath, visible_to_client) VALUES (?, ?, ?, ?, ?)')
+          .run(leadId, 'pdf_broker', pdfBroker.nomeArquivo || 'relatorio_broker.pdf', pdfBroker.arquivo, 0);
+      }
+      if (pdfCliente && pdfCliente.arquivo) {
+        db.prepare('INSERT INTO documents (lead_id, type, filename, filepath, visible_to_client) VALUES (?, ?, ?, ?, ?)')
+          .run(leadId, 'pdf_cliente', pdfCliente.nomeArquivo || 'relatorio_cliente.pdf', pdfCliente.arquivo, 1);
+      }
+      if (excelCliente && excelCliente.arquivo) {
+        db.prepare('INSERT INTO documents (lead_id, type, filename, filepath, visible_to_client) VALUES (?, ?, ?, ?, ?)')
+          .run(leadId, 'excel_cliente', excelCliente.nomeArquivo || 'dados_cliente.xlsx', excelCliente.arquivo, 1);
+      }
+    } catch (docErr) {
+      console.warn(`[LEAD] Erro ao registrar documentos: ${docErr.message}`);
     }
 
     // Get commercial reps for CC

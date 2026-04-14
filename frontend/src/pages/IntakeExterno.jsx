@@ -35,7 +35,7 @@ function emptyForm() {
 }
 
 export default function IntakeExterno() {
-  const { user, updateProspectPhase } = useAuth()
+  const { user, updateProspectPhase, authFetch } = useAuth()
   const [step, setStep] = useState(0)
   const [form, setForm] = useState(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
@@ -136,7 +136,8 @@ export default function IntakeExterno() {
     setLoading(true)
     try {
       const body = { tipo: 'externo', ...form, seguradoras: [], icoverAnalysis: analysis }
-      const data = await apiFetch('/api/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const fetchFn = user ? authFetch : apiFetch
+      const data = await fetchFn('/api/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       if (!data.sucesso) throw new Error(data.mensagem)
       setResult(data.data)
       setSubmitted(true)
