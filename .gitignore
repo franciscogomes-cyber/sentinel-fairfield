@@ -5,3 +5,4 @@ dist/
 backend/arquivos/
 .DS_Store
 nda_unpack/
+.vercel

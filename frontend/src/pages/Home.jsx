@@ -1061,6 +1061,21 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* ═══ Floating iCover Chat Button ═══ */}
+      <Link
+        to="/icover"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-2xl shadow-sentinel/20 hover:shadow-sentinel/40 hover:scale-105 transition-all duration-300 group"
+        style={{ background: 'linear-gradient(135deg, #0c4a6e 0%, #0284c7 50%, #0ea5e9 100%)' }}
+      >
+        {/* Chat bubble icon */}
+        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+        <span className="text-white text-sm font-semibold hidden sm:inline">iCover</span>
+        {/* Online pulse */}
+        <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-emerald-400 border-2 border-navy animate-pulse" />
+      </Link>
     </div>
   )
 }

@@ -9,6 +9,7 @@ import IntakeInterno from './pages/IntakeInterno'
 import IntakeExterno from './pages/IntakeExterno'
 import Dashboard from './pages/Dashboard'
 import SLA from './pages/SLA'
+import ICoverChat from './pages/ICoverChat'
 
 const B = import.meta.env.BASE_URL
 
@@ -19,6 +20,7 @@ function AppContent() {
   const isAdmin = searchParams.get('admin') === '1'
   const isHome = location.pathname === '/'
   const isIntake = location.pathname.startsWith('/cotacao')
+  const isICover = location.pathname === '/icover'
   const [homeStarted, setHomeStarted] = useState(false)
 
   useEffect(() => {
@@ -34,6 +36,15 @@ function AppContent() {
   const needsAuth = isIntake && !user
   const needsNda = isIntake && user && !ndaAccepted
   const isLightBg = isIntake || needsNda
+
+  // iCover é standalone — renderiza só ele, sem header/footer do App
+  if (isICover) {
+    return (
+      <Routes>
+        <Route path="/icover" element={<ICoverChat />} />
+      </Routes>
+    )
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-navy">
@@ -102,6 +113,7 @@ function AppContent() {
         ) : (
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/icover" element={<ICoverChat />} />
             <Route path="/cotacao/interno" element={<IntakeInterno />} />
             <Route path="/cotacao/externo" element={<IntakeExterno />} />
             <Route path="/dashboard" element={<Dashboard />} />
