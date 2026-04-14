@@ -10,6 +10,7 @@ const cotacoesRouter = require('./routes/cotacoes');
 const slaRouter = require('./routes/sla');
 const adminRouter = require('./routes/admin');
 const authRouter = require('./routes/auth');
+const underwritingRouter = require('./routes/underwriting');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -31,6 +32,7 @@ app.use('/api/cotacoes', cotacoesRouter);
 app.use('/api/sla', slaRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/underwriting', underwritingRouter);
 
 // Consulta de CNPJ via BrasilAPI
 app.get('/api/cnpj/:cnpj', async (req, res, next) => {

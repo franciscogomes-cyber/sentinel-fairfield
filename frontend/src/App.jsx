@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { HashRouter, Routes, Route, NavLink, useSearchParams, useLocation, useNavigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
-import Home from './pages/Home'
+import Home, { MiniShield } from './pages/Home'
 import Login from './pages/Login'
 import NdaAcceptance from './pages/NdaAcceptance'
 import IntakeInterno from './pages/IntakeInterno'
@@ -33,6 +33,7 @@ function AppContent() {
 
   const needsAuth = isIntake && !user
   const needsNda = isIntake && user && !ndaAccepted
+  const isLightBg = isIntake || needsNda
 
   return (
     <div className="min-h-screen flex flex-col bg-navy">
@@ -46,7 +47,7 @@ function AppContent() {
                 <span className="hidden sm:block text-[10px] text-white/30 font-medium tracking-wide uppercase">Fairfield</span>
                 <span className="hidden sm:block text-white/10 mx-1">|</span>
                 <div className="relative">
-                  <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-7 w-7 sm:h-8 sm:w-8 object-contain relative z-10" />
+                  <MiniShield size={32} />
                   <div className="absolute inset-0 bg-sentinel/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 <h1 className="text-lg sm:text-xl font-bold tracking-tight">
@@ -93,7 +94,7 @@ function AppContent() {
       </header>
 
       {/* Main */}
-      <main className="flex-1 bg-grid">
+      <main className={`flex-1 ${isLightBg ? 'bg-white light-theme' : 'bg-grid'}`}>
         {needsAuth ? (
           <Login />
         ) : needsNda ? (

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { Input, Select, DynamicTable, StepNav, ProgressBar, SuccessScreen, CNPJInput, formatPhone } from '../components/FormComponents'
 import { LearningTrailExterno } from '../components/LearningTrail'
+import ICoverAnalysis from '../components/ICoverAnalysis'
 import { useAuth } from '../contexts/AuthContext'
 import { apiFetch } from '../config'
 
@@ -43,6 +44,8 @@ export default function IntakeExterno() {
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [showICover, setShowICover] = useState(false)
+  const [icoverAnalysis, setIcoverAnalysis] = useState(null)
   const [result, setResult] = useState(null)
   const [isReview, setIsReview] = useState(false)
 
@@ -123,19 +126,30 @@ export default function IntakeExterno() {
   async function handleSubmit(action) {
     if (action === 'review') { if (validate(step)) setIsReview(true) }
     else {
-      setLoading(true)
-      try {
-        const body = { tipo: 'externo', ...form, seguradoras: [] }
-        const data = await apiFetch('/api/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-        if (!data.sucesso) throw new Error(data.mensagem)
-        setResult(data.data)
-        setSubmitted(true)
-        localStorage.removeItem(STORAGE_KEY)
-        if (user) updateProspectPhase(user.email, 'enviado_externo')
-        toast.success('Solicitação enviada com sucesso!')
-      } catch (err) { toast.error(err.message || 'Erro ao enviar') }
-      finally { setLoading(false) }
+      setShowICover(true)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
+  }
+
+  async function handleICoverAccept(analysis) {
+    setIcoverAnalysis(analysis)
+    setLoading(true)
+    try {
+      const body = { tipo: 'externo', ...form, seguradoras: [], icoverAnalysis: analysis }
+      const data = await apiFetch('/api/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      if (!data.sucesso) throw new Error(data.mensagem)
+      setResult(data.data)
+      setSubmitted(true)
+      setShowICover(false)
+      localStorage.removeItem(STORAGE_KEY)
+      if (user) updateProspectPhase(user.email, 'enviado_externo')
+      toast.success('Solicitação enviada com sucesso!')
+    } catch (err) { toast.error(err.message || 'Erro ao enviar') }
+    finally { setLoading(false) }
+  }
+
+  function handleICoverDecline() {
+    window.open('https://www.4score.com.br', '_blank')
   }
 
   function handleCNPJResult(data) {
@@ -146,7 +160,18 @@ export default function IntakeExterno() {
     toast.success(`Empresa: ${data.razao_social}`)
   }
 
-  if (submitted) return <SuccessScreen result={result} tipo="externo" onReset={() => { setSubmitted(false); setStep(0); setForm(emptyForm()); setResult(null); setIsReview(false) }} />
+  if (submitted) return <SuccessScreen result={result} tipo="externo" onReset={() => { setSubmitted(false); setShowICover(false); setIcoverAnalysis(null); setStep(0); setForm(emptyForm()); setResult(null); setIsReview(false) }} />
+
+  if (showICover) return (
+    <div className="max-w-5xl mx-auto px-4 py-8">
+      <ICoverAnalysis
+        formData={form}
+        tipo="externo"
+        onComplete={handleICoverAccept}
+        onDecline={handleICoverDecline}
+      />
+    </div>
+  )
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">

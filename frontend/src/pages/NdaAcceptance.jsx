@@ -135,14 +135,13 @@ export default function NdaAcceptance() {
         <div className="flex items-center justify-center gap-3 mb-3">
           <div className="relative">
             <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-12 w-12 sm:h-14 sm:w-14 object-contain relative z-10" />
-            <div className="absolute inset-0 bg-sentinel/20 rounded-full blur-xl" />
           </div>
           <div className="text-left">
-            <h1 className="text-xl sm:text-2xl font-bold text-white">Termo de Confidencialidade</h1>
-            <p className="text-xs text-white/30">SENTINEL by Fairfield</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-navy">Termo de Confidencialidade</h1>
+            <p className="text-xs text-navy/40">SENTINEL by Fairfield</p>
           </div>
         </div>
-        <p className="text-sm text-white/40 max-w-xl mx-auto">
+        <p className="text-sm text-navy/50 max-w-xl mx-auto">
           Antes de prosseguir, leia integralmente o Termo de Confidencialidade abaixo.
           Ao finalizar a leitura, o botao de aceite sera habilitado.
         </p>
@@ -150,25 +149,25 @@ export default function NdaAcceptance() {
 
       {/* User badge */}
       <div className="flex items-center justify-center mb-4">
-        <div className="inline-flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-full px-4 py-2 text-xs">
+        <div className="inline-flex items-center gap-2 bg-navy/[0.04] border border-navy/[0.1] rounded-full px-4 py-2 text-xs">
           <div className="h-5 w-5 rounded-full bg-sentinel/15 border border-sentinel/25 flex items-center justify-center">
             <span className="text-[9px] font-bold text-sentinel">{user?.nome?.charAt(0)}</span>
           </div>
-          <span className="text-white/60 font-medium">{user?.nome}</span>
-          <span className="text-white/10">|</span>
-          <span className="text-white/30">{user?.empresa}</span>
+          <span className="text-navy/70 font-medium">{user?.nome}</span>
+          <span className="text-navy/15">|</span>
+          <span className="text-navy/40">{user?.empresa}</span>
         </div>
       </div>
 
       {/* NDA Document */}
-      <div className="card-glass p-0 overflow-hidden">
+      <div className="rounded-2xl border border-navy/[0.08] bg-white shadow-lg shadow-navy/5 p-0 overflow-hidden">
         {/* Document header bar */}
-        <div className="bg-navy-light/80 px-4 sm:px-6 py-3 flex items-center justify-between border-b border-white/[0.06]">
+        <div className="bg-navy/[0.03] px-4 sm:px-6 py-3 flex items-center justify-between border-b border-navy/[0.08]">
           <div className="flex items-center gap-2">
             <svg className="w-4 h-4 text-sentinel" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <span className="text-white/60 text-xs font-medium">Termo de Confidencialidade — Fairfield</span>
+            <span className="text-navy/50 text-xs font-medium">Termo de Confidencialidade — Fairfield</span>
           </div>
           {scrolledToEnd ? (
             <span className="text-accent-emerald text-[10px] font-bold flex items-center gap-1">
@@ -184,22 +183,22 @@ export default function NdaAcceptance() {
         </div>
 
         {/* Progress bar */}
-        <div className="h-[2px] bg-white/[0.04]">
+        <div className="h-[2px] bg-navy/[0.04]">
           <ScrollProgress scrollRef={scrollRef} />
         </div>
 
         {/* Document body */}
         <div
           ref={scrollRef}
-          className="max-h-[55vh] sm:max-h-[60vh] overflow-y-auto px-4 sm:px-8 py-5 sm:py-6 space-y-5 text-sm leading-relaxed text-white/50 scroll-smooth"
+          className="max-h-[55vh] sm:max-h-[60vh] overflow-y-auto px-4 sm:px-8 py-5 sm:py-6 space-y-5 text-sm leading-relaxed text-navy/60 scroll-smooth"
         >
           {NDA_SECTIONS.map((section, idx) => (
             <div key={idx}>
-              <h3 className={`font-bold ${idx === 0 ? 'text-lg text-white text-center mb-4' : 'text-sentinel/80 text-sm mb-2'}`}>
+              <h3 className={`font-bold ${idx === 0 ? 'text-lg text-navy text-center mb-4' : 'text-sentinel-dark text-sm mb-2'}`}>
                 {section.title}
               </h3>
               {section.content.split('\n').map((line, li) => (
-                <p key={li} className={`${line.startsWith('(') ? 'ml-4' : ''} mb-2 text-[13px] sm:text-sm text-white/40`}>
+                <p key={li} className={`${line.startsWith('(') ? 'ml-4' : ''} mb-2 text-[13px] sm:text-sm text-navy/50`}>
                   {line}
                 </p>
               ))}
@@ -207,12 +206,12 @@ export default function NdaAcceptance() {
           ))}
 
           {/* Footer */}
-          <div className="border-t border-white/[0.06] pt-4 mt-6">
-            <p className="text-[11px] text-white/25 text-center">
-              <strong className="text-white/40">Responsavel:</strong> Fairfield Protecao e Inteligencia Financeira Ltda — CNPJ 13.381.310/0001-45
+          <div className="border-t border-navy/[0.08] pt-4 mt-6">
+            <p className="text-[11px] text-navy/30 text-center">
+              <strong className="text-navy/50">Responsavel:</strong> Fairfield Protecao e Inteligencia Financeira Ltda — CNPJ 13.381.310/0001-45
             </p>
-            <p className="text-[11px] text-white/25 text-center mt-1">
-              <strong className="text-white/40">Vigencia:</strong> 90 dias · <strong className="text-white/40">Sigilo:</strong> 2 anos · SUSEP 20.2036457.1
+            <p className="text-[11px] text-navy/30 text-center mt-1">
+              <strong className="text-navy/50">Vigencia:</strong> 90 dias · <strong className="text-navy/50">Sigilo:</strong> 2 anos · SUSEP 20.2036457.1
             </p>
           </div>
 
@@ -238,7 +237,7 @@ export default function NdaAcceptance() {
                   <p className="text-sm text-accent-emerald font-medium">
                     Ao clicar em "De Acordo", voce declara que leu e compreendeu este Termo e autoriza a Fairfield a utilizar suas informacoes para o estudo de mercado.
                   </p>
-                  <p className="text-[11px] text-white/25 mt-1">
+                  <p className="text-[11px] text-navy/30 mt-1">
                     Aceite eletronico registrado com data, hora e identificacao.
                   </p>
                 </div>

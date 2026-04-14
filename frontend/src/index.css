@@ -31,17 +31,32 @@ body {
   .input-field {
     @apply w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-white/25 focus:outline-none focus:ring-2 focus:ring-sentinel/40 focus:border-sentinel/30 transition-all duration-300;
   }
+  .light-theme .input-field {
+    @apply bg-gray-50 border-gray-200 text-navy placeholder-gray-400 focus:ring-sentinel/30 focus:border-sentinel/40;
+  }
   .select-field {
     @apply w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-sentinel/40 focus:border-sentinel/30 transition-all duration-300;
+  }
+  .light-theme .select-field {
+    @apply bg-gray-50 border-gray-200 text-navy focus:ring-sentinel/30 focus:border-sentinel/40;
   }
   .label-field {
     @apply block text-sm font-semibold text-white/70 mb-1.5;
   }
+  .light-theme .label-field {
+    @apply text-navy/70;
+  }
   .card {
     @apply bg-white/[0.03] rounded-2xl border border-white/[0.06] p-6 backdrop-blur-sm;
   }
+  .light-theme .card {
+    @apply bg-white rounded-2xl border border-gray-200 p-6 shadow-sm backdrop-blur-none;
+  }
   .card-glass {
     @apply bg-white/[0.04] rounded-2xl border border-white/[0.08] p-6 backdrop-blur-md shadow-xl;
+  }
+  .light-theme .card-glass {
+    @apply bg-white rounded-2xl border border-gray-200 p-6 shadow-lg backdrop-blur-none;
   }
   .error-msg {
     @apply text-rose-400 text-xs mt-1;
