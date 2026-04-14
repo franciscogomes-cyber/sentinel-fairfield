@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-
-const B = import.meta.env.BASE_URL
+import { MiniShield } from './Home'
 
 const NDA_SECTIONS = [
   {
@@ -133,9 +132,7 @@ export default function NdaAcceptance() {
       {/* Header */}
       <div className="text-center mb-6">
         <div className="flex items-center justify-center gap-3 mb-3">
-          <div className="relative">
-            <img src={`${B}logos/sentinel.png`} alt="SENTINEL" className="h-12 w-12 sm:h-14 sm:w-14 object-contain relative z-10" />
-          </div>
+          <MiniShield size={48} />
           <div className="text-left">
             <h1 className="text-xl sm:text-2xl font-bold text-navy">Termo de Confidencialidade</h1>
             <p className="text-xs text-navy/40">SENTINEL by Fairfield</p>
@@ -262,13 +259,13 @@ export default function NdaAcceptance() {
           </div>
         ) : (
           <div className="text-center">
-            <button disabled className="w-full bg-white/[0.04] text-white/20 px-8 py-4 rounded-xl font-bold text-lg cursor-not-allowed border border-white/[0.06]">
+            <button disabled className="w-full bg-navy/[0.04] text-navy/25 px-8 py-4 rounded-xl font-bold text-lg cursor-not-allowed border border-navy/[0.08]">
               <span className="flex items-center justify-center gap-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                 Leia o documento completo para continuar
               </span>
             </button>
-            <p className="text-[11px] text-white/15 mt-2">Role ate o final do documento para habilitar o aceite</p>
+            <p className="text-[11px] text-navy/30 mt-2">Role até o final do documento para habilitar o aceite</p>
           </div>
         )}
       </div>
