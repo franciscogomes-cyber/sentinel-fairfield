@@ -24,16 +24,22 @@ function AnalysisAnimation({ onComplete }) {
   ]
 
   useEffect(() => {
-    const totalDuration = 4000
+    const totalDuration = 12000
     const phaseInterval = totalDuration / phases.length
-    const progressInterval = 50
+    const progressInterval = 80
 
+    // Progresso não-linear: começa rápido, desacelera no meio, acelera no fim
+    let elapsed = 0
     const progTimer = setInterval(() => {
-      setProgress(p => {
-        const next = p + (100 / (totalDuration / progressInterval))
-        if (next >= 100) { clearInterval(progTimer); setTimeout(onComplete, 400); return 100 }
-        return next
-      })
+      elapsed += progressInterval
+      const linear = elapsed / totalDuration
+      // Easing: ease-in-out cubic
+      const eased = linear < 0.5
+        ? 4 * linear * linear * linear
+        : 1 - Math.pow(-2 * linear + 2, 3) / 2
+      const pct = Math.min(eased * 100, 100)
+      setProgress(pct)
+      if (pct >= 100) { clearInterval(progTimer); setTimeout(onComplete, 600) }
     }, progressInterval)
 
     const phaseTimer = setInterval(() => {
@@ -45,12 +51,28 @@ function AnalysisAnimation({ onComplete }) {
 
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 animate-fadeIn">
-      {/* Shield animado */}
+      {/* Shield animado — versão com contraste para fundo claro */}
       <div className="relative mb-8">
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-sentinel/20 to-sentinel/5 flex items-center justify-center animate-pulse">
-          <MiniShield size={56} />
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-navy/10 to-sentinel/10 flex items-center justify-center">
+          <svg width={56} height={56} viewBox="0 0 80 80" fill="none">
+            <path d="M40 12 L62 24 L62 42 C62 56 52 66 40 70 C28 66 18 56 18 42 L18 24 Z"
+              fill="rgba(17,24,51,0.06)" stroke="#0c4a6e" strokeWidth="1.8">
+              <animate attributeName="stroke-opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite" />
+            </path>
+            <path d="M40 20 L56 28 L56 42 C56 52 49 60 40 63 C31 60 24 52 24 42 L24 28 Z"
+              fill="rgba(12,74,110,0.06)" stroke="#0c4a6e" strokeWidth="0.8" opacity="0.5" />
+            <text x="40" y="48" textAnchor="middle" fill="#0c4a6e" fontSize="22" fontWeight="bold" fontFamily="Inter, sans-serif">
+              $
+              <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite" />
+            </text>
+            <line x1="22" y1="40" x2="58" y2="40" stroke="#0c4a6e" strokeWidth="0.5" opacity="0.2">
+              <animate attributeName="y1" values="25;55;25" dur="3s" repeatCount="indefinite" />
+              <animate attributeName="y2" values="25;55;25" dur="3s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0;0.35;0" dur="3s" repeatCount="indefinite" />
+            </line>
+          </svg>
         </div>
-        <div className="absolute -inset-4 rounded-full border-2 border-dashed border-sentinel/20 animate-spin" style={{ animationDuration: '8s' }} />
+        <div className="absolute -inset-4 rounded-full border-2 border-dashed border-navy/10 animate-spin" style={{ animationDuration: '10s' }} />
       </div>
 
       {/* Título */}
