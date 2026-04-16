@@ -50,12 +50,17 @@ export default function Login({ onComplete }) {
 
     setLoading(true)
     try {
-      await login(email, password)
+      const result = await login(email, password)
       toast.success('Login realizado com sucesso!')
       if (onComplete) {
         onComplete()
       } else {
-        navigate('/meu-painel')
+        const loggedUser = result?.data?.user || result?.user
+        if (loggedUser?.role === 'admin') {
+          navigate('/dashboard?admin=1')
+        } else {
+          navigate('/meu-painel')
+        }
       }
     } catch (err) {
       toast.error(err.message || 'Erro ao fazer login')

@@ -25,18 +25,20 @@ export function AuthProvider({ children }) {
   }, [user])
 
   // Store tokens and user data from auth response
-  const handleAuthResponse = useCallback((data) => {
-    if (data.access_token) {
-      setAccessToken(data.access_token)
+  // Backend may return tokens at root level or nested inside `data`
+  const handleAuthResponse = useCallback((resp) => {
+    const d = resp.data || resp
+    if (d.access_token || resp.access_token) {
+      setAccessToken(d.access_token || resp.access_token)
     }
-    if (data.refresh_token) {
-      localStorage.setItem(REFRESH_KEY, data.refresh_token)
+    if (d.refresh_token || resp.refresh_token) {
+      localStorage.setItem(REFRESH_KEY, d.refresh_token || resp.refresh_token)
     }
-    if (data.user) {
-      setUser(data.user)
-      // Backward compat: also store in sentinel_user and sentinel_auth
-      localStorage.setItem('sentinel_user', JSON.stringify(data.user))
-      localStorage.setItem('sentinel_auth', JSON.stringify(data.user))
+    if (d.user || resp.user) {
+      const u = d.user || resp.user
+      setUser(u)
+      localStorage.setItem('sentinel_user', JSON.stringify(u))
+      localStorage.setItem('sentinel_auth', JSON.stringify(u))
     }
   }, [])
 
