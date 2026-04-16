@@ -2,6 +2,17 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import toast from 'react-hot-toast'
 
+const B = import.meta.env.BASE_URL
+const LOGOS = {
+  'aig':           { src: `${B}logos/aig.png`, invert: false },
+  'avla':          { src: `${B}logos/avla.svg`, invert: false },
+  'allianz-trade': { src: `${B}logos/allianz-trade.png`, invert: true },
+  'atradius':      { src: `${B}logos/atradius.svg`, invert: false },
+  'cesce':         { src: `${B}logos/cesce.svg`, invert: false },
+  'coface':        { src: `${B}logos/coface.png`, invert: true },
+  'chubb':         { src: `${B}logos/chubb.svg`, invert: false },
+}
+
 export default function SeguradorasManager() {
   const { authFetch } = useAuth()
   const [seguradoras, setSeguradoras] = useState([])
@@ -113,17 +124,20 @@ export default function SeguradorasManager() {
               }`}>
               {/* Header */}
               <div className="p-5 flex items-start justify-between gap-4 cursor-pointer" onClick={() => setExpandedId(isExpanded ? null : seg.id)}>
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: `${seg.cor || '#666'}20` }}>
-                    <span className="text-sm font-black" style={{ color: seg.cor || '#666' }}>
-                      {seg.nome.charAt(0)}
-                    </span>
-                  </div>
-                  <div>
-                    <h3 className="text-white font-bold text-sm">{seg.nome}</h3>
-                    <p className="text-[10px] text-white/25 font-mono">{seg.slug}</p>
-                  </div>
+                <div className="flex items-center gap-4 min-w-0">
+                  {LOGOS[seg.slug] ? (
+                    <div className="w-28 h-10 flex items-center justify-start flex-shrink-0">
+                      <img
+                        src={LOGOS[seg.slug].src}
+                        alt={seg.nome}
+                        className={`max-h-8 max-w-[7rem] w-auto object-contain ${LOGOS[seg.slug].invert ? 'brightness-0 invert opacity-80' : 'opacity-90'}`}
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-28 h-10 flex items-center justify-start flex-shrink-0">
+                      <span className="text-sm font-black text-white/80">{seg.nome}</span>
+                    </div>
+                  )}
                   {/* Contact count badge */}
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                     activeContacts.length > 0 ? 'bg-sentinel/10 text-sentinel' : 'bg-white/5 text-white/20'

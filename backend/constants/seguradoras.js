@@ -44,13 +44,6 @@ const SEGURADORAS = [
     cor: '#00843D',
     email_padrao: '',
     contato_padrao: ''
-  },
-  {
-    slug: 'ezze',
-    nome: 'EZZE',
-    cor: '#1B3A5C',
-    email_padrao: '',
-    contato_padrao: ''
   }
 ];
 

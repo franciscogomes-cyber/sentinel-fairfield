@@ -378,6 +378,10 @@ if (existingSeguradoras === 0) {
   console.log(`[DB] ${SEGURADORAS.length} seguradoras seed criadas`);
 }
 
+// Remove EZZE (não é Cia de seguro de crédito)
+db.prepare("DELETE FROM seguradora_emails WHERE seguradora_id IN (SELECT id FROM seguradoras_contatos WHERE slug = 'ezze')").run();
+db.prepare("DELETE FROM seguradoras_contatos WHERE slug = 'ezze'").run();
+
 // Cria usuário admin padrão se não existir
 const bcrypt = require('bcryptjs');
 const adminEmail = 'admin@fairfield.com.br';
