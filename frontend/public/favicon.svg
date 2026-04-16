@@ -8,12 +8,16 @@
       <stop offset="0%" style="stop-color:#7DD3FC"/>
       <stop offset="100%" style="stop-color:#38BDF8"/>
     </linearGradient>
-    <linearGradient id="eye" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#B87333"/>
-      <stop offset="100%" style="stop-color:#D4944A"/>
+    <linearGradient id="dollar" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7DD3FC"/>
+      <stop offset="100%" style="stop-color:#34D399"/>
     </linearGradient>
     <filter id="glow">
       <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="dollarGlow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
       <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
@@ -33,21 +37,13 @@
         fill="none" stroke="url(#shield)" stroke-width="14" stroke-linejoin="round" filter="url(#glow)"/>
   <!-- Escudo interno preenchido -->
   <path d="M256 98 L386 160 L386 278 Q386 368 256 428 Q126 368 126 278 L126 160 Z"
-        fill="#0A1628" fill-opacity="0.5" stroke="url(#shield)" stroke-width="3" stroke-linejoin="round" opacity="0.4"/>
-  <!-- Olho - anel externo -->
-  <circle cx="256" cy="240" r="68" fill="none" stroke="url(#shield)" stroke-width="9" filter="url(#glow)"/>
-  <!-- Olho - anel interno -->
-  <circle cx="256" cy="240" r="42" fill="none" stroke="url(#eye)" stroke-width="7"/>
-  <!-- Olho - núcleo -->
-  <circle cx="256" cy="240" r="20" fill="url(#eye)"/>
-  <!-- Olho - brilho -->
-  <circle cx="248" cy="232" r="7" fill="white" opacity="0.6"/>
-  <!-- Linhas de scan -->
-  <g stroke="#7DD3FC" stroke-width="2.5" opacity="0.35">
-    <line x1="198" y1="198" x2="158" y2="166"/><line x1="314" y1="198" x2="354" y2="166"/>
-    <line x1="198" y1="282" x2="166" y2="314"/><line x1="314" y1="282" x2="346" y2="314"/>
-  </g>
-  <!-- Letra S -->
-  <text x="256" y="388" font-family="Arial,Helvetica,sans-serif" font-weight="bold" font-size="52"
-        fill="url(#shield)" text-anchor="middle" letter-spacing="6" opacity="0.75">S</text>
+        fill="rgba(125,211,252,0.06)" stroke="url(#shield)" stroke-width="3" stroke-linejoin="round" opacity="0.4"/>
+  <!-- Linha de scan horizontal -->
+  <line x1="145" y1="260" x2="367" y2="260" stroke="#7DD3FC" stroke-width="1.5" opacity="0.2"/>
+  <!-- Cifrão ($) central -->
+  <text x="256" y="300" font-family="Inter,Arial,Helvetica,sans-serif" font-weight="bold" font-size="140"
+        fill="url(#dollar)" text-anchor="middle" filter="url(#dollarGlow)" opacity="0.9">$</text>
+  <!-- Letra S na base -->
+  <text x="256" y="418" font-family="Inter,Arial,Helvetica,sans-serif" font-weight="bold" font-size="42"
+        fill="url(#shield)" text-anchor="middle" letter-spacing="6" opacity="0.6">S</text>
 </svg>

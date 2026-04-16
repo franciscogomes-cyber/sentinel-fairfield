@@ -1,4 +1,6 @@
-require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+if (!process.env.VERCEL) {
+  require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+}
 
 const express = require('express');
 const cors = require('cors');
@@ -21,7 +23,8 @@ app.use(cors({
     'http://localhost:3000',
     'https://franciscogomes-cyber.github.io',
     /\.railway\.app$/,
-    /\.onrender\.com$/
+    /\.onrender\.com$/,
+    /\.vercel\.app$/
   ],
   credentials: true
 }));
@@ -93,7 +96,11 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`[Fairfield Cotação] Servidor rodando na porta ${PORT}`);
-  console.log(`[Fairfield Cotação] ${new Date().toISOString()}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`[Fairfield Cotação] Servidor rodando na porta ${PORT}`);
+    console.log(`[Fairfield Cotação] ${new Date().toISOString()}`);
+  });
+}
+
+module.exports = app;

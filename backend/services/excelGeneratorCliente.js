@@ -9,7 +9,7 @@ const BRANCO = 'FFFFFFFF';
 const CINZA  = 'FFF5F5F5';
 const CINZA_CLARO = 'FFFAFAFA';
 
-const arquivosDir = path.join(__dirname, '..', 'arquivos');
+const arquivosDir = process.env.VERCEL ? path.join('/tmp', 'arquivos') : path.join(__dirname, '..', 'arquivos');
 if (!fs.existsSync(arquivosDir)) {
   fs.mkdirSync(arquivosDir, { recursive: true });
 }

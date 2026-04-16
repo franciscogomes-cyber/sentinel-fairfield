@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const ExcelJS = require('exceljs');
 
-const arquivosDir = path.join(__dirname, '..', 'arquivos');
+const arquivosDir = process.env.VERCEL ? path.join('/tmp', 'arquivos') : path.join(__dirname, '..', 'arquivos');
 if (!fs.existsSync(arquivosDir)) {
   fs.mkdirSync(arquivosDir, { recursive: true });
 }
@@ -474,6 +474,195 @@ async function gerarFichaTecnica(lead) {
     fc.font = { color: { argb: 'FFD4944A' }, size: 9, italic: true };
     fc.alignment = { vertical: 'middle', horizontal: 'center' };
     footerRow.height = 18;
+  }
+
+  // ─── Aba: Análise iCover (condicional) ──────────────────────────────────
+  if (lead.icover_analysis) {
+    let ic = lead.icover_analysis;
+    if (typeof ic === 'string') ic = JSON.parse(ic);
+
+    const sheet = workbook.addWorksheet('Análise iCover', {
+      properties: { tabColor: { argb: 'FF16A34A' } }
+    });
+    sheet.columns = [
+      { width: 28 }, { width: 22 }, { width: 22 }, { width: 22 }, { width: 22 }
+    ];
+
+    // Título
+    const titleRow = sheet.addRow(['SENTINEL — ANÁLISE iCOVER DE SUBSCRIÇÃO']);
+    titleRow.height = 36;
+    sheet.mergeCells(1, 1, 1, 5);
+    const titleCell = titleRow.getCell(1);
+    titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + NAVY } };
+    titleCell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 16 };
+    titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+    const subRow = sheet.addRow([`Empresa: ${ic.empresa || ''} · CNPJ: ${ic.cnpj || ''} · Setor: ${ic.setor || ''} (${ic.setorRisco || ''})`]);
+    subRow.height = 18;
+    sheet.mergeCells(2, 1, 2, 5);
+    const subCell = subRow.getCell(1);
+    subCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A5F' } };
+    subCell.font = { color: { argb: 'FFD4944A' }, size: 10, italic: true };
+    subCell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+    // ── Score Section ──
+    addSectionTitle(sheet, '  SCORE DE RISCO', 5);
+    [
+      ['Score', `${ic.score || 0} / ${ic.scoreMax || 100}`],
+      ['Classe de Risco', ic.riskClass || ''],
+      ['Classificação', ic.riskLabel || '']
+    ].forEach(([label, value]) => {
+      const row = sheet.addRow([label, value]);
+      styleLabel(row.getCell(1));
+      styleValue(row.getCell(2));
+      row.height = 18;
+    });
+
+    // ── Scores Breakdown ──
+    const scores = ic.scores || {};
+    const scoreKeys = Object.keys(scores);
+    if (scoreKeys.length > 0) {
+      addSectionTitle(sheet, '  BREAKDOWN DE SCORES', 5);
+      const hdr = sheet.addRow(['Componente', 'Score', 'Máximo', 'Classificação', '']);
+      hdr.height = 20;
+      [1, 2, 3, 4].forEach(i => styleTableHeader(hdr.getCell(i)));
+
+      scoreKeys.forEach((key, i) => {
+        const s = scores[key];
+        const row = sheet.addRow([key, s.value, s.max, s.label || '']);
+        styleTableRow(row, i % 2 === 0);
+        row.height = 18;
+      });
+    }
+
+    // ── Pricing Section ──
+    const pricing = ic.pricing || {};
+    addSectionTitle(sheet, '  PRECIFICAÇÃO', 5);
+    [
+      ['Taxa Base', pricing.baseRatePct || pricing.baseRate || ''],
+      ['Taxa Ajustada', pricing.adjustedRatePct || pricing.adjustedRate || '']
+    ].forEach(([label, value]) => {
+      const row = sheet.addRow([label, value]);
+      styleLabel(row.getCell(1));
+      styleValue(row.getCell(2));
+      row.height = 18;
+    });
+
+    const factors = (pricing.factors) || {};
+    const factorKeys = Object.keys(factors);
+    if (factorKeys.length > 0) {
+      addBlankRow(sheet);
+      const fHdr = sheet.addRow(['Fator', 'Valor', 'Descrição', '', '']);
+      fHdr.height = 20;
+      [1, 2, 3].forEach(i => styleTableHeader(fHdr.getCell(i)));
+
+      factorKeys.forEach((key, i) => {
+        const f = factors[key];
+        const row = sheet.addRow([key, f.value, f.label || '']);
+        styleTableRow(row, i % 2 === 0);
+        row.height = 18;
+      });
+    }
+
+    // ── Premium Estimates ──
+    const premium = ic.premium || {};
+    addSectionTitle(sheet, '  ESTIMATIVA DE PRÊMIO', 5);
+    [
+      ['Prêmio Estimado', premium.estimatedFormatted || premium.estimated || ''],
+      ['Prêmio Mínimo', premium.minimumFormatted || premium.minimum || ''],
+      ['Prêmio Máximo', premium.maximumFormatted || premium.maximum || ''],
+      ['Prêmio Mensal (est.)', premium.monthlyFormatted || premium.monthly || '']
+    ].forEach(([label, value]) => {
+      const row = sheet.addRow([label, value]);
+      styleLabel(row.getCell(1));
+      styleValue(row.getCell(2));
+      row.height = 18;
+    });
+
+    // ── Bonus/Malus ──
+    const bm = ic.bonusMalus || {};
+    if (bm.factor != null) {
+      addSectionTitle(sheet, '  BONUS / MALUS', 5);
+      [
+        ['Fator', bm.factor],
+        ['Tipo', bm.type || ''],
+        ['Classificação', bm.label || ''],
+        ['Percentual', bm.pct || '']
+      ].forEach(([label, value]) => {
+        const row = sheet.addRow([label, value]);
+        styleLabel(row.getCell(1));
+        styleValue(row.getCell(2));
+        row.height = 18;
+      });
+    }
+
+    // ── Coverage Structure ──
+    const cov = ic.coverage || {};
+    addSectionTitle(sheet, '  ESTRUTURA DE COBERTURA', 5);
+    [
+      ['Tipo de Cobertura', cov.typeLabel || cov.type || ''],
+      ['PMI (% Máx. Indeniz.)', cov.pmi || ''],
+      ['POS (% Sinistro)', cov.pos || ''],
+      ['AAD (Dedutível)', cov.aadLabel || cov.aad || ''],
+      ['Limite Discricionário', cov.discretionaryLimit || ''],
+      ['Prazo Máximo de Crédito', cov.maxCreditPeriod || ''],
+      ['Limite Agregado', cov.aggregateLimit || ''],
+      ['Período de Espera', cov.waitingPeriod || '']
+    ].forEach(([label, value]) => {
+      const row = sheet.addRow([label, value]);
+      styleLabel(row.getCell(1));
+      styleValue(row.getCell(2));
+      row.height = 18;
+    });
+
+    // ── Insurer Ranking ──
+    const insurers = ic.insurers || [];
+    if (insurers.length > 0) {
+      addSectionTitle(sheet, '  RANKING DE SEGURADORAS', 5);
+      const iHdr = sheet.addRow(['Seguradora', 'Score', 'Pontos Fortes', '', '']);
+      iHdr.height = 20;
+      [1, 2, 3].forEach(i => styleTableHeader(iHdr.getCell(i)));
+
+      insurers.forEach((ins, i) => {
+        const strengths = Array.isArray(ins.strengths) ? ins.strengths.join('; ') : '';
+        const row = sheet.addRow([ins.name || '', ins.score || '', strengths]);
+        styleTableRow(row, i % 2 === 0);
+        sheet.mergeCells(row.number, 3, row.number, 5);
+        row.height = 18;
+      });
+    }
+
+    // ── Insights ──
+    const insights = ic.insights || [];
+    if (insights.length > 0) {
+      addSectionTitle(sheet, '  INSIGHTS DA ANÁLISE', 5);
+      insights.forEach((insight, i) => {
+        const row = sheet.addRow([`${i + 1}. ${insight}`]);
+        styleValue(row.getCell(1));
+        sheet.mergeCells(row.number, 1, row.number, 5);
+        row.height = 20;
+      });
+    }
+
+    // ── Disclaimer ──
+    addBlankRow(sheet);
+    addBlankRow(sheet);
+    const discRow = sheet.addRow(['DISCLAIMER: Análise gerada automaticamente pelo motor iCover do SENTINEL. Os valores são estimativas baseadas em dados públicos e informações do proponente. Não constitui oferta de seguro. Sujeito a subscrição pela seguradora.']);
+    sheet.mergeCells(discRow.number, 1, discRow.number, 5);
+    const dc = discRow.getCell(1);
+    dc.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A5F' } };
+    dc.font = { color: { argb: 'FFD4944A' }, size: 9, italic: true };
+    dc.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+    discRow.height = 28;
+
+    // Analyzed at
+    if (ic.analyzedAt) {
+      const atRow = sheet.addRow([`Análise realizada em: ${new Date(ic.analyzedAt).toLocaleString('pt-BR')}`]);
+      sheet.mergeCells(atRow.number, 1, atRow.number, 5);
+      const atc = atRow.getCell(1);
+      atc.font = { color: { argb: 'FF9CA3AF' }, size: 8, italic: true };
+      atc.alignment = { vertical: 'middle', horizontal: 'center' };
+    }
   }
 
   await workbook.xlsx.writeFile(caminhoArquivo);

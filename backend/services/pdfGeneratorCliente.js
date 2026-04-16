@@ -18,7 +18,7 @@ const TEXT_DARK  = '#1A2A3A';
 const TEXT_MID   = '#4A5568';
 
 // ─── Diretório de saída ─────────────────────────────────────────────────────
-const arquivosDir = path.join(__dirname, '..', 'arquivos');
+const arquivosDir = process.env.VERCEL ? path.join('/tmp', 'arquivos') : path.join(__dirname, '..', 'arquivos');
 if (!fs.existsSync(arquivosDir)) {
   fs.mkdirSync(arquivosDir, { recursive: true });
 }
@@ -345,6 +345,199 @@ function drawFooter(doc) {
       MARGIN, y + 37, { width: CONTENT_W, align: 'center', lineBreak: false });
 }
 
+// ─── iCover Analysis Section ─────────────────────────────────────────────────
+function drawICoverSection(doc, lead, y) {
+  let icover = lead.icover_analysis;
+  if (!icover) return y;
+  if (typeof icover === 'string') {
+    try { icover = JSON.parse(icover); } catch { return y; }
+  }
+
+  // ── Section header ──
+  drawRoundRect(doc, MARGIN, y, CONTENT_W, 36, 6, NAVY);
+  drawRect(doc, MARGIN, y, 6, 36, COBRE);
+  doc.fillColor(COBRE).font('Helvetica-Bold').fontSize(12)
+    .text('ESTUDO iCOVER \u2014 AN\u00c1LISE PRELIMINAR', MARGIN + 18, y + 10, { lineBreak: false });
+  y += 48;
+
+  // ── Score + Risk class card ──
+  const scoreBoxH = 70;
+  drawRoundRect(doc, MARGIN, y, CONTENT_W, scoreBoxH, 8, GRAY_LIGHT);
+
+  // Score circle
+  const scoreStr = safe(icover.score, '\u2014');
+  const cx = MARGIN + 48;
+  const cy = y + scoreBoxH / 2;
+  doc.save();
+  doc.circle(cx, cy, 28).fill(NAVY);
+  doc.fillColor(COBRE).font('Helvetica-Bold').fontSize(20)
+    .text(scoreStr, cx - 22, cy - 14, { width: 44, align: 'center', lineBreak: false });
+  doc.fillColor(GRAY_MID).font('Helvetica').fontSize(7)
+    .text('/100', cx - 12, cy + 8, { width: 24, align: 'center', lineBreak: false });
+  doc.restore();
+
+  // Risk class label
+  const riskLabel = safe(icover.riskLabel, safe(icover.riskClass));
+  doc.fillColor(NAVY).font('Helvetica-Bold').fontSize(14)
+    .text('Classifica\u00e7\u00e3o de Risco: ' + riskLabel, MARGIN + 90, y + 14, { width: CONTENT_W - 100, lineBreak: false });
+
+  const empresaInfo = [
+    icover.empresa ? 'Empresa: ' + icover.empresa : null,
+    icover.cnpj ? 'CNPJ: ' + icover.cnpj : null,
+    icover.setor ? 'Setor: ' + icover.setor : null,
+  ].filter(Boolean).join('   |   ');
+  if (empresaInfo) {
+    doc.fillColor(TEXT_MID).font('Helvetica').fontSize(8)
+      .text(empresaInfo, MARGIN + 90, y + 34, { width: CONTENT_W - 100, lineBreak: false });
+  }
+
+  // Bonus/Malus badge
+  if (icover.bonusMalus && icover.bonusMalus.label) {
+    doc.fillColor(TEXT_MID).font('Helvetica').fontSize(7.5)
+      .text('B\u00f4nus/Malus: ' + icover.bonusMalus.label, MARGIN + 90, y + 50, { lineBreak: false });
+  }
+
+  y += scoreBoxH + 16;
+
+  // ── Coverage Structure ──
+  if (icover.coverage) {
+    const cov = icover.coverage;
+    doc.fillColor(NAVY).font('Helvetica-Bold').fontSize(11)
+      .text('Estrutura de Cobertura Recomendada', MARGIN, y, { lineBreak: false });
+    y += 18;
+    drawRect(doc, MARGIN, y, 120, 2, COBRE);
+    y += 8;
+
+    const covRows = [
+      { label: 'Tipo de Cobertura', value: safe(cov.typeLabel, safe(cov.type)) },
+      { label: 'PMI (Percentual M\u00e1ximo Indeniz\u00e1vel)', value: cov.pmi ? cov.pmi + '%' : '\u2014' },
+      { label: 'POS (Participa\u00e7\u00e3o Obrigat\u00f3ria do Segurado)', value: cov.pos ? cov.pos + '%' : '\u2014' },
+      { label: 'Prazo M\u00e1ximo de Cr\u00e9dito', value: safe(cov.maxCreditPeriod) },
+      { label: 'Per\u00edodo de Espera', value: safe(cov.waitingPeriod) },
+    ];
+
+    const covRowH = 22;
+    covRows.forEach((row, i) => {
+      const bg = i % 2 === 0 ? GRAY_LIGHT : WHITE;
+      drawRect(doc, MARGIN, y, CONTENT_W, covRowH, bg);
+      doc.fillColor(TEXT_MID).font('Helvetica-Bold').fontSize(8)
+        .text(row.label, MARGIN + 12, y + 6, { lineBreak: false });
+      doc.fillColor(TEXT_DARK).font('Helvetica').fontSize(8.5)
+        .text(row.value, MARGIN + 280, y + 6, { width: CONTENT_W - 290, align: 'right', lineBreak: false });
+      y += covRowH;
+    });
+    y += 14;
+  }
+
+  // ── Premium Estimate Range ──
+  if (icover.premium) {
+    const prem = icover.premium;
+    const minStr = safe(prem.minimumFormatted, fmtBRL(prem.minimum));
+    const maxStr = safe(prem.maximumFormatted, fmtBRL(prem.maximum));
+
+    const premBoxH = 54;
+    drawRoundRect(doc, MARGIN, y, CONTENT_W, premBoxH, 8, NAVY_DARK);
+    doc.fillColor(COBRE).font('Helvetica-Bold').fontSize(9)
+      .text('ESTIMATIVA DE PR\u00caMIO ANUAL', MARGIN + 16, y + 10, { lineBreak: false });
+    doc.fillColor(WHITE).font('Helvetica-Bold').fontSize(16)
+      .text(minStr + '  a  ' + maxStr, MARGIN + 16, y + 26, { width: CONTENT_W - 32, lineBreak: false });
+
+    if (prem.monthlyFormatted || prem.monthly) {
+      const monthStr = safe(prem.monthlyFormatted, fmtBRL(prem.monthly));
+      doc.fillColor(GRAY_MID).font('Helvetica').fontSize(8)
+        .text('(Estimativa mensal: ' + monthStr + ')', MARGIN + CONTENT_W - 200, y + 10, { width: 184, align: 'right', lineBreak: false });
+    }
+
+    y += premBoxH + 14;
+  }
+
+  // ── Top 3 Recommended Insurers ──
+  if (Array.isArray(icover.insurers) && icover.insurers.length > 0) {
+    doc.fillColor(NAVY).font('Helvetica-Bold').fontSize(11)
+      .text('Seguradoras Recomendadas', MARGIN, y, { lineBreak: false });
+    y += 18;
+    drawRect(doc, MARGIN, y, 120, 2, COBRE);
+    y += 8;
+
+    const topInsurers = icover.insurers.slice(0, 3);
+    const cardW = (CONTENT_W - 16) / 3;
+    const cardH = 80;
+
+    topInsurers.forEach((ins, i) => {
+      const x = MARGIN + i * (cardW + 8);
+      drawRoundRect(doc, x, y, cardW, cardH, 6, GRAY_LIGHT);
+      drawRoundRect(doc, x, y, cardW, 5, 6, COBRE);
+      drawRect(doc, x, y + 3, cardW, 2, COBRE);
+
+      // Name
+      doc.fillColor(NAVY).font('Helvetica-Bold').fontSize(9)
+        .text(safe(ins.name), x + 10, y + 14, { width: cardW - 20, lineBreak: false });
+
+      // Score badge
+      if (ins.score != null) {
+        doc.fillColor(COBRE).font('Helvetica-Bold').fontSize(8)
+          .text('Score: ' + ins.score, x + 10, y + 28, { lineBreak: false });
+      }
+
+      // Strengths
+      if (Array.isArray(ins.strengths)) {
+        const strengthsText = ins.strengths.slice(0, 3).map(function(s) { return '\u2022 ' + s; }).join('\n');
+        doc.fillColor(TEXT_MID).font('Helvetica').fontSize(7)
+          .text(strengthsText, x + 10, y + 42, { width: cardW - 20, lineGap: 2 });
+      }
+    });
+    y += cardH + 14;
+  }
+
+  // ── Insights ──
+  if (Array.isArray(icover.insights) && icover.insights.length > 0) {
+    doc.fillColor(NAVY).font('Helvetica-Bold').fontSize(11)
+      .text('Destaques da An\u00e1lise', MARGIN, y, { lineBreak: false });
+    y += 18;
+    drawRect(doc, MARGIN, y, 120, 2, COBRE);
+    y += 8;
+
+    const insightsList = icover.insights.slice(0, 5);
+    insightsList.forEach(function(insight) {
+      const insightH = doc.heightOfString(insight, { width: CONTENT_W - 30 });
+      const rowH = Math.max(insightH + 10, 20);
+
+      // Check page break
+      if (y + rowH + 60 > PAGE_H) {
+        drawFooter(doc);
+        doc.addPage();
+        y = MARGIN;
+      }
+
+      drawRect(doc, MARGIN, y, 4, rowH, COBRE);
+      drawRect(doc, MARGIN + 4, y, CONTENT_W - 4, rowH, GRAY_LIGHT);
+      doc.fillColor(TEXT_DARK).font('Helvetica').fontSize(8)
+        .text(insight, MARGIN + 14, y + 5, { width: CONTENT_W - 30, lineGap: 2 });
+      y += rowH + 4;
+    });
+    y += 10;
+  }
+
+  // ── Disclaimer ──
+  const disclaimerH = 40;
+  if (y + disclaimerH + 60 > PAGE_H) {
+    drawFooter(doc);
+    doc.addPage();
+    y = MARGIN;
+  }
+  drawRoundRect(doc, MARGIN, y, CONTENT_W, disclaimerH, 6, GRAY_LIGHT);
+  doc.fillColor(TEXT_MID).font('Helvetica').fontSize(6.5)
+    .text(
+      'Nota: Os valores e recomenda\u00e7\u00f5es acima s\u00e3o estimativas preliminares geradas pelo sistema iCover com base nos dados informados. ' +
+      'N\u00e3o constituem proposta de seguro. As condi\u00e7\u00f5es definitivas ser\u00e3o apresentadas ap\u00f3s an\u00e1lise completa pelas seguradoras parceiras. ' +
+      'Pr\u00eamios, coberturas e limites podem variar conforme a avalia\u00e7\u00e3o de risco individual de cada seguradora.',
+      MARGIN + 12, y + 8, { width: CONTENT_W - 24, lineGap: 2 }
+    );
+  y += disclaimerH + 16;
+
+  return y;
+}
+
 // ─── Main export ──────────────────────────────────────────────────────────────
 function gerarPDFCliente(lead) {
   return new Promise((resolve, reject) => {
@@ -377,8 +570,20 @@ function gerarPDFCliente(lead) {
       y = drawSteps(doc, y);
       y = drawMetricsTable(doc, lead, y);
 
+      // iCover analysis section (only if data exists)
+      if (lead.icover_analysis) {
+        // Check if we need a new page before iCover section
+        if (y + 200 > PAGE_H) {
+          drawFooter(doc);
+          doc.addPage();
+          y = MARGIN;
+        }
+        y = drawICoverSection(doc, lead, y);
+      }
+
       // Check if quote fits, otherwise add new page
       if (y + 80 + 50 > PAGE_H) {
+        drawFooter(doc);
         doc.addPage();
         y = MARGIN;
       }

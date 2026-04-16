@@ -162,7 +162,7 @@ const KNOWLEDGE_BASE = [
     answer: `O **Seguro de Crédito** é uma modalidade que protege empresas contra o risco de **inadimplência** de seus compradores (devedores).\n\n**Como funciona:**\n1. A empresa (segurada) vende a prazo para seus clientes\n2. A seguradora analisa e aprova **limites de crédito** para cada comprador\n3. Se o comprador não pagar, a seguradora **indeniza** a empresa\n\n**Estrutura da apólice:**\n| Parte | Papel |\n|-------|-------|\n| **Segurado** | Empresa que vende a prazo (credor) |\n| **Seguradora** | Assume o risco de inadimplência |\n| **Devedor** | Comprador que pode não pagar |\n\n**Coberturas principais:**\n• **Insolvência** do devedor (falência, recuperação judicial)\n• **Mora prolongada** (atraso superior a 150-180 dias)\n• **Risco político** (em operações de exportação)\n\nO seguro de crédito é regulamentado pela **SUSEP** nos ramos **0171** (interno) e **0172** (exportação).`
   },
   {
-    keywords: ['diferenca seguro garantia', 'garantia vs credito', 'seguro garantia', 'diferenca garantia'],
+    keywords: ['diferenca seguro garantia', 'garantia vs credito', 'seguro garantia', 'diferenca garantia', 'garantia mesma coisa', 'garantia igual credito', 'seguro garantia mesma coisa'],
     category: 'conceito',
     answer: `**Seguro de Crédito vs Seguro Garantia** — são produtos bem diferentes:\n\n| Aspecto | Seguro de Crédito | Seguro Garantia |\n|---------|-------------------|------------------|\n| **Protege** | O vendedor (credor) | O contratante/beneficiário |\n| **Risco** | Inadimplência do comprador | Descumprimento contratual |\n| **Tomador** | Quem vende a prazo | Quem tem obrigação contratual |\n| **Apólice** | Global (múltiplos compradores) | Individual (por contrato) |\n| **Ramo SUSEP** | 0171 / 0172 | 0775 |\n| **Indenização** | % do valor da venda | Valor da garantia |\n\n**Seguro de Crédito:** Protege seu faturamento contra calotes.\n**Seguro Garantia:** Garante o cumprimento de um contrato.\n\nAmbos são importantes ferramentas de gestão de risco, mas atendem necessidades distintas.`
   },
@@ -209,7 +209,7 @@ const KNOWLEDGE_BASE = [
     answer: `**Whole Turnover (Apólice Global)**\n\nCobre **toda a carteira** de vendas a prazo da empresa.\n\n**Como funciona:**\n• A empresa segura **100% do faturamento** a prazo\n• Todos os compradores são incluídos\n• Limite de crédito é solicitado para cada devedor\n• Existe um **limite discricionário** para compradores pequenos\n\n**Características:**\n| Item | Detalhe |\n|------|--------|\n| Cobertura | Toda a carteira B2B |\n| PMI | 85% a 90% |\n| POS | 10% a 15% |\n| Franquia/AAD | Sim, geralmente |\n| Bonus/Malus | Sim |\n| Prêmio | % sobre faturamento real |\n\n**Vantagens:**\n• **Menor custo** por real segurado\n• Análise de crédito de todos os compradores\n• Gestão integrada do risco de crédito\n• Histórico gera **bônus** nos anos seguintes\n\n**Ideal para:**\n• Empresas com carteira diversificada\n• Faturamento acima de R$ 20 milhões/ano\n• Muitos compradores diferentes\n\nÉ a modalidade **mais contratada** no mercado brasileiro.`
   },
   {
-    keywords: ['key buyer', 'compradores nomeados', 'nomeados', 'named buyer'],
+    keywords: ['key buyer', 'compradores nomeados', 'nomeados', 'named buyer', 'segurar maiores clientes', 'poucos compradores', 'escolher quais segurar'],
     category: 'cobertura',
     answer: `**Key Buyer (Compradores Nomeados)**\n\nCobre apenas **compradores específicos** selecionados pela empresa.\n\n**Como funciona:**\n• A empresa escolhe quais compradores quer segurar\n• Geralmente os **maiores** ou **mais arriscados**\n• Cada comprador nomeado tem limite de crédito individual\n\n**Diferença para Whole Turnover:**\n| Aspecto | Key Buyer | Whole Turnover |\n|---------|-----------|----------------|\n| Cobertura | Compradores selecionados | Toda a carteira |\n| Flexibilidade | Escolhe quem segurar | Cobre todos |\n| Custo | Maior por comprador | Menor (diluição) |\n| Anti-seleção | Risco maior | Menor risco |\n| AAD/Franquia | Raramente | Comum |\n\n**Vantagens:**\n• Protege os maiores riscos\n• Custo total menor (segura menos compradores)\n• Mais simples de gerenciar\n\n**Desvantagens:**\n• Taxa unitária mais alta\n• Seguradora pode recusar compradores de alto risco\n• Sem benefício de diversificação\n\n**Ideal para:** Empresas com **poucos grandes compradores** que representam parte significativa do faturamento.`
   },
@@ -261,7 +261,7 @@ const KNOWLEDGE_BASE = [
     answer: `**Mora Prolongada (Protracted Default)**\n\nQuando o devedor **atrasa o pagamento** além de um prazo definido na apólice, sem declarar insolvência.\n\n**Prazos típicos:**\n• **150 dias** de atraso → mora prolongada (mais comum)\n• **180 dias** de atraso → em algumas apólices\n• Contados a partir do **vencimento original** da fatura\n\n**Processo:**\n1. Fatura vence e devedor não paga\n2. Segurado notifica a seguradora (prazo: 30-60 dias do vencimento)\n3. Seguradora pode iniciar cobrança\n4. Após 150-180 dias: caracteriza-se a **mora prolongada**\n5. Indenização é calculada e paga\n\n**Diferente de insolvência:**\n| Mora Prolongada | Insolvência |\n|-----------------|-------------|\n| Devedor apenas não paga | Devedor quebra (falência/RJ) |\n| Pode voltar a pagar | Processo judicial |\n| 150-180 dias de atraso | Decreto judicial |\n| Mais frequente | Mais grave |\n\n**Importante:** O segurado deve **notificar** o atraso dentro do prazo da apólice, senão pode perder o direito à indenização.`
   },
   {
-    keywords: ['insolvencia', 'falencia', 'recuperacao judicial', 'bankruptcy'],
+    keywords: ['insolvencia', 'falencia', 'recuperacao judicial', 'bankruptcy', 'falencia comprador', 'comprador faliu', 'devedor faliu', 'quebrou'],
     category: 'tecnico',
     answer: `**Insolvência no Seguro de Crédito**\n\nCobertura acionada quando o devedor entra em **processo formal de insolvência**.\n\n**Eventos de insolvência:**\n• **Falência** decretada judicialmente\n• **Recuperação Judicial** deferida (Lei 11.101/2005)\n• **Recuperação Extrajudicial** homologada\n• **Liquidação extrajudicial** (se aplicável)\n\n**Processo de sinistro:**\n1. Devedor entra em recuperação judicial ou falência\n2. Segurado notifica a seguradora imediatamente\n3. Seguradora verifica os créditos no processo\n4. Indenização é paga em **30 a 60 dias** após confirmação\n5. Seguradora se sub-roga nos direitos do segurado\n\n**Sub-rogação:**\n• A seguradora assume o direito de cobrar o devedor\n• Participa do processo de RJ/falência\n• Valores recuperados são divididos pro-rata\n\n**Importante:**\n• Créditos devem estar **habilitados** no processo\n• Documentação comprobatória é essencial (NFs, duplicatas)\n• Prazo de notificação é rigoroso`
   },
@@ -271,7 +271,7 @@ const KNOWLEDGE_BASE = [
     answer: `**Período de Espera (Waiting Period)**\n\nPrazo entre a **comunicação do sinistro** e o **pagamento da indenização**.\n\n**Prazos típicos:**\n| Tipo de Sinistro | Período de Espera |\n|-----------------|-------------------|\n| Mora Prolongada | 30 a 60 dias após 150/180 dias |\n| Insolvência | 30 dias após confirmação |\n| Risco Político | 180 dias após o evento |\n\n**Finalidade:**\n• Permitir tentativas de cobrança\n• Verificar documentação\n• Confirmar que a perda é definitiva\n\n**Não confundir com:**\n• **Prazo de mora:** 150-180 dias de atraso\n• **Prazo de notificação:** Quando o segurado deve avisar\n• **Carência da apólice:** Período inicial sem cobertura (raro)\n\nAlgumas seguradoras oferecem **pagamento antecipado** mediante solicitação, descontando um percentual.`
   },
   {
-    keywords: ['nml', 'non qualifying', 'perda nao qualificada', 'nao coberto'],
+    keywords: ['nql', 'nml', 'non qualifying', 'perda nao qualificada', 'nao coberto', 'sinistro negado', 'perda nao coberta'],
     category: 'tecnico',
     answer: `**NQL / NML — Non-Qualifying Loss (Perda Não Qualificada)**\n\nSinistro que **não atende aos critérios** de cobertura da apólice.\n\n**Motivos comuns de NQL:**\n• Venda acima do **limite de crédito** aprovado\n• Falta de **notificação** dentro do prazo\n• Devedor com limite **cancelado** antes da venda\n• Operação fora do **escopo** da apólice\n• Documentação insuficiente (sem NF, contrato, etc.)\n• Disputa comercial (devedor alega defeito no produto)\n• Venda para **parte relacionada** (empresa do grupo)\n\n**Como evitar NQL:**\n• Respeitar os limites de crédito aprovados\n• Notificar atrasos dentro do prazo (30-60 dias)\n• Manter documentação organizada\n• Monitorar avisos de cancelamento de limite\n• Verificar cobertura antes de vendas atípicas\n\n**Importante:** A disputa comercial é a principal causa de NQL. Se o devedor contesta a dívida, a seguradora pode não indenizar até que a disputa seja resolvida.`
   },
@@ -308,7 +308,7 @@ const KNOWLEDGE_BASE = [
     answer: `**AIG (American International Group)**\n\n🏢 Gigante americana de seguros com expertise em **grandes riscos**.\n\n**Números:**\n• Presente em **80+ países**\n• Rating: **A+** (S&P)\n• Capacidade para riscos muito grandes\n\n**Diferenciais:**\n• Especialista em **risco político**\n• Apetite para **grandes exposições**\n• Soluções bespoke/tailor-made\n• Forte em setores: energia, commodities, infraestrutura\n\n**Produtos de Crédito:**\n• Whole Turnover\n• Single Risk (grandes valores)\n• Risco Político standalone\n• Seguro de Crédito para commodities\n\n**Quando escolher AIG:**\n• Operações de **grande porte** (USD 10M+)\n• Risco político em países **difíceis**\n• Setores especializados (oil & gas, mining)\n• Necessidade de **capacidade alta**\n\n**Ideal para:** Grandes corporações e exportadoras com operações em mercados de alto risco.`
   },
   {
-    keywords: ['avla', 'digital', 'latam', 'startup'],
+    keywords: ['avla', 'avla confiavel', 'avla confiabilidade', 'avla segura', 'digital', 'latam', 'startup'],
     category: 'seguradora',
     answer: `**AVLA**\n\n🏢 Seguradora **digital-first** com foco na **América Latina**.\n\n**Números:**\n• Fundada em 2016 (Chile)\n• Presente no Brasil, Chile, Colômbia, Peru\n• Foco em tecnologia e agilidade\n\n**Diferenciais:**\n• Processo **100% digital**\n• Aprovação rápida de limites\n• Interface moderna e intuitiva\n• Foco em **PMEs e mid-market**\n• Prêmios competitivos\n\n**Produtos:**\n• Seguro de Crédito Digital\n• Whole Turnover simplificado\n• Key Buyer\n• Integração via API\n\n**Vantagens:**\n• Menos burocracia que seguradoras tradicionais\n• Onboarding em dias (não semanas)\n• Portal de gestão moderno\n• Suporte ágil\n\n**Ideal para:** PMEs e empresas de tecnologia que buscam agilidade e processo digital.`
   },
@@ -318,7 +318,7 @@ const KNOWLEDGE_BASE = [
     answer: `**Chubb**\n\n🏢 Maior seguradora de capital aberto do mundo.\n\n**Números:**\n• Presente em **54 países**\n• Rating: **AA** (S&P)\n• Prêmios: USD 40+ bilhões/ano\n\n**Diferenciais em Crédito:**\n• Soluções **bespoke** (sob medida)\n• Capacidade muito alta para grandes riscos\n• Subscrição conservadora e sólida\n• Forte em segmentos específicos\n\n**Produtos:**\n• Whole Turnover customizado\n• Single Risk / Single Buyer\n• Excess of Loss\n• Soluções estruturadas\n\n**Quando escolher Chubb:**\n• Necessidade de solução **sob medida**\n• Valoriza **rating elevado** (AA)\n• Grandes corporações\n• Programas globais\n\n**Ideal para:** Empresas que precisam de soluções customizadas com uma seguradora de rating máximo.`
   },
   {
-    keywords: ['seguradoras', 'quais seguradoras', 'opcoes', 'mercado', 'comparar seguradoras', 'comparativo'],
+    keywords: ['seguradoras', 'quais seguradoras', 'opcoes', 'mercado', 'comparar seguradoras', 'comparativo', 'diferenca entre seguradoras', 'atradius coface', 'coface atradius', 'allianz coface', 'melhor seguradora'],
     category: 'seguradora',
     answer: `**Seguradoras de Crédito no Brasil — Comparativo**\n\n| Seguradora | Rating | Foco | Diferencial |\n|------------|--------|------|-------------|\n| **Allianz Trade** | AA | Líder global | EOLIS, 80M+ empresas |\n| **Coface** | AA- | Top 3 global | DRA rating, CofaNet |\n| **Atradius** | A | Top 3 global | Collections, Modula |\n| **CESCE** | A | Ibero-LATAM | PMEs, processo simples |\n| **AIG** | A+ | Grandes riscos | Risco político |\n| **AVLA** | — | Digital LATAM | 100% digital, ágil |\n| **Chubb** | AA | Bespoke | Sob medida, capacidade |\n\n**Market share global:**\n• Allianz Trade: ~34%\n• Coface: ~16%\n• Atradius: ~14%\n• Outras: ~36%\n\n**Dica:** A escolha depende do **perfil da empresa**:\n• PME → CESCE, AVLA\n• Exportadora → Allianz Trade, Coface\n• Grande corporação → Chubb, AIG\n• Digital-first → AVLA\n• Cobrança internacional → Atradius\n\nPosso detalhar qualquer seguradora específica!`
   },
@@ -340,24 +340,24 @@ const KNOWLEDGE_BASE = [
     answer: `**Prazos no Seguro de Crédito**\n\n| Etapa | Prazo |\n|-------|-------|\n| Cotação | 5 a 10 dias úteis |\n| Análise de compradores | 2 a 5 dias por lote |\n| Emissão da apólice | 3 a 5 dias úteis |\n| Aprovação de novo limite | 24 a 72 horas |\n| Notificação de sinistro | Até 30 dias do vencimento |\n| Pagamento de indenização | 30 a 60 dias após mora |\n\n**Pelo SENTINEL:**\n• Cotação comparativa: **minutos**\n• Proposta preliminar: **24 horas**\n• Emissão: **2-3 dias**\n\n**Dica:** Quanto mais completa a documentação, mais rápido o processo.`
   },
   {
-    keywords: ['renovacao', 'renovar', 'vencimento apolice'],
+    keywords: ['renovacao', 'renovar', 'vencimento apolice', 'vigencia', 'vigencia apolice', 'duracao apolice', 'validade apolice', 'prazo apolice'],
     category: 'processo',
     answer: `**Renovação da Apólice de Seguro de Crédito**\n\n**Prazo:** Apólice anual, renovação **60-90 dias** antes do vencimento.\n\n**Processo de renovação:**\n\n1. **Seguradora envia proposta** (60-90 dias antes)\n   • Novas condições baseadas no histórico\n   • Ajuste de prêmio (bonus/malus)\n   • Revisão de limites\n\n2. **Análise do segurado**\n   • Comparar com condições atuais\n   • Avaliar sinistralidade do período\n   • Negociar condições\n\n3. **Negociação**\n   • PMI e POS\n   • Franquia/AAD\n   • Prêmio\n   • Inclusão/exclusão de compradores\n\n4. **Aceite e emissão**\n   • Assinatura do endosso de renovação\n   • Continuidade da cobertura\n\n**Bonus/Malus:**\n• Sem sinistros: **desconto de 5% a 15%** no prêmio\n• Com sinistros: **aumento de 10% a 30%**\n• Sinistralidade alta: seguradora pode recusar renovação\n\n**Dica:** Use o período de renovação para **cotar com outras seguradoras** e garantir as melhores condições.`
   },
   {
-    keywords: ['sinistro', 'acionar', 'como acionar', 'indenizacao processo', 'comunicar sinistro'],
+    keywords: ['sinistro', 'acionar', 'como acionar', 'indenizacao processo', 'comunicar sinistro', 'funciona sinistro', 'como funciona sinistro', 'processo sinistro', 'comprador nao pagou', 'nao pagou', 'calote o que fazer', 'devedor nao pagou'],
     category: 'processo',
     answer: `**Como Acionar o Seguro de Crédito (Sinistro)**\n\n**Passo a passo:**\n\n**1. Notificação de Atraso (obrigatória)**\n• Prazo: **30 a 60 dias** após o vencimento da fatura\n• Canal: Portal da seguradora ou e-mail\n• Informar: Devedor, valor, vencimento, NF\n\n**2. Período de Cobrança**\n• Seguradora pode iniciar cobrança amigável\n• Segurado deve colaborar com documentação\n• Prazo: até completar 150-180 dias de atraso\n\n**3. Caracterização do Sinistro**\n• **Mora prolongada:** Após 150-180 dias de atraso\n• **Insolvência:** Decreto de falência ou RJ deferida\n\n**4. Regulação do Sinistro**\n• Seguradora analisa documentação\n• Verifica cobertura e limites\n• Calcula indenização (valor × PMI)\n\n**5. Pagamento da Indenização**\n• Prazo: **30 a 60 dias** após regulação\n• Pagamento direto ao segurado\n• Seguradora se sub-roga nos direitos\n\n**Documentos para o sinistro:**\n• Notas fiscais\n• Duplicatas/boletos\n• Contratos de venda\n• Comprovantes de entrega\n• Correspondência de cobrança\n• Certidão de RJ/falência (se aplicável)\n\n⚠️ **ATENÇÃO:** Não notificar no prazo pode resultar em **perda do direito** à indenização.`
   },
   {
-    keywords: ['prazo indenizacao', 'quando recebo', 'tempo indenizacao', 'pagar indenizacao'],
+    keywords: ['prazo indenizacao', 'quando recebo', 'tempo indenizacao', 'pagar indenizacao', 'quanto tempo indenizacao', 'demora indenizacao', 'receber indenizacao prazo', 'valor recuperado', 'recuperar valor', 'quanto tempo recuperar', 'cliente nao pagar', 'nao pagar quanto tempo', 'tempo para receber'],
     category: 'processo',
     answer: `**Prazo de Indenização no Seguro de Crédito**\n\n**Prazos por tipo de sinistro:**\n\n| Tipo | Prazo de Mora | Waiting Period | Pagamento |\n|------|---------------|----------------|----------|\n| Mora prolongada | 150-180 dias | 30-60 dias | **Total: 6-8 meses** |\n| Insolvência | N/A | 30 dias | **1-2 meses após decreto** |\n| Risco Político | N/A | 180 dias | **6-9 meses após evento** |\n\n**Cálculo da indenização:**\n• Valor da dívida: R$ 1.000.000\n• (-) AAD já atingido: sem desconto\n• (×) PMI 85%: R$ 850.000\n• (=) **Indenização: R$ 850.000**\n\n**Fatores que aceleram:**\n• Documentação completa e organizada\n• Notificação feita dentro do prazo\n• Colaboração com a cobrança da seguradora\n\n**Fatores que atrasam:**\n• Disputa comercial com o devedor\n• Documentação incompleta\n• Limite excedido (parcela não coberta)\n\nAlgumas seguradoras oferecem **antecipação parcial** da indenização.`
   },
 
   // ── Taxas e Preços ──
   {
-    keywords: ['quanto custa', 'preco', 'valor', 'taxa', 'custo', 'premio'],
+    keywords: ['quanto custa', 'preco', 'valor seguro', 'valor seguro credito', 'taxa', 'custo', 'premio', 'quanto pago', 'preco seguro', 'custo seguro', 'valor do seguro'],
     category: 'preco',
     answer: `**Quanto Custa o Seguro de Crédito?**\n\n**Taxa média por setor:**\n\n| Setor | Taxa (% faturamento) |\n|-------|---------------------|\n| Alimentos/Bebidas | 0,10% a 0,25% |\n| Químico | 0,15% a 0,30% |\n| Metalúrgico | 0,15% a 0,35% |\n| Têxtil | 0,20% a 0,40% |\n| Distribuição | 0,15% a 0,30% |\n| Tecnologia | 0,10% a 0,25% |\n| Construção Civil | 0,25% a 0,50% |\n| Agronegócio | 0,15% a 0,35% |\n\n**Prêmio mínimo:**\n• R$ 15.000 a R$ 30.000/ano (dependendo da seguradora)\n\n**Exemplo prático:**\n• Faturamento a prazo: R$ 50 milhões/ano\n• Taxa: 0,20%\n• **Prêmio anual: R$ 100.000**\n• Prêmio mensal: ~R$ 8.333\n\n**Para cada R$ 1 de prêmio, você protege ~R$ 500 de faturamento.**\n\n**Fatores que influenciam a taxa:**\n• Setor de atuação\n• Diversificação de compradores\n• Histórico de sinistralidade\n• PMI e POS escolhidos\n• Franquia/AAD\n• Prazo de pagamento\n\nQuer uma cotação personalizada? Clique em **Fazer Cotação** acima!`
   },
@@ -384,7 +384,7 @@ const KNOWLEDGE_BASE = [
 
   // ── Legislação ──
   {
-    keywords: ['susep', 'regulamentacao', 'regulacao', 'orgao regulador'],
+    keywords: ['susep', 'regulamentacao', 'regulacao', 'orgao regulador', 'legislacao', 'legislacao seguro credito', 'lei seguro credito'],
     category: 'legislacao',
     answer: `**SUSEP — Superintendência de Seguros Privados**\n\nÓrgão regulador do mercado de seguros no Brasil.\n\n**Regulamentação do Seguro de Crédito:**\n\n**Ramos SUSEP:**\n• **0171** — Crédito Interno\n• **0172** — Crédito à Exportação\n\n**Principais normas:**\n• **Circular SUSEP 553/2017** — Provisões técnicas\n• **Resolução CNSP 432/2021** — Seguro de crédito\n• **Circular SUSEP 621/2020** — Condições contratuais\n\n**Exigências regulatórias:**\n• Seguradoras devem ter **autorização SUSEP**\n• Provisões técnicas adequadas\n• Capital mínimo de solvência\n• Limites de retenção por risco\n• Reportes periódicos\n\n**Proteção ao segurado:**\n• Condições gerais padronizadas\n• Prazos de pagamento de sinistros\n• Canal de reclamações (SUSEP)\n• Fundo garantidor (limitado)\n\n**Dica:** Sempre verifique se a seguradora é **autorizada pela SUSEP** antes de contratar.`
   },
@@ -416,7 +416,7 @@ const KNOWLEDGE_BASE = [
     answer: `**Vantagens do Seguro de Crédito**\n\n**1. Proteção contra Inadimplência**\n• Indenização de **85% a 95%** do valor da venda\n• Cobertura contra falência e mora prolongada\n• Proteção contra risco político (exportação)\n\n**2. Inteligência de Crédito**\n• Acesso a bases de dados da seguradora\n• Rating e análise de cada comprador\n• Monitoramento contínuo dos devedores\n• Alertas de deterioração de crédito\n\n**3. Melhoria Financeira**\n• **Melhor rating** da empresa segurada\n• Acesso a **financiamento mais barato**\n• Recebíveis segurados valem mais como garantia\n• Redução de necessidade de provisão para devedores duvidosos\n\n**4. Cobrança Especializada**\n• Seguradora realiza cobrança profissional\n• Rede internacional de cobrança\n• Maior taxa de recuperação\n\n**5. Crescimento Seguro**\n• Vender a prazo com confiança\n• Entrar em novos mercados\n• Ampliar prazo de pagamento\n• Aceitar novos clientes\n\n**6. Substituição de Garantias**\n• Não precisa exigir aval/fiança do comprador\n• Relação comercial mais fluida\n• Processo de venda mais rápido\n\n**ROI típico:** Para cada R$ 1 investido em prêmio, a empresa protege R$ 400 a R$ 700 em faturamento.`
   },
   {
-    keywords: ['protecao inadimplencia', 'calote', 'nao pagar', 'devedor nao paga'],
+    keywords: ['protecao inadimplencia', 'calote', 'cobre calote', 'nao pagar', 'devedor nao paga'],
     category: 'vantagens',
     answer: `**Proteção contra Inadimplência**\n\nO Seguro de Crédito é a principal ferramenta para proteger seu faturamento.\n\n**Cenário SEM seguro:**\n• Venda de R$ 500.000 a prazo\n• Comprador não paga\n• Perda total: **R$ 500.000**\n• Para compensar: precisa vender R$ 5M extras (margem 10%)\n\n**Cenário COM seguro:**\n• Venda de R$ 500.000 a prazo\n• Comprador não paga\n• Seguro indeniza 85%: **R$ 425.000**\n• Perda real: R$ 75.000\n• Prêmio anual do seguro: ~R$ 20.000\n\n**Resultado:** O seguro transformou uma perda de R$ 500.000 em R$ 95.000 (prêmio + POS).\n\n**Dados do mercado brasileiro:**\n• Taxa de inadimplência B2B: **3% a 7%** do faturamento\n• Empresas que fecham por inadimplência: **25%** das falências\n• Tempo médio de recuperação sem seguro: **18 meses**\n• Tempo com seguro: **6-8 meses** (e com indenização)\n\nO seguro de crédito é **investimento**, não custo.`
   },
@@ -769,7 +769,7 @@ const KNOWLEDGE_BASE = [
 
   // ── Garantir Vendas ──
   {
-    keywords: ['garantir minhas vendas', 'garantir vendas', 'proteger vendas', 'proteger meu faturamento', 'proteger recebiveis', 'como garanto', 'como protejo', 'calote', 'nao pagar', 'nao pagou', 'medo de inadimplencia', 'evitar inadimplencia', 'garantir recebimento'],
+    keywords: ['garantir minhas vendas', 'garantir vendas', 'proteger vendas', 'proteger meu faturamento', 'proteger recebiveis', 'como garanto', 'como protejo', 'medo de inadimplencia', 'evitar inadimplencia', 'garantir recebimento'],
     category: 'comercial',
     answer: `**Como garantir suas vendas com o Seguro de Crédito**\n\nO Seguro de Crédito é a forma mais eficiente de **proteger o faturamento a prazo** da sua empresa contra a inadimplência dos compradores.\n\n**Como funciona na prática:**\n\n1. **Você vende a prazo** normalmente para seus clientes\n2. **A seguradora analisa** cada comprador e aprova um limite de crédito\n3. **Se o comprador não pagar**, a seguradora indeniza sua empresa\n\n**O que fica protegido:**\n• Vendas com boleto, duplicata ou outro instrumento de crédito\n• Operações no mercado interno e exportação\n• Coberturas contra falência, recuperação judicial e mora prolongada\n\n**Benefícios imediatos:**\n• 💰 **Proteção do fluxo de caixa** — receba mesmo se o cliente não pagar\n• 📊 **Análise de crédito profissional** — a seguradora monitora seus compradores 24/7\n• 🏦 **Acesso facilitado a crédito bancário** — bancos aceitam a apólice como garantia\n• 📈 **Venda mais com segurança** — expanda sua carteira sem medo de inadimplência\n\n**Quanto custa:**\n• Apenas **0,15% a 0,40%** do faturamento a prazo\n• Isento de IOF (0%)\n• ROI médio de 3x a 5x em 5 anos\n\n**Exemplo prático:**\nFaturamento a prazo de R$ 50M → prêmio de ~R$ 125.000/ano → proteção contra perdas que podem superar R$ 1M.\n\n🛡️ Quer proteger suas vendas? Clique em **Iniciar Cotação** no menu principal!`
   },
@@ -827,12 +827,12 @@ const KNOWLEDGE_BASE = [
     answer: `**Credit Scoring no Seguro de Crédito**\n\nAs seguradoras usam **modelos proprietários** de scoring para avaliar compradores.\n\n**Fontes de dados:**\n• Balanço patrimonial e DRE do devedor\n• Histórico de pagamentos (Serasa, SPC, SCPC)\n• Informações setoriais\n• Bases internacionais (Dun & Bradstreet, etc.)\n• Experiência da carteira da seguradora\n• Dados comportamentais\n\n**Scores por seguradora:**\n| Seguradora | Score | Escala |\n|------------|-------|--------|\n| Allianz Trade | Global Score | 1-10 |\n| Coface | DRA Rating | 1-10 (1=melhor) |\n| Atradius | Buyer Rating | AAA a D |\n\n**Fatores que impactam o score:**\n• **Positivos:** Lucro consistente, baixo endividamento, histórico limpo\n• **Negativos:** Prejuízo, dívidas elevadas, protestos, ações judiciais\n\n**Como melhorar o score dos seus compradores:**\n• Incentivar que mantenham balanços publicados\n• Orientar sobre regularização cadastral\n• Fornecer referências comerciais à seguradora\n\n**Importante:** Score baixo não significa limite negado. A seguradora pode aprovar um **limite reduzido** ou com condições especiais.`
   },
   {
-    keywords: ['disputa comercial', 'disputa', 'contestacao', 'reclamacao comprador'],
+    keywords: ['disputa comercial', 'disputa', 'contestacao', 'reclamacao comprador', 'alegar defeito', 'comprador alega', 'comprador contesta', 'recusar pagar'],
     category: 'avancado',
     answer: `**Disputa Comercial no Seguro de Crédito**\n\nUma das principais causas de **exclusão de cobertura**.\n\n**O que é disputa comercial:**\n• O comprador **contesta** a dívida\n• Alega defeito no produto/serviço\n• Discorda da quantidade entregue\n• Questiona o preço cobrado\n• Afirma que não recebeu a mercadoria\n\n**Impacto no seguro:**\n• Enquanto houver disputa: **sem indenização**\n• Seguradora não arbitra disputas comerciais\n• O segurado deve resolver a disputa diretamente\n• Após resolução: se restou saldo devedor, pode acionar o seguro\n\n**Como prevenir:**\n1. **Documentação impecável:** NF, contrato, ordem de compra, comprovante de entrega\n2. **Aceite formal:** Confirmação de recebimento assinada\n3. **Condições claras:** Contrato com termos explícitos\n4. **Comunicação:** Resolver reclamações rapidamente\n\n**Se a disputa ocorrer:**\n• Notifique a seguradora mesmo assim\n• Documente tudo\n• Resolva o mais rápido possível\n• Se restar saldo após acordo: acione o seguro\n\n**Dica:** Muitos devedores "criam" disputas para evitar pagar. Documentação robusta dificulta essa tática.`
   },
   {
-    keywords: ['monitoramento', 'acompanhamento', 'vigiar', 'alertas', 'monitoring'],
+    keywords: ['monitoramento', 'acompanhamento', 'vigiar', 'alertas', 'monitoring', 'monitoramento compradores', 'acompanhar compradores', 'monitorar devedores'],
     category: 'gestao',
     answer: `**Monitoramento de Compradores no Seguro de Crédito**\n\nUm dos maiores **benefícios** do seguro é o monitoramento contínuo.\n\n**O que a seguradora monitora:**\n• Situação financeira do devedor\n• Protestos e ações judiciais\n• Pedidos de recuperação judicial\n• Mudanças societárias\n• Comportamento de pagamento no mercado\n• Rating de crédito\n\n**Alertas que você recebe:**\n• ⚠️ Redução de limite (deterioração do comprador)\n• ❌ Cancelamento de limite (risco elevado)\n• 📉 Downgrade de rating\n• 🔔 Evento negativo (protesto, RJ)\n\n**Plataformas de monitoramento:**\n| Seguradora | Plataforma | Frequência |\n|------------|-----------|------------|\n| Allianz Trade | EOLIS | Tempo real |\n| Coface | CofaNet | Diário |\n| Atradius | Insights | Tempo real |\n| AVLA | Portal | Diário |\n\n**Ação recomendada ao receber alerta:**\n1. Revise a exposição ao comprador\n2. Suspenda novas vendas se necessário\n3. Reforce cobrança de faturas em aberto\n4. Solicite informações adicionais à seguradora\n\n**Dica:** Configure alertas por e-mail/SMS para agir rapidamente. No SENTINEL, os alertas são integrados ao dashboard.`
   },
@@ -973,7 +973,7 @@ const KNOWLEDGE_BASE = [
     answer: `**Regulamentação CVM para FIDCs — Resolução CVM 175/2022**\n\n**Resolução CVM 175/2022** (vigente desde outubro/2023) substituiu a Instrução CVM 356/2001 e modernizou as regras dos FIDCs.\n\n**Principais mudanças relevantes para seguro de crédito:**\n\n**1. Subordinação mínima flexível:**\n• Antes: 20% obrigatório em cotas subordinadas\n• Agora: Pode ser reduzido com **credit enhancement** (seguro de crédito)\n• Seguradora precisa ser aprovada como mitigante de risco\n\n**2. Novos tipos de cotas:**\n• Cotas de classes múltiplas permitidas\n• Mezanino com características híbridas\n• Seguro pode cobrir classes específicas\n\n**3. Gestão de risco aprimorada:**\n• Stress testing obrigatório\n• Relatórios de performance com seguro como variável\n• Disclosure de cobertura de seguro nos documentos do fundo\n\n**4. FIDCs Abertos:**\n• Agora permitidos (antes só fechados)\n• Seguro de crédito com renovação automática necessário\n\n**Atenção:** A SUSEP e CVM trabalham em conjunto para regulamentar o uso de seguro de crédito como **credit enhancement** em FIDCs.`
   },
   {
-    keywords: ['credit enhancement fidc', 'melhoria rating fidc', 'rating cota senior', 'upgrade rating'],
+    keywords: ['credit enhancement fidc', 'credit enhancement', 'melhoria rating fidc', 'rating cota senior', 'upgrade rating', 'melhoria credito'],
     category: 'fidc',
     answer: `**Credit Enhancement — Como o Seguro de Crédito Melhora o Rating de FIDCs**\n\n**O que é credit enhancement?**\nMecanismo que reduz o risco das cotas sênior, melhorando seu rating e reduzindo o custo de captação.\n\n**Tipos de credit enhancement:**\n\n1. **Subordinação** — cotas subordinadas absorvem perdas (tradicional)\n2. **Reserva de liquidez** — caixa reservado para cobrir inadimplência\n3. **Seguro de Crédito** — seguradora garante os sacados\n4. **Garantia bancária** — banco fiador (caro)\n5. **Excesso de spread** — rendimento extra do portfólio\n\n**Impacto do seguro de crédito no rating:**\n\n| Sem seguro | Com seguro de crédito |\n|---|---|\n| Rating A ou AA | Rating AA+ ou AAA |\n| Subordinação: 20-25% | Subordinação: 8-12% |\n| Custo de captação maior | Custo de captação menor |\n| Menos investidores elegíveis | Acesso a fundos conservadores |\n\n**Como as agências avaliam:**\n• Moody's, Fitch, S&P e Austin Rating avaliam a solidez da seguradora\n• Financial Strength Rating da seguradora é incorporado\n• Coberturas com seguradora AA+ permitem AAA na cota sênior\n\n**Resultado prático:** Redução de 40-80bps no custo de captação, que supera o custo do prêmio do seguro.`
   },
@@ -1193,7 +1193,7 @@ const KNOWLEDGE_BASE = [
   }
 ]
 
-/* ─── Chat Engine ─── */
+/* ─── Chat Engine v3 — Semantic Matching ─── */
 function normalizeText(text) {
   return text
     .toLowerCase()
@@ -1203,58 +1203,280 @@ function normalizeText(text) {
     .trim()
 }
 
+// Portuguese stopwords — common words that add no semantic value
+const STOPWORDS = new Set([
+  'que', 'para', 'com', 'como', 'uma', 'por', 'mais', 'dos', 'das',
+  'esse', 'essa', 'isso', 'este', 'esta', 'isto', 'dele', 'dela',
+  'seu', 'sua', 'meu', 'minha', 'nos', 'nas', 'aos', 'num', 'numa',
+  'qual', 'quais', 'onde', 'quando', 'quem', 'ter', 'ser', 'fazer',
+  'pode', 'devo', 'deve', 'posso', 'consigo', 'preciso', 'quero',
+  'sobre', 'entre', 'apos', 'ate', 'desde', 'cada', 'todo', 'toda',
+  'muito', 'pouco', 'bem', 'mal', 'ainda', 'aqui', 'ali', 'tambem',
+  'sim', 'nao', 'nem', 'mas', 'pois', 'porque', 'entao', 'assim',
+  'seria', 'poderia', 'teria', 'vai', 'vou', 'tem', 'sao', 'foi',
+  'meio', 'tipo', 'forma', 'caso', 'modo', 'vez', 'lado',
+  // Domain stopwords — these appear in virtually every entry and add no discriminating value
+  'seguro', 'credito', 'empresa', 'apolice',
+])
+
+// Portuguese stemmer — strips common suffixes to find root
+function stem(word) {
+  if (word.length < 4) return word
+  return word
+    .replace(/(mente|veis|vel|avel|ivel)$/, '')
+    .replace(/(amento|imento|encia|ancia|acao|icao|ucao|ivel|avel)$/, '')
+    .replace(/(ando|endo|indo|aram|eram|iram|avam|iam)$/, '')
+    .replace(/(ador|edor|idor|ante|ente|inte)$/, '')
+    .replace(/(ncia|mento|dade|cao|sao|tude)$/, '')
+    .replace(/(oso|osa|ivo|iva|ais|eis|ois)$/, '')
+    .replace(/(ar|er|ir|ou|ei|am|em)$/, '')
+    .replace(/(es|as|os|is|us)$/, '')
+    .replace(/([aeiou])$/, '')
+    .replace(/(s)$/, '') || word
+}
+
+// Synonym clusters — words that mean the same thing in credit insurance context
+const SYNONYM_MAP = (() => {
+  const clusters = [
+    ['calote', 'inadimplencia', 'nao pagar', 'devedor nao paga', 'caloteiro', 'default', 'falta pagamento', 'nao pagamento', 'nao pagou'],
+    ['comprador', 'devedor', 'cliente', 'sacado', 'buyer'],
+    ['vendedor', 'credor', 'segurado', 'fornecedor', 'cedente', 'seller'],
+    ['apolice', 'seguro', 'cobertura', 'protecao', 'policia'],
+    ['premio', 'custo', 'preco', 'quanto custa', 'taxa'],
+    ['cancelar', 'cancelamento', 'rescindir', 'rescisao', 'desistir', 'encerrar', 'sair'],
+    ['renovar', 'renovacao', 'prorrogar', 'prorrogacao', 'vencimento'],
+    ['sinistro', 'acionar', 'indenizacao', 'receber', 'perdas'],
+    ['exportar', 'exportacao', 'internacional', 'exterior', 'fora do brasil', 'outro pais', 'outros paises'],
+    ['importar', 'importacao'],
+    ['empresa', 'companhia', 'firma', 'negocio', 'cnpj'],
+    ['pequena', 'pme', 'micro', 'pequeno porte', 'mei', 'startup'],
+    ['grande', 'grande porte', 'corporacao', 'multinacional'],
+    ['contratar', 'adquirir', 'comprar', 'fechar', 'fazer'],
+    ['documento', 'documentacao', 'papeis', 'papel', 'formulario'],
+    ['prazo', 'tempo', 'demora', 'dias', 'quanto tempo'],
+    ['vantagem', 'beneficio', 'por que', 'porque', 'vale a pena', 'motivo'],
+    ['legislacao', 'lei', 'regulamentacao', 'norma', 'regulacao', 'regra'],
+    ['susep', 'orgao regulador', 'regulador'],
+    ['falencia', 'recuperacao judicial', 'insolvencia', 'quebrar', 'quebrou', 'rj'],
+    ['faturamento', 'vendas', 'receita', 'recebiveis', 'duplicata', 'nota fiscal'],
+    ['proteger', 'segurar', 'assegurar', 'cobrir', 'defender'],
+    ['risco', 'perigo', 'ameaca', 'exposicao', 'vulnerabilidade'],
+    ['limite', 'limite de credito', 'credit limit', 'teto'],
+    ['fidc', 'fundo', 'securitizacao', 'cessao recebiveis'],
+    ['unico', 'single', 'um so', 'especifico', 'pontual', 'individual'],
+    ['diferenca', 'comparar', 'comparacao', 'versus', 'qual melhor', 'qual diferenca', 'mesma coisa', 'igual', 'mesmo que'],
+    ['mora', 'atraso', 'atrasou', 'atrasado', 'vencido', 'venceu'],
+    ['cobranca', 'cobrar', 'recuperar', 'recuperacao'],
+    ['vigencia', 'duracao', 'periodo', 'validade'],
+  ]
+  const map = {}
+  for (const cluster of clusters) {
+    for (const word of cluster) {
+      map[normalizeText(word)] = cluster.map(w => normalizeText(w))
+    }
+  }
+  return map
+})()
+
+// Expand user input with synonyms
+function expandWithSynonyms(words) {
+  const expanded = new Set(words)
+  for (const word of words) {
+    // Check direct synonym
+    if (SYNONYM_MAP[word]) {
+      SYNONYM_MAP[word].forEach(syn => expanded.add(syn))
+    }
+    // Check multi-word synonyms that start with this word
+    for (const [key, syns] of Object.entries(SYNONYM_MAP)) {
+      if (key.startsWith(word) || word.startsWith(key)) {
+        syns.forEach(syn => expanded.add(syn))
+      }
+    }
+  }
+  return expanded
+}
+
+// IDF — words that appear in many entries are worth less (generic), rare words are worth more (specific)
+const IDF_WEIGHTS = (() => {
+  const docFreq = {}
+  const totalDocs = KNOWLEDGE_BASE.length
+  for (const entry of KNOWLEDGE_BASE) {
+    const seen = new Set()
+    for (const kw of entry.keywords) {
+      for (const w of normalizeText(kw).split(/\s+/).filter(w => w.length > 2)) {
+        const s = stem(w)
+        if (!seen.has(s)) {
+          seen.add(s)
+          docFreq[s] = (docFreq[s] || 0) + 1
+        }
+      }
+    }
+    // Also index answer content stems
+    const answerStems = new Set()
+    for (const w of normalizeText(entry.answer).split(/\s+/).filter(w => w.length > 3)) {
+      answerStems.add(stem(w))
+    }
+    for (const s of answerStems) {
+      if (!seen.has(s)) {
+        seen.add(s)
+        docFreq[s] = (docFreq[s] || 0) + 0.3
+      }
+    }
+  }
+  const weights = {}
+  for (const [s, freq] of Object.entries(docFreq)) {
+    // IDF formula: log(totalDocs / freq), clamped
+    weights[s] = Math.max(0.2, Math.min(3.0, Math.log(totalDocs / freq)))
+  }
+  return weights
+})()
+
+function getIDF(word) {
+  const s = stem(word)
+  return IDF_WEIGHTS[s] || 1.5 // unknown words get moderate weight
+}
+
+// Check if two words are semantically similar
+function wordsMatch(w1, w2) {
+  if (w1 === w2) return 1.0
+  // Stem match
+  if (w1.length >= 4 && w2.length >= 4) {
+    const s1 = stem(w1), s2 = stem(w2)
+    if (s1 === s2) return 0.9
+    if (s1.length >= 4 && s2.length >= 4 && (s1.startsWith(s2) || s2.startsWith(s1))) return 0.8
+  }
+  // Direct prefix (at least 4 chars shared)
+  if (w1.length >= 4 && w2.length >= 4 && (w1.startsWith(w2.slice(0, 4)) || w2.startsWith(w1.slice(0, 4)))) return 0.6
+  return 0
+}
+
 function findAnswer(input, conversationHistory = []) {
   const normalized = normalizeText(input)
-  const words = normalized.split(/\s+/).filter(w => w.length > 1)
+  const rawWords = normalized.split(/\s+/).filter(w => w.length > 2)
+  const meaningfulWords = rawWords.filter(w => !STOPWORDS.has(w))
+  // If ALL words are stopwords, the user is asking about the generic concept itself
+  // (e.g. "o que é seguro de crédito?") — use rawWords for matching instead
+  const isGenericQuery = meaningfulWords.length === 0 && rawWords.length >= 2
+  const wordsForMatching = isGenericQuery ? rawWords : meaningfulWords
+  const expandedWords = expandWithSynonyms(wordsForMatching)
 
   let bestScore = 0
   let bestEntry = null
 
-  // Get last 5 categories from conversation for context
+  // Context from conversation
   const recentCategories = conversationHistory
     .filter(m => m.category)
     .slice(-5)
     .map(m => m.category)
 
   for (const entry of KNOWLEDGE_BASE) {
-    let score = 0
+    let keywordScore = 0
+    let contentScore = 0
 
+    // ── Phase 1: Keyword matching (primary signal) ──
     for (const keyword of entry.keywords) {
-      const kwNormalized = normalizeText(keyword)
-      const kwWords = kwNormalized.split(/\s+/)
+      const kwNorm = normalizeText(keyword)
+      const kwWords = kwNorm.split(/\s+/).filter(w => w.length > 2)
 
-      // Exact phrase match
-      if (normalized.includes(kwNormalized)) {
-        score += kwWords.length * 3
+      // Exact phrase match with word boundaries
+      const escaped = kwNorm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      if (new RegExp('(?:^|\\s)' + escaped + '(?:\\s|$)').test(normalized)) {
+        // Weight by how many NON-stopword words are in the phrase (specific > generic)
+        const specificWords = kwWords.filter(w => !STOPWORDS.has(w))
+        const specificCount = specificWords.length
+        if (specificCount > 0) {
+          keywordScore += specificCount * 6 + (kwWords.length - specificCount) * 0.5
+        } else if (isGenericQuery) {
+          // User is asking about the generic concept itself — boost domain-stopword phrases
+          keywordScore += kwWords.length * 5
+        } else {
+          // Phrase is entirely generic words but question has specific terms — minimal score
+          keywordScore += 1
+        }
+        continue
       }
 
-      // Partial word match
+      // Word-level matching with stemming and synonyms
+      // Skip for generic queries — domain stopwords cause too much noise via stem/synonym expansion
+      if (isGenericQuery) continue
+      if (kwWords.length === 0) continue
+
+      let matchCount = 0
+      let matchQuality = 0
       for (const kw of kwWords) {
-        for (const word of words) {
-          if (word.startsWith(kw) || kw.startsWith(word)) {
-            score += 1
+        if (STOPWORDS.has(kw)) continue
+        let bestWordMatch = 0
+        // Check against meaningful words (or rawWords if generic query)
+        for (const w of wordsForMatching) {
+          bestWordMatch = Math.max(bestWordMatch, wordsMatch(w, kw))
+        }
+        // Check against expanded synonyms
+        if (bestWordMatch < 0.8) {
+          for (const syn of expandedWords) {
+            bestWordMatch = Math.max(bestWordMatch, wordsMatch(syn, kw))
           }
+        }
+        if (bestWordMatch >= 0.6) {
+          matchCount++
+          matchQuality += bestWordMatch * getIDF(kw)
+        }
+      }
+
+      if (kwWords.length === 1 && matchCount === 1) {
+        keywordScore += matchQuality * 3
+      } else if (kwWords.length > 1) {
+        const ratio = matchCount / kwWords.length
+        if (ratio >= 1.0) {
+          keywordScore += matchQuality * 3.5
+        } else if (ratio >= 0.5) {
+          keywordScore += matchQuality * 1.5
+        } else if (matchCount > 0) {
+          keywordScore += matchQuality * 0.5
         }
       }
     }
 
-    // Context bonus: if same category as recent conversation
-    if (score > 0 && recentCategories.includes(entry.category)) {
-      score += 0.5
+    // ── Phase 2: Answer content scanning (secondary signal) ──
+    // Search the answer text for relevance — helps catch queries where keywords are sparse
+    const answerNorm = normalizeText(entry.answer)
+    const answerWords = new Set(answerNorm.split(/\s+/).filter(w => w.length >= 4 && !STOPWORDS.has(w)))
+    let contentMatches = 0
+    for (const w of wordsForMatching) {
+      if (w.length >= 4) {
+        const st = stem(w)
+        for (const aw of answerWords) {
+          if (aw === w || stem(aw) === st) {
+            contentMatches++
+            break
+          }
+        }
+      }
+    }
+    // Content score is secondary — only boosts, never dominates
+    if (wordsForMatching.length > 0) {
+      contentScore = (contentMatches / wordsForMatching.length) * 1.5
     }
 
-    if (score > bestScore) {
-      bestScore = score
+    // ── Phase 3: Combined scoring ──
+    let totalScore = keywordScore + contentScore
+
+    // Context bonus
+    if (totalScore > 0 && recentCategories.includes(entry.category)) {
+      totalScore += 1
+    }
+
+    if (totalScore > bestScore) {
+      bestScore = totalScore
       bestEntry = entry
     }
   }
 
-  if (bestScore >= 1 && bestEntry) {
+  if (bestScore >= 2.5 && bestEntry) {
     return { answer: bestEntry.answer, category: bestEntry.category }
   }
 
   return {
-    answer: `Desculpe, não encontrei informações específicas sobre isso na minha base de conhecimento.\n\nPosso te ajudar com:\n• **Conceitos** de Seguro de Crédito\n• **Coberturas** (Whole Turnover, Key Buyer, etc.)\n• **Seguradoras** (Allianz Trade, Coface, Atradius, etc.)\n• **Preços e taxas**\n• **Legislação** (SUSEP, leis)\n• **Processo** de contratação e sinistro\n\nTente reformular sua pergunta ou escolha um dos temas acima!\n\nOu, se preferir, clique em **"Fale com um especialista"** para conversar com nossa equipe.`,
+    answer: `Essa é uma ótima pergunta! Embora eu não tenha uma resposta exata para essa formulação específica, posso te orientar.\n\n**Temas que domino profundamente:**\n• **Coberturas:** Whole Turnover, Key Buyer, Single Risk, Excess of Loss, Top-Up\n• **Seguradoras:** Allianz Trade, Coface, Atradius, CESCE, AIG, AVLA, Chubb\n• **Técnico:** PMI, POS, AAD, Limites de Crédito, NCC, Run-off\n• **FIDCs:** Estruturação, Credit Enhancement, Regulação CVM\n• **Legislação:** SUSEP, Código Civil, Lei de Falências, CNSP\n• **Processo:** Contratação, sinistro, renovação, cancelamento\n• **Preços:** Taxas por setor, prêmio mínimo, fatores de precificação\n\nTente perguntar de outra forma ou escolha um dos temas acima!\n\nOu clique em **Suporte** para falar com um especialista da Fairfield.`,
     category: 'fallback'
   }
 }
@@ -1417,6 +1639,21 @@ const SUGGESTED_QUESTIONS = [
   'Como funciona para grandes riscos acima de R$ 50M?',
   'Quais seguradoras operam no Brasil?'
 ]
+
+/* ─── Test Harness (remove in production) ─── */
+if (typeof window !== 'undefined') {
+  window.__iCoverTest = function(question) {
+    const result = findAnswer(question, [])
+    return { question, answer: result.answer, category: result.category }
+  }
+  window.__iCoverBatchTest = function(questions) {
+    return questions.map(q => {
+      const r = findAnswer(q, [])
+      const titleMatch = r.answer.match(/\*\*(.+?)\*\*/)
+      return { q, title: titleMatch ? titleMatch[1] : r.answer.substring(0, 80), cat: r.category }
+    })
+  }
+}
 
 /* ─── Main Component ─── */
 export default function ICoverChat() {
@@ -1642,10 +1879,18 @@ export default function ICoverChat() {
           {/* Specialist button */}
           <button
             onClick={() => setShowSupport(true)}
-            className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium hover:bg-emerald-500/20 transition-colors headphone-pulse"
+            className="mt-3 w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all group headphone-pulse"
           >
-            <HeadphonesIcon size={16} />
-            Fale com um de nossos especialistas
+            <div className="h-6 w-6 rounded-lg bg-emerald-500/15 border border-emerald-400/20 flex items-center justify-center">
+              <HeadphonesIcon size={14} />
+            </div>
+            <div className="flex flex-col items-start">
+              <span className="text-xs font-semibold text-white/70 group-hover:text-white/90 transition-colors">Suporte</span>
+              <span className="text-[10px] text-emerald-400/70 flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 pulse-green" />
+                Chat ao vivo
+              </span>
+            </div>
           </button>
 
           {/* Footer */}

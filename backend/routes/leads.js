@@ -15,8 +15,12 @@ router.post('/', optionalAuth, async (req, res, next) => {
       historicoFaturamento, condicoesVenda, carteiraRecebiveis,
       perdasPorFaixa, maioresPerdas, atrasos, atrasosDetalhados,
       amostraCompradores, destinosExportacao, seguradoras,
-      icover_score, icover_analysis
+      icover_score, icover_analysis, icoverAnalysis
     } = req.body;
+
+    // Frontend sends icoverAnalysis (camelCase), map to snake_case
+    const icoverData = icover_analysis || icoverAnalysis || null;
+    const icoverScore = icover_score || (icoverData ? icoverData.score : null);
 
     console.log(`[LEAD] Nova solicitação ${tipo}: ${proponente.razao_social}`);
 
@@ -32,8 +36,8 @@ router.post('/', optionalAuth, async (req, res, next) => {
       proponente.faturamento_pct || '', proponente.uf || '',
       contato.nome, contato.email, contato.telefone,
       userId,
-      icover_score || null,
-      icover_analysis ? JSON.stringify(icover_analysis) : null
+      icoverScore || null,
+      icoverData ? JSON.stringify(icoverData) : null
     );
     const leadId = result.lastInsertRowid;
 
@@ -134,7 +138,9 @@ router.post('/', optionalAuth, async (req, res, next) => {
       id: leadId, tipo, ...proponente, contato,
       coSeguradas, historicoFaturamento, condicoesVenda,
       carteiraRecebiveis, perdasPorFaixa, maioresPerdas,
-      atrasos, atrasosDetalhados, amostraCompradores, destinosExportacao
+      atrasos, atrasosDetalhados, amostraCompradores, destinosExportacao,
+      icover_score: icoverScore,
+      icover_analysis: icoverData
     };
 
     const fichaTecnica = await gerarFichaTecnica(leadCompleto);

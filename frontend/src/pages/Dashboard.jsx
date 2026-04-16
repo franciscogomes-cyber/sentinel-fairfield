@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { API_BASE } from '../config'
 import toast from 'react-hot-toast'
 
 const B = import.meta.env.BASE_URL
@@ -43,7 +44,7 @@ export default function Dashboard() {
 
   async function fetchComerciais() {
     try {
-      const res = await fetch('/api/admin/comerciais')
+      const res = await fetch(`${API_BASE}/api/admin/comerciais`)
       const data = await res.json()
       if (data.sucesso) setComerciais(data.data)
     } catch { /* backend may be off */ }
@@ -54,7 +55,7 @@ export default function Dashboard() {
     if (!novoComercial.nome || !novoComercial.email) return
     setLoadingComercial(true)
     try {
-      const res = await fetch('/api/admin/comerciais', {
+      const res = await fetch(`${API_BASE}/api/admin/comerciais`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(novoComercial)
@@ -73,14 +74,14 @@ export default function Dashboard() {
 
   async function toggleComercial(id) {
     try {
-      await fetch(`/api/admin/comerciais/${id}`, { method: 'PUT' })
+      await fetch(`${API_BASE}/api/admin/comerciais/${id}`, { method: 'PUT' })
       fetchComerciais()
     } catch { toast.error('Erro ao atualizar') }
   }
 
   async function deleteComercial(id) {
     try {
-      await fetch(`/api/admin/comerciais/${id}`, { method: 'DELETE' })
+      await fetch(`${API_BASE}/api/admin/comerciais/${id}`, { method: 'DELETE' })
       toast.success('Removido')
       fetchComerciais()
     } catch { toast.error('Erro ao remover') }

@@ -15,7 +15,7 @@ const TEXT_DARK  = '#1A2A3A';
 const TEXT_MID   = '#4A5568';
 
 // ─── Diretório de saída ─────────────────────────────────────────────────────
-const arquivosDir = path.join(__dirname, '..', 'arquivos');
+const arquivosDir = process.env.VERCEL ? path.join('/tmp', 'arquivos') : path.join(__dirname, '..', 'arquivos');
 if (!fs.existsSync(arquivosDir)) {
   fs.mkdirSync(arquivosDir, { recursive: true });
 }
@@ -410,6 +410,182 @@ function renderDestinosExportacao(doc, lead, y) {
   return drawKV(doc, y, items);
 }
 
+// ─── iCover Analysis ─────────────────────────────────────────────────────────
+
+function renderICoverAnalysis(doc, lead, y) {
+  let ic = lead.icover_analysis;
+  if (!ic) return y;
+  if (typeof ic === 'string') {
+    try { ic = JSON.parse(ic); } catch (_) { return y; }
+  }
+  if (!ic) return y;
+
+  // ── New page for iCover section ──
+  doc.addPage();
+  y = MARGIN;
+
+  // ── Header ──
+  y = sectionHeader(doc, y, 'ANÁLISE iCOVER — INTELIGÊNCIA DE SUBSCRIÇÃO');
+
+  // ── Score display ──
+  const scoreBoxW = CONTENT_W;
+  const scoreBoxH = 52;
+  if (y + scoreBoxH > PAGE_H - 60) { doc.addPage(); y = MARGIN; }
+
+  const riskColor = ic.riskColor || '#4A5568';
+  drawRect(doc, MARGIN, y, scoreBoxW, scoreBoxH, GRAY_LIGHT);
+
+  // Score circle area
+  const circleX = MARGIN + 50;
+  const circleY = y + scoreBoxH / 2;
+  const circleR = 18;
+  doc.save();
+  doc.circle(circleX, circleY, circleR).fill(riskColor);
+  doc.restore();
+  doc.fillColor(WHITE).font('Helvetica-Bold').fontSize(14)
+    .text(safe(ic.score, '—'), circleX - circleR, circleY - 8, { width: circleR * 2, align: 'center', lineBreak: false });
+
+  // Score label
+  doc.fillColor(TEXT_DARK).font('Helvetica-Bold').fontSize(11)
+    .text(`Score: ${safe(ic.score)}/${safe(ic.scoreMax, '100')}`, MARGIN + 85, y + 10, { lineBreak: false });
+  doc.fillColor(riskColor).font('Helvetica-Bold').fontSize(10)
+    .text(safe(ic.riskLabel, ic.riskClass), MARGIN + 85, y + 26, { lineBreak: false });
+
+  // Company info on right side
+  doc.fillColor(TEXT_MID).font('Helvetica').fontSize(8)
+    .text(`Empresa: ${safe(ic.empresa)}`, MARGIN + 300, y + 8, { lineBreak: false });
+  doc.fillColor(TEXT_MID).font('Helvetica').fontSize(8)
+    .text(`CNPJ: ${safe(ic.cnpj)}`, MARGIN + 300, y + 20, { lineBreak: false });
+  doc.fillColor(TEXT_MID).font('Helvetica').fontSize(8)
+    .text(`Setor: ${safe(ic.setor)} (Risco: ${safe(ic.setorRisco)})`, MARGIN + 300, y + 32, { lineBreak: false });
+
+  y += scoreBoxH + 8;
+
+  // ── Risk Classification ──
+  y = sectionHeader(doc, y, 'CLASSIFICAÇÃO DE RISCO');
+  const riskItems = [
+    { label: 'Classe de Risco', value: safe(ic.riskClass) },
+    { label: 'Classificação', value: safe(ic.riskLabel) },
+    { label: 'Score Total', value: `${safe(ic.score)} / ${safe(ic.scoreMax, '100')}` },
+    { label: 'Setor de Risco', value: safe(ic.setorRisco) },
+  ];
+  y = drawKV(doc, y, riskItems);
+
+  // ── Scores breakdown table ──
+  y = sectionHeader(doc, y, 'BREAKDOWN DE SCORES');
+  const scores = ic.scores || {};
+  const scoreRows = Object.keys(scores).map(key => {
+    const s = scores[key];
+    return {
+      criterio: safe(s.label, key),
+      valor: safe(s.value),
+      maximo: safe(s.max),
+      pct: s.value != null && s.max ? `${((s.value / s.max) * 100).toFixed(0)}%` : '—',
+    };
+  });
+  y = drawTable(doc, y, [
+    { label: 'Critério', key: 'criterio', width: 180 },
+    { label: 'Score', key: 'valor', width: 100, align: 'center' },
+    { label: 'Máximo', key: 'maximo', width: 100, align: 'center' },
+    { label: '% Atingido', key: 'pct', width: 135, align: 'center' },
+  ], scoreRows);
+
+  // ── Pricing analysis ──
+  y = sectionHeader(doc, y, 'ANÁLISE DE PRICING');
+  const pricing = ic.pricing || {};
+  const premium = ic.premium || {};
+  const bonusMalus = ic.bonusMalus || {};
+  const pricingItems = [
+    { label: 'Taxa Base', value: safe(pricing.baseRatePct, pricing.baseRate) },
+    { label: 'Taxa Ajustada', value: safe(pricing.adjustedRatePct, pricing.adjustedRate) },
+    { label: 'Prêmio Estimado', value: safe(premium.estimatedFormatted) },
+    { label: 'Prêmio Mensal', value: safe(premium.monthlyFormatted) },
+    { label: 'Faixa Mínima', value: safe(premium.minimumFormatted) },
+    { label: 'Faixa Máxima', value: safe(premium.maximumFormatted) },
+    { label: 'Bônus/Malus', value: `${safe(bonusMalus.label)} (${safe(bonusMalus.pct)})` },
+    { label: 'Tipo Bônus/Malus', value: safe(bonusMalus.type) },
+  ];
+  y = drawKV(doc, y, pricingItems);
+
+  // ── Pricing factors table ──
+  const factors = (pricing.factors) || {};
+  const factorRows = Object.keys(factors).map(key => {
+    const f = factors[key];
+    return {
+      fator: key.charAt(0).toUpperCase() + key.slice(1),
+      valor: safe(f.value),
+      descricao: safe(f.label),
+    };
+  });
+  if (factorRows.length > 0) {
+    if (y + 30 > PAGE_H - 60) { doc.addPage(); y = MARGIN; }
+    doc.fillColor(TEXT_MID).font('Helvetica-Bold').fontSize(8)
+      .text('Fatores de Ajuste:', MARGIN, y, { lineBreak: false });
+    y += 14;
+    y = drawTable(doc, y, [
+      { label: 'Fator', key: 'fator', width: 140 },
+      { label: 'Valor', key: 'valor', width: 120, align: 'center' },
+      { label: 'Descrição', key: 'descricao', width: 255 },
+    ], factorRows);
+  }
+
+  // ── Coverage structure ──
+  y = sectionHeader(doc, y, 'ESTRUTURA DE COBERTURA RECOMENDADA');
+  const cov = ic.coverage || {};
+  const covItems = [
+    { label: 'Tipo de Cobertura', value: safe(cov.typeLabel, cov.type) },
+    { label: 'PMI (Perda Máx. Indenizável)', value: safe(cov.pmi) },
+    { label: 'POS (Participação Obrigatória)', value: safe(cov.pos) },
+    { label: 'AAD (Ded. Agregada Anual)', value: safe(cov.aadLabel, cov.aad) },
+    { label: 'Limite Discricionário', value: safe(cov.discretionaryLimit) },
+    { label: 'Prazo Máx. de Crédito', value: safe(cov.maxCreditPeriod) },
+    { label: 'Limite Agregado', value: safe(cov.aggregateLimit) },
+    { label: 'Prazo de Espera', value: safe(cov.waitingPeriod) },
+  ];
+  y = drawKV(doc, y, covItems);
+
+  // ── Insurer ranking ──
+  y = sectionHeader(doc, y, 'RANKING DE SEGURADORAS (TOP 5)');
+  const insurers = (ic.insurers || []).slice(0, 5);
+  const insurerRows = insurers.map((ins, idx) => ({
+    pos: `${idx + 1}º`,
+    nome: safe(ins.name),
+    score: safe(ins.score),
+    pontos_fortes: (ins.strengths || []).join(', ') || '—',
+  }));
+  y = drawTable(doc, y, [
+    { label: '#', key: 'pos', width: 35, align: 'center' },
+    { label: 'Seguradora', key: 'nome', width: 140 },
+    { label: 'Score', key: 'score', width: 70, align: 'center' },
+    { label: 'Pontos Fortes', key: 'pontos_fortes', width: 270 },
+  ], insurerRows);
+
+  // ── Key insights ──
+  const insights = ic.insights || [];
+  if (insights.length > 0) {
+    y = sectionHeader(doc, y, 'INSIGHTS PRINCIPAIS');
+    insights.forEach((insight, i) => {
+      if (y + 18 > PAGE_H - 60) { doc.addPage(); y = MARGIN; }
+      const bg = i % 2 === 0 ? WHITE : GRAY_LIGHT;
+      drawRect(doc, MARGIN, y, CONTENT_W, 18, bg);
+      doc.fillColor(TEXT_DARK).font('Helvetica').fontSize(7.5)
+        .text(`${i + 1}. ${insight}`, MARGIN + 8, y + 4, { width: CONTENT_W - 16, lineBreak: false });
+      y += 18;
+    });
+    y += 6;
+  }
+
+  // ── Analyzed at timestamp ──
+  if (ic.analyzedAt) {
+    if (y + 16 > PAGE_H - 60) { doc.addPage(); y = MARGIN; }
+    doc.fillColor(TEXT_MID).font('Helvetica').fontSize(7)
+      .text(`Análise realizada em: ${formatDate(ic.analyzedAt)}`, MARGIN, y, { lineBreak: false });
+    y += 16;
+  }
+
+  return y;
+}
+
 // ─── Main export ──────────────────────────────────────────────────────────────
 
 function gerarPDFBroker(lead) {
@@ -453,6 +629,9 @@ function gerarPDFBroker(lead) {
       if (lead.tipo === 'externo') {
         y = renderDestinosExportacao(doc, lead, y);
       }
+
+      // iCover Analysis (if available)
+      y = renderICoverAnalysis(doc, lead, y);
 
       // Footer on every page
       const pageCount = doc.bufferedPageRange().count;

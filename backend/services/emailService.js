@@ -222,8 +222,8 @@ async function enviarNotificacaoBroker(lead, arquivos, pdfBroker, ccEmails = [])
   }
   if (pdfBroker) {
     attachments.push({
-      filename: typeof pdfBroker === 'string' ? path.basename(pdfBroker) : (pdfBroker.filename || 'cotacao-broker.pdf'),
-      path: typeof pdfBroker === 'string' ? pdfBroker : pdfBroker.path,
+      filename: typeof pdfBroker === 'string' ? path.basename(pdfBroker) : (pdfBroker.nomeArquivo || pdfBroker.filename || 'cotacao-broker.pdf'),
+      path: typeof pdfBroker === 'string' ? pdfBroker : (pdfBroker.arquivo || pdfBroker.path),
       ...(pdfBroker.content ? { content: pdfBroker.content } : {})
     });
   }
@@ -531,13 +531,13 @@ async function enviarEmailCliente(lead, pdfCliente, excelCliente) {
   if (pdfCliente) {
     attachments.push(typeof pdfCliente === 'string'
       ? { filename: path.basename(pdfCliente), path: pdfCliente }
-      : pdfCliente
+      : { filename: pdfCliente.nomeArquivo || pdfCliente.filename || 'resumo-cliente.pdf', path: pdfCliente.arquivo || pdfCliente.path }
     );
   }
   if (excelCliente) {
     attachments.push(typeof excelCliente === 'string'
       ? { filename: path.basename(excelCliente), path: excelCliente }
-      : excelCliente
+      : { filename: excelCliente.nomeArquivo || excelCliente.filename || 'dados-cliente.xlsx', path: excelCliente.arquivo || excelCliente.path }
     );
   }
 
@@ -580,7 +580,7 @@ async function enviarEmailTesteCliente(lead, destinatario, pdfCliente) {
   if (pdfCliente) {
     attachments.push(typeof pdfCliente === 'string'
       ? { filename: path.basename(pdfCliente), path: pdfCliente }
-      : pdfCliente
+      : { filename: pdfCliente.nomeArquivo || pdfCliente.filename || 'resumo-cliente.pdf', path: pdfCliente.arquivo || pdfCliente.path }
     );
   }
 
