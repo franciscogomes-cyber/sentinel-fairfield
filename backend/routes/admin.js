@@ -918,6 +918,297 @@ router.get('/analytics', authMiddleware, adminMiddleware, (req, res, next) => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
+// Central de Envios — Envio em lote + Comparativo iCover
+// ═══════════════════════════════════════════════════════════════════════════
+
+// List quotations ready for bulk send (with email/proposal status per insurer)
+router.get('/central-envios', authMiddleware, adminMiddleware, (req, res, next) => {
+  try {
+    const leads = db.prepare(`
+      SELECT l.id, l.razao_social, l.cnpj, l.tipo, l.setor, l.pipeline_status,
+        l.icover_score, l.created_at,
+        u.name as user_name, u.email as user_email
+      FROM leads l
+      LEFT JOIN users u ON l.user_id = u.id
+      ORDER BY l.created_at DESC
+      LIMIT 100
+    `).all();
+
+    // Enrich each lead with email + proposal status
+    const enriched = leads.map(lead => {
+      const emailLogs = db.prepare(`
+        SELECT el.seguradora_slug, el.status, el.enviado_em, el.respondido_em,
+          sc.nome as seguradora_nome
+        FROM email_log el
+        LEFT JOIN seguradoras_contatos sc ON sc.slug = el.seguradora_slug
+        WHERE el.cotacao_id = ? AND el.tipo = 'envio'
+        ORDER BY el.enviado_em DESC
+      `).all(lead.id);
+
+      const propostas = db.prepare(`
+        SELECT pr.seguradora_slug, pr.valor_premio, pr.taxa, pr.cobertura_max, pr.condicoes,
+          pr.recebida_em, sc.nome as seguradora_nome
+        FROM propostas_recebidas pr
+        LEFT JOIN seguradoras_contatos sc ON sc.slug = pr.seguradora_slug
+        WHERE pr.cotacao_id = ?
+      `).all(lead.id);
+
+      // Excel files
+      const docs = db.prepare("SELECT filename, filepath FROM documents WHERE lead_id = ? AND type IN ('excel', 'ficha_tecnica')").all(lead.id);
+
+      return {
+        ...lead,
+        emailLogs,
+        propostas,
+        excel_files: docs,
+        totalEnviados: emailLogs.filter(e => e.status === 'enviado' || e.status === 'respondido').length,
+        totalRespondidos: emailLogs.filter(e => e.status === 'respondido').length,
+        totalPropostas: propostas.length,
+      };
+    });
+
+    res.json({ sucesso: true, data: enriched });
+  } catch (err) { next(err); }
+});
+
+// Envio em lote — enviar múltiplas cotações para seguradoras de uma vez
+router.post('/central-envios/enviar-lote', authMiddleware, adminMiddleware, async (req, res, next) => {
+  try {
+    const { cotacao_ids, seguradora_slugs, corpo_email, assunto_email } = req.body;
+
+    if (!cotacao_ids || !Array.isArray(cotacao_ids) || cotacao_ids.length === 0) {
+      return res.status(400).json({ sucesso: false, mensagem: 'Selecione ao menos uma cotação' });
+    }
+    if (!seguradora_slugs || !Array.isArray(seguradora_slugs) || seguradora_slugs.length === 0) {
+      return res.status(400).json({ sucesso: false, mensagem: 'Selecione ao menos uma seguradora' });
+    }
+
+    const { enviarEmailSeguradora } = require('../services/emailService');
+    const fs = require('fs');
+    const allResults = [];
+
+    for (const leadId of cotacao_ids) {
+      const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(leadId);
+      if (!lead) {
+        allResults.push({ cotacao_id: leadId, status: 'erro', erro: 'Cotação não encontrada' });
+        continue;
+      }
+
+      // Collect files
+      const docs = db.prepare("SELECT filepath FROM documents WHERE lead_id = ? AND type IN ('excel', 'ficha_tecnica', 'documento')").all(leadId);
+      const arquivos = docs.map(d => d.filepath).filter(Boolean);
+      const arquivosDir = process.env.VERCEL ? path.join('/tmp', 'arquivos') : path.join(__dirname, '..', 'arquivos');
+      const possibleFiles = [`interno-${leadId}.xlsx`, `externo-${leadId}.xlsx`, `interno-cliente-${leadId}.xlsx`, `externo-cliente-${leadId}.xlsx`];
+      for (const f of possibleFiles) {
+        const fullPath = path.join(arquivosDir, f);
+        if (fs.existsSync(fullPath) && !arquivos.includes(fullPath)) arquivos.push(fullPath);
+      }
+
+      for (const slug of seguradora_slugs) {
+        // Check if already sent
+        const alreadySent = db.prepare("SELECT id FROM email_log WHERE cotacao_id = ? AND seguradora_slug = ? AND tipo = 'envio' AND status != 'erro'").get(leadId, slug);
+        if (alreadySent) {
+          allResults.push({ cotacao_id: leadId, slug, status: 'ja_enviado', mensagem: 'Já enviado anteriormente' });
+          continue;
+        }
+
+        const seguradora = db.prepare('SELECT * FROM seguradoras_contatos WHERE slug = ? AND ativo = 1').get(slug);
+        if (!seguradora) {
+          allResults.push({ cotacao_id: leadId, slug, status: 'erro', erro: 'Seguradora inativa' });
+          continue;
+        }
+
+        const contatos = db.prepare('SELECT * FROM seguradora_emails WHERE seguradora_id = ? AND ativo = 1').all(seguradora.id);
+        const emailList = contatos.length > 0 ? contatos.map(c => c.email).filter(Boolean) : (seguradora.email ? [seguradora.email] : []);
+
+        if (emailList.length === 0) {
+          allResults.push({ cotacao_id: leadId, slug, nome: seguradora.nome, status: 'erro', erro: 'Sem email' });
+          continue;
+        }
+
+        const destinatarios = emailList.join(', ');
+
+        try {
+          const info = await enviarEmailSeguradora(lead, seguradora.nome, destinatarios, arquivos, corpo_email, assunto_email);
+          db.prepare(
+            'INSERT INTO email_log (cotacao_id, seguradora_slug, tipo, assunto, destinatario, status, message_id, corpo_customizado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+          ).run(leadId, slug, 'envio', assunto_email || `Cotação Seguro de Crédito — ${lead.razao_social}`, destinatarios, 'enviado', info.messageId || null, corpo_email || null);
+
+          // Follow-up reminder
+          const followUp = new Date();
+          followUp.setDate(followUp.getDate() + 5);
+          db.prepare('INSERT INTO lembretes (cotacao_id, tipo, titulo, descricao, data_lembrete, created_by) VALUES (?, ?, ?, ?, ?, ?)')
+            .run(leadId, 'followup', `Follow-up ${seguradora.nome}`, `Verificar resposta de ${seguradora.nome} para ${lead.razao_social}`, followUp.toISOString(), 'sistema');
+
+          allResults.push({ cotacao_id: leadId, slug, nome: seguradora.nome, status: 'enviado', preview: info._previewUrl || null });
+        } catch (emailErr) {
+          db.prepare('INSERT INTO email_log (cotacao_id, seguradora_slug, tipo, assunto, destinatario, status, erro) VALUES (?, ?, ?, ?, ?, ?, ?)')
+            .run(leadId, slug, 'envio', `Cotação — ${lead.razao_social}`, destinatarios, 'erro', emailErr.message);
+          allResults.push({ cotacao_id: leadId, slug, nome: seguradora.nome, status: 'erro', erro: emailErr.message });
+        }
+      }
+
+      // Update pipeline
+      const currentStatus = lead.pipeline_status || 'formulario_enviado';
+      if (['formulario_enviado', 'analise_previa'].includes(currentStatus)) {
+        db.prepare('UPDATE leads SET pipeline_status = ? WHERE id = ?').run('enviado_seguradoras', leadId);
+        db.prepare('INSERT INTO quotation_events (lead_id, status, note, created_by) VALUES (?, ?, ?, ?)')
+          .run(leadId, 'enviado_seguradoras', `Envio em lote para ${seguradora_slugs.length} seguradora(s)`, req.user.name || req.user.email);
+      }
+    }
+
+    const enviados = allResults.filter(r => r.status === 'enviado').length;
+    const erros = allResults.filter(r => r.status === 'erro').length;
+    const jaEnviados = allResults.filter(r => r.status === 'ja_enviado').length;
+
+    console.log(`[CENTRAL-ENVIOS] Lote: ${enviados} enviados, ${jaEnviados} já enviados, ${erros} erros`);
+
+    res.json({ sucesso: true, data: allResults, resumo: { enviados, erros, jaEnviados } });
+  } catch (err) { next(err); }
+});
+
+// Comparativo inteligente de propostas com iCover AI
+router.get('/cotacoes/:id/comparativo', authMiddleware, adminMiddleware, (req, res, next) => {
+  try {
+    const leadId = req.params.id;
+    const lead = db.prepare('SELECT * FROM leads WHERE id = ?').get(leadId);
+    if (!lead) return res.status(404).json({ sucesso: false, mensagem: 'Cotação não encontrada' });
+
+    const propostas = db.prepare(`
+      SELECT pr.*, sc.nome as seguradora_nome, sc.cor as seguradora_cor
+      FROM propostas_recebidas pr
+      LEFT JOIN seguradoras_contatos sc ON sc.slug = pr.seguradora_slug
+      WHERE pr.cotacao_id = ?
+      ORDER BY pr.taxa ASC
+    `).all(leadId);
+
+    if (propostas.length === 0) {
+      return res.json({ sucesso: true, data: { propostas: [], analise: null } });
+    }
+
+    // iCover analysis if available
+    let icoverAnalysis = null;
+    if (lead.icover_analysis_json) {
+      try { icoverAnalysis = JSON.parse(lead.icover_analysis_json); } catch {}
+    }
+
+    // Build comparative analysis
+    const taxas = propostas.filter(p => p.taxa != null).map(p => p.taxa);
+    const premios = propostas.filter(p => p.valor_premio != null).map(p => p.valor_premio);
+    const coberturas = propostas.filter(p => p.cobertura_max != null).map(p => p.cobertura_max);
+
+    // Score each proposal (0-100)
+    const scored = propostas.map(p => {
+      let score = 0;
+      let fatores = [];
+
+      // Taxa (40% weight) — lower is better
+      if (p.taxa != null && taxas.length > 1) {
+        const minTaxa = Math.min(...taxas);
+        const maxTaxa = Math.max(...taxas);
+        const range = maxTaxa - minTaxa || 1;
+        const taxaScore = Math.round(((maxTaxa - p.taxa) / range) * 40);
+        score += taxaScore;
+        fatores.push({ fator: 'Taxa', peso: '40%', pontos: taxaScore, detalhe: `${p.taxa.toFixed(3)}% (${p.taxa === minTaxa ? 'melhor' : p.taxa === maxTaxa ? 'mais alta' : 'intermediária'})` });
+      } else if (p.taxa != null) {
+        score += 20;
+        fatores.push({ fator: 'Taxa', peso: '40%', pontos: 20, detalhe: `${p.taxa.toFixed(3)}% (única proposta)` });
+      }
+
+      // Prêmio (30% weight) — lower is better
+      if (p.valor_premio != null && premios.length > 1) {
+        const minPremio = Math.min(...premios);
+        const maxPremio = Math.max(...premios);
+        const range = maxPremio - minPremio || 1;
+        const premioScore = Math.round(((maxPremio - p.valor_premio) / range) * 30);
+        score += premioScore;
+        fatores.push({ fator: 'Prêmio', peso: '30%', pontos: premioScore, detalhe: `R$ ${p.valor_premio.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` });
+      } else if (p.valor_premio != null) {
+        score += 15;
+        fatores.push({ fator: 'Prêmio', peso: '30%', pontos: 15, detalhe: `R$ ${p.valor_premio.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` });
+      }
+
+      // Cobertura (20% weight) — higher is better
+      if (p.cobertura_max != null && coberturas.length > 1) {
+        const minCob = Math.min(...coberturas);
+        const maxCob = Math.max(...coberturas);
+        const range = maxCob - minCob || 1;
+        const cobScore = Math.round(((p.cobertura_max - minCob) / range) * 20);
+        score += cobScore;
+        fatores.push({ fator: 'Cobertura', peso: '20%', pontos: cobScore, detalhe: `R$ ${p.cobertura_max.toLocaleString('pt-BR')}` });
+      } else if (p.cobertura_max != null) {
+        score += 10;
+        fatores.push({ fator: 'Cobertura', peso: '20%', pontos: 10, detalhe: `R$ ${p.cobertura_max.toLocaleString('pt-BR')}` });
+      }
+
+      // Condições especiais (10% weight)
+      if (p.condicoes && p.condicoes.trim().length > 0) {
+        score += 5;
+        fatores.push({ fator: 'Condições Especiais', peso: '10%', pontos: 5, detalhe: 'Condições informadas' });
+      }
+
+      // iCover insurer fit bonus
+      let icoverFit = null;
+      if (icoverAnalysis && icoverAnalysis.insurers) {
+        const fit = icoverAnalysis.insurers.find(i => i.logo === p.seguradora_slug || i.name.toLowerCase().includes((p.seguradora_nome || '').toLowerCase().split(' ')[0]));
+        if (fit) {
+          const fitBonus = Math.round((fit.score / 100) * 10);
+          score += fitBonus;
+          icoverFit = { score: fit.score, strengths: fit.strengths, bestFor: fit.bestFor };
+          fatores.push({ fator: 'iCover Fit', peso: 'bônus', pontos: fitBonus, detalhe: `Aderência ${fit.score}%` });
+        }
+      }
+
+      return {
+        ...p,
+        score: Math.min(score, 100),
+        fatores,
+        icoverFit,
+        ranking: 0
+      };
+    });
+
+    // Sort by score desc and assign ranking
+    scored.sort((a, b) => b.score - a.score);
+    scored.forEach((p, i) => { p.ranking = i + 1; });
+
+    // Generate recommendation text
+    const best = scored[0];
+    const iCoverRate = icoverAnalysis?.pricing?.adjustedRatePct;
+    const iCoverPremium = icoverAnalysis?.premium?.estimatedFormatted;
+
+    let recomendacao = `A melhor proposta custo-benefício é da ${best.seguradora_nome || best.seguradora_slug} com score ${best.score}/100.`;
+    if (best.taxa != null) recomendacao += ` Taxa: ${best.taxa.toFixed(3)}%.`;
+    if (best.valor_premio != null) recomendacao += ` Prêmio: R$ ${best.valor_premio.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}.`;
+    if (iCoverRate) recomendacao += ` O iCover estimava taxa de ${iCoverRate} — ${best.taxa != null && parseFloat(iCoverRate) > best.taxa ? 'proposta abaixo da estimativa (favorável)' : 'proposta alinhada com a estimativa'}.`;
+
+    res.json({
+      sucesso: true,
+      data: {
+        propostas: scored,
+        recomendacao,
+        icoverRef: icoverAnalysis ? {
+          score: lead.icover_score,
+          riskClass: icoverAnalysis.riskClass,
+          riskLabel: icoverAnalysis.riskLabel,
+          taxaEstimada: iCoverRate,
+          premioEstimado: iCoverPremium,
+          estrutura: icoverAnalysis.coverage?.structureLabel,
+        } : null,
+        estatisticas: {
+          menorTaxa: taxas.length > 0 ? Math.min(...taxas) : null,
+          maiorTaxa: taxas.length > 0 ? Math.max(...taxas) : null,
+          mediaTaxa: taxas.length > 0 ? (taxas.reduce((a, b) => a + b, 0) / taxas.length) : null,
+          menorPremio: premios.length > 0 ? Math.min(...premios) : null,
+          maiorPremio: premios.length > 0 ? Math.max(...premios) : null,
+          totalPropostas: propostas.length,
+        }
+      }
+    });
+  } catch (err) { next(err); }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
 // Quotation detail for admin (enhanced)
 // ═══════════════════════════════════════════════════════════════════════════
 

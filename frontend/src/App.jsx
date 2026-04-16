@@ -19,6 +19,7 @@ import Profile from './pages/Profile'
 import SeguradorasManager from './pages/SeguradorasManager'
 import AdminQuotationDetail from './pages/AdminQuotationDetail'
 import LembretesPage from './pages/LembretesPage'
+import CentralEnvios from './pages/CentralEnvios'
 
 const B = import.meta.env.BASE_URL
 
@@ -73,6 +74,13 @@ function UserDropdown() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                   Seguradoras
+                </button>
+                <button onClick={() => { setOpen(false); navigate('/admin/central-envios') }}
+                  className="w-full text-left px-4 py-2.5 text-sm text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center gap-2.5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Central de Envios
                 </button>
                 <button onClick={() => { setOpen(false); navigate('/admin/lembretes') }}
                   className="w-full text-left px-4 py-2.5 text-sm text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center gap-2.5">
@@ -196,6 +204,9 @@ function AppContent() {
                   <NavLink to="/admin/seguradoras" className={({ isActive }) =>
                     `hidden md:inline-flex px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${isActive ? 'bg-sentinel/15 text-sentinel border border-sentinel/25' : 'text-white/40 hover:text-white hover:bg-white/5'}`
                   }>Seguradoras</NavLink>
+                  <NavLink to="/admin/central-envios" className={({ isActive }) =>
+                    `hidden md:inline-flex px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${isActive ? 'bg-sentinel/15 text-sentinel border border-sentinel/25' : 'text-white/40 hover:text-white hover:bg-white/5'}`
+                  }>Envios</NavLink>
                   <NavLink to="/sla" className={({ isActive }) =>
                     `hidden md:inline-flex px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${isActive ? 'bg-sentinel/15 text-sentinel border border-sentinel/25' : 'text-white/40 hover:text-white hover:bg-white/5'}`
                   }>SLA</NavLink>
@@ -239,6 +250,7 @@ function AppContent() {
             <Route path="/admin/seguradoras" element={<AdminRoute><SeguradorasManager /></AdminRoute>} />
             <Route path="/admin/cotacoes/:id" element={<AdminRoute><AdminQuotationDetail /></AdminRoute>} />
             <Route path="/admin/lembretes" element={<AdminRoute><LembretesPage /></AdminRoute>} />
+            <Route path="/admin/central-envios" element={<AdminRoute><CentralEnvios /></AdminRoute>} />
             <Route path="/meu-painel" element={
               <ProtectedRoute><ClientDashboard /></ProtectedRoute>
             } />
