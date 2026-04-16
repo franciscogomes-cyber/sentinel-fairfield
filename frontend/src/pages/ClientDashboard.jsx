@@ -74,7 +74,7 @@ export default function ClientDashboard() {
     async function fetchQuotations() {
       try {
         const data = await authFetch('/api/client/quotations')
-        setQuotations(data.quotations || [])
+        setQuotations(data.data || data.quotations || [])
       } catch {
         // If API not available yet, use empty array
         setQuotations([])
@@ -87,8 +87,8 @@ export default function ClientDashboard() {
 
   const stats = {
     total: quotations.length,
-    emAndamento: quotations.filter(q => !['apolice_emitida'].includes(q.status)).length,
-    concluidas: quotations.filter(q => q.status === 'apolice_emitida').length,
+    emAndamento: quotations.filter(q => !['apolice_emitida'].includes(q.pipeline_status || q.status)).length,
+    concluidas: quotations.filter(q => (q.pipeline_status || q.status) === 'apolice_emitida').length,
     scoreMedio: quotations.length
       ? Math.round(quotations.reduce((sum, q) => sum + (q.icover_score || 0), 0) / quotations.length)
       : 0
@@ -190,7 +190,7 @@ export default function ClientDashboard() {
 
               {/* Status */}
               <div className="mb-4">
-                <StatusBadge stageKey={q.status || 'formulario_enviado'} />
+                <StatusBadge stageKey={q.pipeline_status || q.status || 'formulario_enviado'} />
               </div>
 
               {/* Action */}
