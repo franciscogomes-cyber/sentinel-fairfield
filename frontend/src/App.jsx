@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
-import { HashRouter, Routes, Route, NavLink, useSearchParams, useLocation, useNavigate, Link } from 'react-router-dom'
+import { HashRouter, Routes, Route, NavLink, useLocation, useNavigate, Link } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
+import AdminRoute from './components/AdminRoute'
 import Home, { MiniShield } from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -15,6 +16,9 @@ import ICoverChat from './pages/ICoverChat'
 import ClientDashboard from './pages/ClientDashboard'
 import QuotationDetail from './pages/QuotationDetail'
 import Profile from './pages/Profile'
+import SeguradorasManager from './pages/SeguradorasManager'
+import AdminQuotationDetail from './pages/AdminQuotationDetail'
+import LembretesPage from './pages/LembretesPage'
 
 const B = import.meta.env.BASE_URL
 
@@ -54,20 +58,48 @@ function UserDropdown() {
             <p className="text-[10px] text-white/30 truncate">{user.email}</p>
           </div>
           <div className="py-1">
-            <button onClick={() => { setOpen(false); navigate('/meu-painel') }}
-              className="w-full text-left px-4 py-2.5 text-sm text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center gap-2.5">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-              </svg>
-              Meu Painel
-            </button>
-            <button onClick={() => { setOpen(false); navigate('/perfil') }}
-              className="w-full text-left px-4 py-2.5 text-sm text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center gap-2.5">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              Meu Perfil
-            </button>
+            {user?.role === 'admin' ? (
+              <>
+                <button onClick={() => { setOpen(false); navigate('/dashboard') }}
+                  className="w-full text-left px-4 py-2.5 text-sm text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center gap-2.5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                  Painel Admin
+                </button>
+                <button onClick={() => { setOpen(false); navigate('/admin/seguradoras') }}
+                  className="w-full text-left px-4 py-2.5 text-sm text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center gap-2.5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  Seguradoras
+                </button>
+                <button onClick={() => { setOpen(false); navigate('/admin/lembretes') }}
+                  className="w-full text-left px-4 py-2.5 text-sm text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center gap-2.5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  Lembretes
+                </button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => { setOpen(false); navigate('/meu-painel') }}
+                  className="w-full text-left px-4 py-2.5 text-sm text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center gap-2.5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                  Meu Painel
+                </button>
+                <button onClick={() => { setOpen(false); navigate('/perfil') }}
+                  className="w-full text-left px-4 py-2.5 text-sm text-white/60 hover:text-white hover:bg-white/[0.04] transition-colors flex items-center gap-2.5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  Meu Perfil
+                </button>
+              </>
+            )}
             <div className="border-t border-white/[0.06] my-1" />
             <button onClick={() => { setOpen(false); logout() }}
               className="w-full text-left px-4 py-2.5 text-sm text-rose-400/70 hover:text-rose-400 hover:bg-rose-400/5 transition-colors flex items-center gap-2.5">
@@ -84,10 +116,9 @@ function UserDropdown() {
 }
 
 function AppContent() {
-  const [searchParams] = useSearchParams()
   const location = useLocation()
   const { user, isAuthenticated, ndaAccepted, logout } = useAuth()
-  const isAdmin = searchParams.get('admin') === '1'
+  const isAdmin = user?.role === 'admin'
   const isHome = location.pathname === '/'
   const isIntake = location.pathname.startsWith('/cotacao')
   const isICover = location.pathname === '/icover'
@@ -159,17 +190,20 @@ function AppContent() {
 
               {isAdmin && (
                 <>
-                  <NavLink to="/dashboard?admin=1" className={({ isActive }) =>
+                  <NavLink to="/dashboard" className={({ isActive }) =>
                     `px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${isActive ? 'bg-sentinel/15 text-sentinel border border-sentinel/25' : 'text-white/40 hover:text-white hover:bg-white/5'}`
                   }>Dashboard</NavLink>
-                  <NavLink to="/sla?admin=1" className={({ isActive }) =>
-                    `px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${isActive ? 'bg-sentinel/15 text-sentinel border border-sentinel/25' : 'text-white/40 hover:text-white hover:bg-white/5'}`
+                  <NavLink to="/admin/seguradoras" className={({ isActive }) =>
+                    `hidden md:inline-flex px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${isActive ? 'bg-sentinel/15 text-sentinel border border-sentinel/25' : 'text-white/40 hover:text-white hover:bg-white/5'}`
+                  }>Seguradoras</NavLink>
+                  <NavLink to="/sla" className={({ isActive }) =>
+                    `hidden md:inline-flex px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-all ${isActive ? 'bg-sentinel/15 text-sentinel border border-sentinel/25' : 'text-white/40 hover:text-white hover:bg-white/5'}`
                   }>SLA</NavLink>
                 </>
               )}
 
-              {/* User dropdown (replaces old inline user display) */}
-              {isAuthenticated && !isAdmin && <UserDropdown />}
+              {/* User dropdown */}
+              {isAuthenticated && <UserDropdown />}
 
               {/* Login link when not authenticated */}
               {!isAuthenticated && !isAdmin && (
@@ -200,8 +234,11 @@ function AppContent() {
             <Route path="/icover" element={<ICoverChat />} />
             <Route path="/cotacao/interno" element={<IntakeInterno />} />
             <Route path="/cotacao/externo" element={<IntakeExterno />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/sla" element={<SLA />} />
+            <Route path="/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
+            <Route path="/sla" element={<AdminRoute><SLA /></AdminRoute>} />
+            <Route path="/admin/seguradoras" element={<AdminRoute><SeguradorasManager /></AdminRoute>} />
+            <Route path="/admin/cotacoes/:id" element={<AdminRoute><AdminQuotationDetail /></AdminRoute>} />
+            <Route path="/admin/lembretes" element={<AdminRoute><LembretesPage /></AdminRoute>} />
             <Route path="/meu-painel" element={
               <ProtectedRoute><ClientDashboard /></ProtectedRoute>
             } />

@@ -29,7 +29,8 @@ router.get('/dashboard', (req, res, next) => {
       ORDER BY l.created_at DESC
     `).all(...params);
 
-    const seguradoras = ['AIG', 'Atradius', 'Coface', 'Euler Hermes', 'AVLA', 'CESCE'];
+    const { SEGURADORAS_NOMES } = require('../constants/seguradoras');
+    const seguradoras = SEGURADORAS_NOMES;
     const slaPorSeguradora = seguradoras.map(seg => {
       const stats = db.prepare(`
         SELECT

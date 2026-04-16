@@ -232,6 +232,85 @@ db.exec(`
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE
   );
+
+  CREATE TABLE IF NOT EXISTS seguradoras_contatos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    slug TEXT NOT NULL UNIQUE,
+    email TEXT,
+    telefone TEXT,
+    contato_nome TEXT,
+    cor TEXT,
+    ativo INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS lembretes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cotacao_id INTEGER,
+    tipo TEXT NOT NULL DEFAULT 'manual',
+    titulo TEXT NOT NULL,
+    descricao TEXT,
+    data_lembrete DATETIME NOT NULL,
+    status TEXT DEFAULT 'pendente',
+    created_by TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (cotacao_id) REFERENCES leads(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS propostas_recebidas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cotacao_id INTEGER NOT NULL,
+    seguradora_slug TEXT NOT NULL,
+    valor_premio REAL,
+    taxa REAL,
+    cobertura_max REAL,
+    condicoes TEXT,
+    arquivo_path TEXT,
+    recebida_em DATETIME DEFAULT CURRENT_TIMESTAMP,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (cotacao_id) REFERENCES leads(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS email_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cotacao_id INTEGER NOT NULL,
+    seguradora_slug TEXT NOT NULL,
+    tipo TEXT NOT NULL DEFAULT 'envio',
+    assunto TEXT,
+    destinatario TEXT,
+    status TEXT DEFAULT 'enviado',
+    erro TEXT,
+    enviado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
+    respondido_em DATETIME,
+    message_id TEXT,
+    corpo_customizado TEXT,
+    FOREIGN KEY (cotacao_id) REFERENCES leads(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS seguradora_emails (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    seguradora_id INTEGER NOT NULL,
+    email TEXT NOT NULL,
+    nome_contato TEXT,
+    cargo TEXT,
+    ativo INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (seguradora_id) REFERENCES seguradoras_contatos(id) ON DELETE CASCADE
+  );
+
+  CREATE TABLE IF NOT EXISTS email_templates (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    assunto TEXT NOT NULL,
+    corpo TEXT NOT NULL,
+    tipo TEXT DEFAULT 'cotacao',
+    ativo INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
 `);
 
 // Add new columns to leads table (safe — ignores if already exist)
@@ -245,11 +324,59 @@ for (const sql of alterColumns) {
   try { db.exec(sql); } catch (e) { /* column already exists */ }
 }
 
+// Add corpo_customizado to email_log if not exists
+try { db.exec('ALTER TABLE email_log ADD COLUMN corpo_customizado TEXT'); } catch (e) { /* already exists */ }
+
+// Migrate existing seguradoras emails to seguradora_emails table
+const existingSegEmails = db.prepare('SELECT COUNT(*) as count FROM seguradora_emails').get().count;
+if (existingSegEmails === 0) {
+  const segsWithEmail = db.prepare("SELECT id, email, contato_nome FROM seguradoras_contatos WHERE email IS NOT NULL AND email != ''").all();
+  const insertSegEmail = db.prepare('INSERT INTO seguradora_emails (seguradora_id, email, nome_contato) VALUES (?, ?, ?)');
+  for (const s of segsWithEmail) {
+    if (s.email.trim()) insertSegEmail.run(s.id, s.email.trim(), s.contato_nome || null);
+  }
+}
+
+// Seed default email template
+const existingTemplates = db.prepare('SELECT COUNT(*) as count FROM email_templates').get().count;
+if (existingTemplates === 0) {
+  db.prepare(`INSERT INTO email_templates (nome, assunto, corpo, tipo) VALUES (?, ?, ?, ?)`).run(
+    'Solicitação de Cotação Padrão',
+    'Cotação Seguro de Crédito — {{empresa}} ({{modalidade}})',
+    `Prezados,
+
+Encaminhamos em anexo a ficha técnica para cotação de Seguro de Crédito da empresa {{empresa}}.
+
+Empresa: {{empresa}}
+CNPJ: {{cnpj}}
+Modalidade: {{modalidade}}
+Setor: {{setor}}
+
+Solicitamos a gentileza de analisar e retornar com a proposta no menor prazo possível.
+
+Atenciosamente,
+Fairfield Corretora de Seguros`,
+    'cotacao'
+  );
+  console.log('[DB] Template de email padrão criado');
+}
+
 // Limpa códigos expirados na inicialização
 db.prepare("DELETE FROM verification_codes WHERE expires_at < datetime('now')").run();
 
 // Limpa sessões expiradas
 try { db.prepare("DELETE FROM sessions WHERE expires_at < datetime('now')").run(); } catch (e) {}
+
+// Seed seguradoras_contatos from centralized list
+const { SEGURADORAS } = require('./constants/seguradoras');
+const existingSeguradoras = db.prepare('SELECT COUNT(*) as count FROM seguradoras_contatos').get().count;
+if (existingSeguradoras === 0) {
+  const insertSeg = db.prepare('INSERT INTO seguradoras_contatos (nome, slug, email, telefone, contato_nome, cor) VALUES (?, ?, ?, ?, ?, ?)');
+  for (const s of SEGURADORAS) {
+    insertSeg.run(s.nome, s.slug, s.email_padrao || '', '', s.contato_padrao || '', s.cor || '');
+  }
+  console.log(`[DB] ${SEGURADORAS.length} seguradoras seed criadas`);
+}
 
 // Cria usuário admin padrão se não existir
 const bcrypt = require('bcryptjs');

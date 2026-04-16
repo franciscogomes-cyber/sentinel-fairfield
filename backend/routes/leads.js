@@ -130,7 +130,8 @@ router.post('/', optionalAuth, async (req, res, next) => {
       );
     }
 
-    const todasSeguradoras = ['AIG', 'Atradius', 'Coface', 'Euler Hermes', 'AVLA', 'CESCE'];
+    const { SEGURADORAS_NOMES } = require('../constants/seguradoras');
+    const todasSeguradoras = SEGURADORAS_NOMES;
     const segList = (!seguradoras || seguradoras.length === 0 || seguradoras.includes('Sem preferência'))
       ? todasSeguradoras : seguradoras;
 

@@ -57,7 +57,7 @@ export default function Login({ onComplete }) {
       } else {
         const loggedUser = result?.data?.user || result?.user
         if (loggedUser?.role === 'admin') {
-          navigate('/dashboard?admin=1')
+          navigate('/dashboard')
         } else {
           navigate('/meu-painel')
         }

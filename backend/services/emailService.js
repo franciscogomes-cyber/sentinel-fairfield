@@ -608,10 +608,117 @@ async function enviarEmailTesteCliente(lead, destinatario, pdfCliente) {
   return info;
 }
 
+// ─── Email para Seguradora (envio de cotação) ──────────────────────────────
+
+async function enviarEmailSeguradora(lead, seguradoraNome, destinatario, arquivos = [], corpoCustomizado = null, assuntoCustomizado = null) {
+  const transporter = await criarTransporter();
+  const smtpFrom = process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@fairfield.com.br';
+  const tipo = formatarTipo(lead.tipo);
+
+  const attachments = arquivos.map(arq => {
+    const filePath = arq.arquivo || arq.path || arq;
+    return { filename: path.basename(filePath), path: filePath };
+  });
+
+  // Build content — use custom body if provided, otherwise default template
+  let content;
+  if (corpoCustomizado) {
+    // Replace template variables and convert newlines to HTML
+    const processedBody = corpoCustomizado
+      .replace(/\{\{empresa\}\}/g, lead.razao_social || 'N/A')
+      .replace(/\{\{cnpj\}\}/g, lead.cnpj || 'N/A')
+      .replace(/\{\{modalidade\}\}/g, tipo)
+      .replace(/\{\{setor\}\}/g, lead.setor || 'N/A')
+      .replace(/\{\{seguradora\}\}/g, seguradoraNome)
+      .replace(/\n/g, '<br>');
+
+    content = `
+<div style="font-size:14px;color:#374151;line-height:1.7;">
+  ${processedBody}
+</div>
+`;
+  } else {
+    content = `
+<p style="margin:0 0 16px;font-size:15px;color:#374151;line-height:1.6;">
+  Prezados,
+</p>
+<p style="margin:0 0 28px;font-size:14px;color:#6B7280;line-height:1.7;">
+  Encaminhamos em anexo a ficha técnica para cotação de <strong>Seguro de Crédito</strong>
+  da empresa <strong style="color:#0A1628;">${lead.razao_social || 'N/A'}</strong>.
+</p>
+
+<div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:10px;padding:20px 24px;margin-bottom:20px;">
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td style="padding:6px 0;font-size:12px;color:#6B7280;width:40%;">Empresa</td>
+      <td style="padding:6px 0;font-size:13px;color:#111827;font-weight:700;">${lead.razao_social || 'N/A'}</td>
+    </tr>
+    <tr>
+      <td style="padding:6px 0;font-size:12px;color:#6B7280;">CNPJ</td>
+      <td style="padding:6px 0;font-size:13px;color:#111827;">${lead.cnpj || 'N/A'}</td>
+    </tr>
+    <tr>
+      <td style="padding:6px 0;font-size:12px;color:#6B7280;">Modalidade</td>
+      <td style="padding:6px 0;font-size:13px;color:#111827;">${tipo}</td>
+    </tr>
+    <tr>
+      <td style="padding:6px 0;font-size:12px;color:#6B7280;">Setor</td>
+      <td style="padding:6px 0;font-size:13px;color:#111827;">${lead.setor || 'N/A'}</td>
+    </tr>
+  </table>
+</div>
+
+<p style="margin:0 0 8px;font-size:14px;color:#6B7280;line-height:1.7;">
+  Solicitamos a gentileza de analisar e retornar com a proposta no menor prazo possível.
+</p>
+<p style="margin:0;font-size:14px;color:#6B7280;line-height:1.7;">
+  Atenciosamente,<br>
+  <strong style="color:#0A1628;">Fairfield Corretora de Seguros</strong>
+</p>
+`;
+  }
+
+  // Process custom subject or use default
+  const subject = assuntoCustomizado
+    ? assuntoCustomizado
+        .replace(/\{\{empresa\}\}/g, lead.razao_social || 'N/A')
+        .replace(/\{\{modalidade\}\}/g, tipo)
+        .replace(/\{\{cnpj\}\}/g, lead.cnpj || 'N/A')
+        .replace(/\{\{seguradora\}\}/g, seguradoraNome)
+    : `Cotação Seguro de Crédito — ${lead.razao_social} (${tipo})`;
+
+  const html = buildSentinelEmail({
+    title: subject,
+    titleText: `Solicitação de Cotação — ${tipo}`,
+    subtitle: `${lead.razao_social} · CNPJ: ${lead.cnpj || 'N/A'}`,
+    content
+  });
+
+  const info = await transporter.sendMail({
+    from: `"Fairfield Corretora de Seguros" <${smtpFrom}>`,
+    to: destinatario,
+    subject,
+    html,
+    attachments
+  });
+
+  if (transporter._ethereal) {
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    console.log(`[EMAIL] Preview (seguradora ${seguradoraNome}):`, previewUrl);
+    info._previewUrl = previewUrl;
+  } else {
+    console.log(`[EMAIL] Cotação enviada para ${seguradoraNome} <${destinatario}>`);
+  }
+
+  return info;
+}
+
 module.exports = {
   criarTransporter,
   enviarCodigoVerificacao,
   enviarNotificacaoBroker,
   enviarEmailCliente,
-  enviarEmailTesteCliente
+  enviarEmailTesteCliente,
+  enviarEmailSeguradora,
+  buildSentinelEmail
 };

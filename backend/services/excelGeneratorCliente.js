@@ -175,7 +175,8 @@ function gerarSheet1(workbook, lead) {
   // ── Seguradoras Consultadas
   addSecao(ws, 'SEGURADORAS CONSULTADAS', GREEN, C);
   addTabelaHeader(ws, ['Seguradora', 'Status', '', '', '', ''], GREEN);
-  const seguradoras = ['AIG', 'Atradius', 'Coface', 'Euler Hermes', 'AVLA', 'CESCE'];
+  const { SEGURADORAS_NOMES } = require('../constants/seguradoras');
+  const seguradoras = SEGURADORAS_NOMES;
   seguradoras.forEach((seg, i) => {
     const r = addTabelaLinha(ws, [seg, 'Em Análise ✓', '', '', '', ''], i % 2 === 1);
     r.getCell(2).font = { size: 10, color: { argb: GREEN }, bold: true };
