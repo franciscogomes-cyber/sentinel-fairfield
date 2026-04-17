@@ -146,7 +146,8 @@ function AppContent() {
 
   const needsAuth = isIntake && !user
   const needsNda = isIntake && user && !ndaAccepted
-  const isLightBg = isIntake || needsNda
+  // Only apply light theme when actually showing the intake form, not the auth gate
+  const isLightBg = isIntake && !needsAuth
 
   // iCover is standalone
   if (isICover) {
