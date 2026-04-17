@@ -20,6 +20,8 @@ import SeguradorasManager from './pages/SeguradorasManager'
 import AdminQuotationDetail from './pages/AdminQuotationDetail'
 import LembretesPage from './pages/LembretesPage'
 import CentralEnvios from './pages/CentralEnvios'
+import TermosUso from './pages/TermosUso'
+import PoliticaPrivacidade from './pages/PoliticaPrivacidade'
 
 const B = import.meta.env.BASE_URL
 
@@ -242,6 +244,8 @@ function AppContent() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/termos-de-uso" element={<TermosUso />} />
+            <Route path="/politica-de-privacidade" element={<PoliticaPrivacidade />} />
             <Route path="/icover" element={<ICoverChat />} />
             <Route path="/cotacao/interno" element={<IntakeInterno />} />
             <Route path="/cotacao/externo" element={<IntakeExterno />} />

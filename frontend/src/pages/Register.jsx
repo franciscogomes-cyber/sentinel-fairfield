@@ -180,7 +180,14 @@ export default function Register() {
               <input type="checkbox" checked={form.termos} onChange={e => u('termos', e.target.checked)}
                 className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/5 text-sentinel focus:ring-sentinel/40 accent-sentinel" />
               <span className="text-sm text-white/50 group-hover:text-white/70 transition-colors">
-                Li e aceito os <span className="text-sentinel underline">termos de uso</span> e a <span className="text-sentinel underline">politica de privacidade</span>
+                Li e aceito os{' '}
+                <Link to="/termos-de-uso" target="_blank" rel="noopener noreferrer"
+                  onClick={e => e.stopPropagation()}
+                  className="text-sentinel underline hover:text-sentinel/80 transition-colors">termos de uso</Link>
+                {' '}e a{' '}
+                <Link to="/politica-de-privacidade" target="_blank" rel="noopener noreferrer"
+                  onClick={e => e.stopPropagation()}
+                  className="text-sentinel underline hover:text-sentinel/80 transition-colors">politica de privacidade</Link>
               </span>
             </label>
             {errors.termos && <p className="error-msg">{errors.termos}</p>}
